@@ -137,6 +137,9 @@ services:
       # Set COOKIE_DOMAIN only to override the parent domain derived from
       # APP_URL (multi-label TLDs, deep subdomains).
       - COOKIE_DOMAIN=${COOKIE_DOMAIN:-}
+      - PASSKEY_RP_ID=${PASSKEY_RP_ID:-}
+      - PASSKEY_RP_NAME=${PASSKEY_RP_NAME:-}
+      - EMAIL_FROM=${EMAIL_FROM:-}
       # Where the client IP for the rate limit is read; empty reads X-Forwarded-For.
       - CLIENT_IP_HEADER=${CLIENT_IP_HEADER:-}
       - TRUSTED_PROXIES=${TRUSTED_PROXIES:-}
@@ -191,6 +194,7 @@ services:
       TELEMETRY_DEBUG: ${TELEMETRY_DEBUG:-}
       # The same list the api reads. This process delivers webhooks to those hosts.
       SSRF_ALLOWED_HOSTS: ${SSRF_ALLOWED_HOSTS:-}
+      EMAIL_FROM: ${EMAIL_FROM:-}
       # The same values the api reads. This process signs and sends the push messages.
       WEB_PUSH_VAPID_PUBLIC_KEY: ${WEB_PUSH_VAPID_PUBLIC_KEY:-}
       WEB_PUSH_VAPID_PRIVATE_KEY: ${WEB_PUSH_VAPID_PRIVATE_KEY:-}

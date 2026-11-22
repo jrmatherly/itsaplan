@@ -53,6 +53,12 @@ api:
     # secrets.webPushVapidPrivateKey too; `bun run web-push:keys` prints a key pair.
     # WEB_PUSH_VAPID_PUBLIC_KEY: ""
     # WEB_PUSH_SUBJECT: "mailto:admin@example.com"
+    # Passkey relying-party ID; unset uses the first APP_URL host. Set it only when several
+    # APP_URL hosts share passkeys: a change makes the registered passkeys unusable.
+    # PASSKEY_RP_ID: ""
+    # PASSKEY_RP_NAME: "It's a Plan"
+    # From address when god mode sets none, read by the api and the worker. Resend needs one.
+    # EMAIL_FROM: "It's a Plan <notifications@example.com>"
     S3_BUCKET: ""
     S3_REGION: "us-east-1"
     S3_FORCE_PATH_STYLE: "true"

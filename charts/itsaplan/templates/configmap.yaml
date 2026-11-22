@@ -14,6 +14,15 @@ data:
   {{- with .Values.api.env.COOKIE_DOMAIN }}
   COOKIE_DOMAIN: {{ . | quote }}
   {{- end }}
+  {{- with .Values.api.env.PASSKEY_RP_ID }}
+  PASSKEY_RP_ID: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.api.env.PASSKEY_RP_NAME }}
+  PASSKEY_RP_NAME: {{ . | quote }}
+  {{- end }}
+  {{- with .Values.api.env.EMAIL_FROM }}
+  EMAIL_FROM: {{ . | quote }}
+  {{- end }}
   {{- with .Values.api.env.CLIENT_IP_HEADER }}
   CLIENT_IP_HEADER: {{ . | quote }}
   {{- end }}

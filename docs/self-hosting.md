@@ -147,6 +147,7 @@ once on the replica that saved it and within a minute on the others.
 
 The instance sends password resets, address confirmations, sign-in links and invites through
 the mail provider set in god mode under **Integrations → Email provider**: SMTP or Resend.
+When god mode has no From address, the api and the worker send from `EMAIL_FROM` in `.env`.
 
 A Microsoft 365 mailbox refuses a password over SMTP once it has MFA. Set **Authentication**
 to **Microsoft 365 (OAuth)** instead: the instance signs in as an Entra ID app registration
@@ -334,6 +335,11 @@ the volume before it costs one command:
 ```bash
 docker run --rm -v itsaplan_minio-data:/data -v "$PWD":/out alpine tar czf /out/minio-data.tgz -C /data .
 ```
+
+Before this release the compose files passed neither `PASSKEY_RP_ID` nor `EMAIL_FROM`, so a
+value in `.env` had no effect. From this release it does. Before you update, check that
+`PASSKEY_RP_ID` equals the host of the first `APP_URL`, or remove the line: another value makes
+the registered passkeys unusable. Check that `EMAIL_FROM` is the sender you want.
 
 If you call the API from your own scripts or from an MCP client, read the
 [release notes](https://github.com/jrmatherly/itsaplan/releases) for the paths a release removed.
