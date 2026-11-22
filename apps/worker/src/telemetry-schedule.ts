@@ -30,3 +30,11 @@ export function shouldSend(d: SendDecision): boolean {
   if (d.lastSentDay === null) return true;
   return d.minuteOfDay >= d.sendMinute;
 }
+
+// Off unless the operator sets TELEMETRY_DISABLED=0: the collector is run by the upstream
+// project, so an instance of this fork reports to it only on request. DO_NOT_TRACK with
+// any value but '' and '0' still wins.
+export function telemetryEnabled(env: Record<string, string | undefined>): boolean {
+  const doNotTrack = env.DO_NOT_TRACK;
+  return env.TELEMETRY_DISABLED === '0' && (!doNotTrack || doNotTrack === '0');
+}

@@ -4,8 +4,7 @@ A self-hosted instance sends one snapshot of itself a day. It tells the project 
 versions are still running, which features get used, and where deliveries fail on
 machines nobody reports from.
 
-The worker sends it unless told not to. The compose files and the Helm chart in this
-repository set `TELEMETRY_DISABLED=1`, so a deployment made from them sends nothing.
+Telemetry is off by default. The worker sends nothing unless `TELEMETRY_DISABLED=0` is set.
 Everything it sends when it is on is listed below.
 
 ## When it is sent
@@ -20,17 +19,15 @@ The worker logs each failure and carries on with its other work.
 
 ## Turning it on or off
 
-With the compose files, set `TELEMETRY_DISABLED=0` in `.env` to turn it on. Where the worker
-runs without them, such as `bun run dev`, it is on unless you set either variable in `.env`:
+Set this in `.env` to turn it on:
 
 ```bash
-TELEMETRY_DISABLED=1
-# or the cross-tool convention, read the same way:
-DO_NOT_TRACK=1
+TELEMETRY_DISABLED=0
 ```
 
-Any value except `0` (and an empty one) turns telemetry off. Nothing is sent after
-that, and no instance id is generated.
+Unset, empty or any other value keeps it off, and no instance id is generated.
+`DO_NOT_TRACK` set to any value but `0` keeps it off even then. With the Helm chart, set
+`api.env.TELEMETRY_DISABLED` and `worker.env.DO_NOT_TRACK` to `"0"`.
 
 ## Seeing what is sent
 
