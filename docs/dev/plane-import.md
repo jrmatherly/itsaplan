@@ -73,6 +73,13 @@ already had via `runLink`:
   `parent_id IS NULL` guard makes a retry a no-op and never overwrites a parent Create
   already set correctly. Both skip a parent that would put the issue under one of its own
   sub-issues or past `MAX_SUBTASK_DEPTH`.
+- **Cycles.** Plane's work-item response carries no cycle, so Create imports every Plane issue
+  without one. Before its issue loop, `runLink` reads one page of one imported cycle's work
+  items per tick (`listCycleIssues`) and calls `setIssueCycleIfUnset` (`import-store.ts`) for
+  each imported issue on it. The job cursor holds the stage: `afterCycleId` (the last cycle
+  record finished), `cyclePage` (the next page) and `cyclesDone`. Like Create, it writes no
+  `issue_cycle` row. A source whose issue carries its cycle has no `listCycleIssues` and skips
+  the stage.
 - **Cross-references in text.** A new `rewrite` phase runs between Link and Attachments.
   `import_record.source_display_id` carries Plane's own `sequence_id` for every imported
   issue (stashed at Create time, from `CanonicalIssue.sequenceId`); the job's `config.

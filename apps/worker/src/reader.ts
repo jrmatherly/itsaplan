@@ -76,6 +76,8 @@ export interface SourceReader {
   listInitiatives?(): Promise<CanonicalInitiative[]>;
   listIssues(cursor: string | null): Promise<Page<CanonicalIssue>>;
   getIssue(sourceId: string): Promise<CanonicalIssue>;
+  // For a source whose issue response does not carry its cycle: one page of a cycle's issue ids.
+  listCycleIssues?(cycleSourceId: string, cursor: string | null): Promise<Page<string>>;
   listIssueRelations(issueSourceId: string): Promise<CanonicalRelation[]>;
   listIssueComments(issueSourceId: string): Promise<CanonicalComment[]>;
   listIssueAttachments(issueSourceId: string): Promise<CanonicalAttachment[]>;

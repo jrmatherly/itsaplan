@@ -330,9 +330,10 @@ FORMULA`.
 - **A work item's response has no cycle.** Plane's list and detail views compute `cycle_id`, and
   `IssueSerializer` does not declare it, so the response drops it (read in Plane's source at
   1.3.0, 1.3.1, 1.5.0 and `preview`; not checked against a live response). The adapter reads each
-  imported cycle's `cycles/<id>/cycle-issues/` list, 100 per page, once per reader, and
-  `getIssue` takes the cycle from that. A reader is built per tick, so each Create and Link tick
-  repeats those requests: one for `cycles/` and one per 100 work items of each cycle.
+  imported cycle's `cycles/<id>/cycle-issues/` list (`listCycleIssues`), 100 work items per
+  page. The Link phase reads one page per tick before its issue loop and sets the cycle of each
+  imported issue on the page that has none. That costs one request per page of each cycle, once
+  per import. A 404 on that list ends that cycle's stage with no cycle set.
 - **The `cycles/` list leaves out archived cycles** (`archived_at__isnull=True` in Plane's view),
   so an archived cycle and the cycle of its work items are not imported.
 

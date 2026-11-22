@@ -1206,6 +1206,15 @@ export async function setIssueParentIfUnset(
   });
 }
 
+// Link sets the cycle of a source whose issue response does not carry it. Like Create,
+// it writes no issue_cycle row; the guard keeps a cycle the issue already has.
+export async function setIssueCycleIfUnset(issueId: number, cycleId: number): Promise<void> {
+  await db
+    .update(issue)
+    .set({ cycleId })
+    .where(and(eq(issue.id, issueId), isNull(issue.cycleId)));
+}
+
 // issue_link's unique index is on the unordered pair + kind, so re-running the
 // Link phase for an issue whose relations were already created is a no-op:
 // the duplicate insert is caught and dropped rather than failing the tick.

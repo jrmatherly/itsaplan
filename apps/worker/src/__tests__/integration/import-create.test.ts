@@ -632,4 +632,21 @@ describe('runCreate', () => {
     const imported = await db.select().from(issue).where(eq(issue.projectId, job.projectId));
     expect(imported).toHaveLength(16);
   });
+
+  it("sets the cycle the source's issue names", async () => {
+    const job = await makeCreateJob();
+    await insertDiscoveredIds(job.id, 'cycle', ['cycle-1']);
+    await insertDiscoveredIds(job.id, 'issue', [ISSUE.sourceId]);
+    const reader = readerForIssues([{ ...ISSUE, cycleSourceId: 'cycle-1' }]);
+    reader.listCycles = async () => [
+      { sourceId: 'cycle-1', name: 'Sprint 1', startDate: '2026-01-01', endDate: '2026-01-14' },
+    ];
+
+    await runCreate(job, reader);
+
+    const cycleRecord = await findImportRecord(job.id, 'cycle', 'cycle-1');
+    const [created] = await db.select().from(issue).where(eq(issue.projectId, job.projectId));
+    expect(cycleRecord?.localId).toBeNumber();
+    expect(created!.cycleId).toBe(cycleRecord!.localId);
+  });
 });

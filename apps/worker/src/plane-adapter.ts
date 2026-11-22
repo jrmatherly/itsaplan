@@ -34,10 +34,8 @@ const PER_PAGE = 100;
 
 // A 404 confirmed live to mean "this Plane version doesn't have this
 // endpoint" (custom properties, work item types, ...) rather than a broken
-// import, when it happens on one of those. Nothing catches it specially yet —
-// it currently propagates like any other failure — because this milestone
-// doesn't call those version-dependent endpoints (custom fields are not
-// imported yet).
+// import, when it happens on one of those. Only listCycleIssues catches it; on
+// every other call it fails the tick like any other error.
 export class PlaneNotFoundError extends Error {}
 
 // Plane's GroupEnum uses British spelling ('cancelled') and adds 'triage',
@@ -209,7 +207,6 @@ interface PlaneListEnvelope<T> {
 
 export class PlaneReader implements SourceReader {
   private membersPromise: Promise<Map<string, PlaneMember>> | null = null;
-  private issueCyclesPromise: Promise<Map<string, string>> | null = null;
 
   constructor(
     private readonly credential: PlaneCredential,
@@ -278,10 +275,25 @@ export class PlaneReader implements SourceReader {
     const raw = await this.getJson<PlaneWorkItem>(
       `/work-items/${sourceId}/?expand=assignees,labels,state`,
     );
-    const issue = mapWorkItem(raw);
-    // Plane's work-item response carries no cycle: its serializer drops the view's cycle_id.
-    issue.cycleSourceId ??= (await this.issueCycles()).get(issue.sourceId) ?? null;
-    return issue;
+    return mapWorkItem(raw);
+  }
+
+  // A 404 is a Plane version without the route or a cycle deleted since Discover:
+  // the import goes on without that cycle's work items.
+  async listCycleIssues(cycleSourceId: string, cursor: string | null): Promise<Page<string>> {
+    const query = `per_page=${PER_PAGE}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`;
+    try {
+      const envelope = await this.getJson<PlaneListEnvelope<{ id: string }>>(
+        `/cycles/${cycleSourceId}/cycle-issues/?${query}`,
+      );
+      return {
+        items: envelope.results.map((item) => item.id),
+        cursor: nextPageCursor(envelope.next_cursor, envelope.next_page_results),
+      };
+    } catch (error) {
+      if (error instanceof PlaneNotFoundError) return { items: [], cursor: null };
+      throw error;
+    }
   }
 
   async listIssueRelations(issueSourceId: string): Promise<CanonicalRelation[]> {
@@ -371,26 +383,6 @@ export class PlaneReader implements SourceReader {
       );
     }
     return this.membersPromise;
-  }
-
-  // Which imported cycle each work item is in, read once per reader from every cycle's list.
-  private issueCycles(): Promise<Map<string, string>> {
-    this.issueCyclesPromise ??= (async () => {
-      const byIssue = new Map<string, string>();
-      for (const cycle of await this.listCycles()) {
-        let cursor: string | null = null;
-        do {
-          const query: string = `per_page=${PER_PAGE}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`;
-          const page: PlaneListEnvelope<{ id: string }> = await this.getJson(
-            `/cycles/${cycle.sourceId}/cycle-issues/?${query}`,
-          );
-          for (const item of page.results) byIssue.set(item.id, cycle.sourceId);
-          cursor = nextPageCursor(page.next_cursor, page.next_page_results);
-        } while (cursor);
-      }
-      return byIssue;
-    })();
-    return this.issueCyclesPromise;
   }
 
   private async getJson<T>(path: string): Promise<T> {
