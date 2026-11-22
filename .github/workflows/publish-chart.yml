@@ -26,6 +26,7 @@ on:
 env:
   REGISTRY: ghcr.io
   CHART_DIR: charts/itsaplan
+  HELM_VERSION: v4.3.2
 
 permissions:
   contents: read
@@ -44,8 +45,12 @@ jobs:
         with:
           ref: ${{ inputs.tag }}
 
-      # helm ships with the ubuntu runner image; printing the version keeps a
-      # packaging difference traceable, and the documented floor is 3.10.
+      # Pinned: the runner image ships Helm 3 on Ubuntu 24.04 and Helm 4 on 26.04, so
+      # an unpinned run changes major version when ubuntu-latest moves.
+      - uses: azure/setup-helm@v5
+        with:
+          version: ${{ env.HELM_VERSION }}
+
       - name: Helm version
         run: helm version --short
 
