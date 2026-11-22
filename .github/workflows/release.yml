@@ -19,7 +19,8 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: googleapis/release-please-action@v5
+      - name: 🚀 Run release-please
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
@@ -48,7 +49,8 @@ jobs:
       # `fetch-depth: 0` fetches the tags read below, and the object for the
       # current `release` head — without it git cannot prove the push is a
       # fast-forward and rejects it with `! [rejected] HEAD -> release`.
-      - uses: actions/checkout@v7
+      - name: 📥 Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
 
@@ -57,7 +59,7 @@ jobs:
       # a step that may have failed. `refs/heads/release` is fully qualified
       # because git resolves a bare `release` against the remote, which fails
       # while the branch does not exist yet.
-      - name: Move the release branch to the released commit
+      - name: 🔀 Move the release branch to the released commit
         id: move
         run: |
           tag=$(git tag --points-at HEAD --list 'v*')
