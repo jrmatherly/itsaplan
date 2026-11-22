@@ -20,6 +20,7 @@ a wrong line. So these files contain only what an agent would get wrong without 
 | --------------------------------------------------------- | ---------------------------------------- |
 | A rule the code does not show, that most tasks there need | the nearest `AGENTS.md`                  |
 | A rule a tool can check                                   | the tool: ESLint, tsc, a test, CI        |
+| A no-exception rule that Claude Code can block            | `AGENTS.md` and a Claude Code deny rule  |
 | How a feature works, a walkthrough, a design reason       | `docs/dev/<topic>.md`                    |
 | A rule for one topic only                                 | that doc, plus one routing row           |
 | Steps for a rare procedure                                | `docs/dev/<topic>.md`                    |
@@ -30,6 +31,10 @@ a wrong line. So these files contain only what an agent would get wrong without 
 
 The routing row goes in the Docs table of the root `AGENTS.md`, or in the area file when only that
 area needs the doc.
+
+A deny rule goes in `.claude/settings.json` and stops Claude Code only, so the `AGENTS.md` line
+stays. Change both in the same edit. Claude Code applies the file only to a session started at the
+repository root.
 
 ## Test for a new line
 

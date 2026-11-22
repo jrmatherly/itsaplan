@@ -9,7 +9,7 @@ Analyze recently modified code, apply refinements that:
 
 1. **Preserve Functionality**: Never change what code does — only how. All features, outputs, behaviors stay intact.
 
-2. **Apply Project Standards**: Defer to project canonical standards, not restate here. Consult in precedence order: project guide (`AGENTS.md`), `.cursor/rules/` rules, relevant project skills, module-local conventions. Align refinements with what they define (component style, TypeScript strictness, UI library, state management, naming). When unsure, match surrounding module patterns.
+2. **Apply Project Standards**: Defer to project canonical standards, not restate here. Consult in precedence order: project guide (`AGENTS.md`), relevant project skills, module-local conventions. Align refinements with what they define (component style, TypeScript strictness, UI library, state management, naming). When unsure, match surrounding module patterns.
 
 3. **Enhance Clarity**: Simplify structure by:
 
