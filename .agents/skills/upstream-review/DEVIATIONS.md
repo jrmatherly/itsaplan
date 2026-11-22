@@ -99,6 +99,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | Upstream | Ours | Notes |
 | --- | --- | --- |
 | `apps/worker/src/plane-adapter.ts` maps `blocking` and `blocked_by` both to `blocks` from the issue being read, and expects id strings in the relation lists | reads `blocking` only and accepts an id or a `{ project_id, issue_id }` entry | KEEP `listIssueRelations` and `RELATION_KIND_MAP`. Pinned by `apps/worker/src/__tests__/unit/plane-adapter.test.ts`. The relation passages of `docs/dev/plane-import-source-notes.md`, `docs/dev/plane-import.md` and `docs/importing-from-plane.md` follow it: KEEP. |
+| `mapWorkItem` reads `cycle_id` or `cycle` from the work item, which Plane's response does not carry, so every imported issue has no cycle | `getIssue` takes the cycle from each cycle's `cycle-issues/` list | KEEP `issueCycles` and the line in `getIssue`. Pinned by the `getIssue` case in `apps/worker/src/__tests__/unit/plane-adapter.test.ts`. The cycle lines of `docs/importing-from-plane.md` and `docs/dev/plane-import-source-notes.md` follow it: KEEP. |
 
 ## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11)
 

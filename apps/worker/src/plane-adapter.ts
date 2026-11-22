@@ -209,6 +209,7 @@ interface PlaneListEnvelope<T> {
 
 export class PlaneReader implements SourceReader {
   private membersPromise: Promise<Map<string, PlaneMember>> | null = null;
+  private issueCyclesPromise: Promise<Map<string, string>> | null = null;
 
   constructor(
     private readonly credential: PlaneCredential,
@@ -277,7 +278,10 @@ export class PlaneReader implements SourceReader {
     const raw = await this.getJson<PlaneWorkItem>(
       `/work-items/${sourceId}/?expand=assignees,labels,state`,
     );
-    return mapWorkItem(raw);
+    const issue = mapWorkItem(raw);
+    // Plane's work-item response carries no cycle: its serializer drops the view's cycle_id.
+    issue.cycleSourceId ??= (await this.issueCycles()).get(issue.sourceId) ?? null;
+    return issue;
   }
 
   async listIssueRelations(issueSourceId: string): Promise<CanonicalRelation[]> {
@@ -369,6 +373,26 @@ export class PlaneReader implements SourceReader {
     return this.membersPromise;
   }
 
+  // Which imported cycle each work item is in, read once per reader from every cycle's list.
+  private issueCycles(): Promise<Map<string, string>> {
+    this.issueCyclesPromise ??= (async () => {
+      const byIssue = new Map<string, string>();
+      for (const cycle of await this.listCycles()) {
+        let cursor: string | null = null;
+        do {
+          const query: string = `per_page=${PER_PAGE}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`;
+          const page: PlaneListEnvelope<{ id: string }> = await this.getJson(
+            `/cycles/${cycle.sourceId}/cycle-issues/?${query}`,
+          );
+          for (const item of page.results) byIssue.set(item.id, cycle.sourceId);
+          cursor = nextPageCursor(page.next_cursor, page.next_page_results);
+        } while (cursor);
+      }
+      return byIssue;
+    })();
+    return this.issueCyclesPromise;
+  }
+
   private async getJson<T>(path: string): Promise<T> {
     const res = await this.request(path);
     return (await res.json()) as T;
@@ -417,11 +441,11 @@ function dateOnly(isoTimestamp: string): string {
   return isoTimestamp.slice(0, 10);
 }
 
-// Plane's work-item shape. title/cycle/parent/due-date field names below are a
-// best-effort reading (name / cycle_id / parent_id / target_date) — the notes
-// file confirms description_html, state, assignees and labels live but does
-// not pin these down; verify against a live response if issues import with an
-// empty title, or a missing cycle/parent/due date.
+// Plane's work-item shape. title/parent/due-date field names below are a
+// best-effort reading (name / parent_id / target_date) — the notes file confirms
+// description_html, state, assignees and labels live but does not pin these down;
+// verify against a live response if issues import with an empty title, or a
+// missing parent/due date. Plane 1.3.0 to 1.5.0 send neither cycle field.
 interface PlaneWorkItem {
   id: string;
   name?: string;

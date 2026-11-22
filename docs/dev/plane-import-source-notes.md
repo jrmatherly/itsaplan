@@ -327,6 +327,14 @@ FORMULA`.
   `2026-08-20T13:19:13.714493+05:00`, not a plain date. itsaplan's `cycle.startDate`/`endDate`
   are date-only columns, so the time-of-day is dropped on import — lossy but harmless, worth
   one line in the PR description rather than a silent truncation nobody documented.
+- **A work item's response has no cycle.** Plane's list and detail views compute `cycle_id`, and
+  `IssueSerializer` does not declare it, so the response drops it (read in Plane's source at
+  1.3.0, 1.3.1, 1.5.0 and `preview`; not checked against a live response). The adapter reads each
+  imported cycle's `cycles/<id>/cycle-issues/` list, 100 per page, once per reader, and
+  `getIssue` takes the cycle from that. A reader is built per tick, so each Create and Link tick
+  repeats those requests: one for `cycles/` and one per 100 work items of each cycle.
+- **The `cycles/` list leaves out archived cycles** (`archived_at__isnull=True` in Plane's view),
+  so an archived cycle and the cycle of its work items are not imported.
 
 ## What this workspace's real data shows
 

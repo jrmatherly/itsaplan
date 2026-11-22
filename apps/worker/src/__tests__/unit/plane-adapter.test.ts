@@ -266,3 +266,47 @@ describe('listIssueRelations', () => {
     ]);
   });
 });
+
+describe('getIssue', () => {
+  it("takes an issue's cycle from the cycle's work items, across pages", async () => {
+    const item = {
+      id: 'issue-1',
+      sequence_id: 1,
+      description_html: '',
+      created_at: '',
+      updated_at: '',
+    };
+    const page = (ids: string[], next: string | null) => ({
+      results: ids.map((id) => ({ id })),
+      next_cursor: next,
+      next_page_results: next !== null,
+    });
+    const answers: Record<string, unknown> = {
+      '/work-items/issue-1/?expand=assignees,labels,state': item,
+      '/cycles/': page(['cycle-1', 'cycle-undated'], null).results.map((c, i) => ({
+        ...c,
+        name: c.id,
+        start_date: i === 0 ? '2026-01-01T00:00:00Z' : null,
+        end_date: i === 0 ? '2026-01-14T00:00:00Z' : null,
+      })),
+      '/cycles/cycle-1/cycle-issues/?per_page=100': page(['issue-0'], 'p2'),
+      '/cycles/cycle-1/cycle-issues/?per_page=100&cursor=p2': page(['issue-1'], null),
+    };
+    const sent: string[] = [];
+    const credential = {
+      baseUrl: 'https://plane.example.test',
+      workspaceSlug: 'acme',
+      apiKey: 'k',
+    };
+    const reader = new PlaneReader(credential, 'project-1', async (url) => {
+      const path = url.split('/projects/project-1')[1]!;
+      sent.push(path);
+      const body = answers[path];
+      return Response.json(path === '/cycles/' ? { results: body } : body);
+    });
+
+    expect((await reader.getIssue('issue-1')).cycleSourceId).toBe('cycle-1');
+    await reader.getIssue('issue-1');
+    expect(sent.filter((path) => path.includes('cycle-issues'))).toHaveLength(2);
+  });
+});
