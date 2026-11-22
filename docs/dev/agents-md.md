@@ -88,7 +88,8 @@ Every language carries every key of `messages/en`.
 reads every tracked `AGENTS.md` and fails when:
 
 - the file is over 10,000 bytes;
-- a backticked path does not exist.
+- a backticked path does not exist;
+- the `CLAUDE.md` beside it is missing or holds anything but `@AGENTS.md`.
 
 The path check covers file names with a common extension and paths under `apps/`, `packages/`,
 `docs/`, `scripts/`, `charts/` and `.github/`. It skips brace and wildcard forms and paths such as
@@ -99,7 +100,7 @@ Over the limit, remove a line. Do not raise the limit. Claude Code loads an area
 cuts the combined text of the files from the repository root to the working directory at 32 KiB
 (`project_doc_max_bytes`) and adds no marker. Two files at the limit stay under that cut.
 
-No check covers the format rules or the `CLAUDE.md` files.
+No check covers the format rules.
 
 ## Reviewing a change to AGENTS.md
 

@@ -67,7 +67,7 @@ segment. Files are `messages/<locale>/<namespace>.json`; namespaces are domains,
 - A type named like a DOM global (`Permissions`, `Notification`) resolves to that global when its
   import is missing, and tsc fails only on a DTO-only field, so import it explicitly.
 - Nothing per-instance may reach the bundle: the image serves every instance. New config of that
-  kind goes in `utils/runtimeEnv`. Never `process.env.NEXT_PUBLIC_*` in a component.
+  kind goes in `utils/runtimeEnv`.
 - Avatars and attachments render from `/media/...` through `mediaUrl`, document assets from
   `/protected-media/...`. Both are on the web origin, never an absolute api url.
 - **Every write tells the user how it went.** A failed `useMutation` is toasted by the
