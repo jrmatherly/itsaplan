@@ -85,14 +85,20 @@ describe('telemetryEnabled', () => {
   it('is off for any value of TELEMETRY_DISABLED but 0', () => {
     expect(telemetryEnabled({ TELEMETRY_DISABLED: '1' })).toBe(false);
     expect(telemetryEnabled({ TELEMETRY_DISABLED: 'false' })).toBe(false);
+    expect(telemetryEnabled({ TELEMETRY_DISABLED: ' 0' })).toBe(false);
+    expect(telemetryEnabled({ TELEMETRY_DISABLED: '00' })).toBe(false);
   });
 
   it('is on only when TELEMETRY_DISABLED is 0', () => {
     expect(telemetryEnabled({ TELEMETRY_DISABLED: '0' })).toBe(true);
     expect(telemetryEnabled({ TELEMETRY_DISABLED: '0', DO_NOT_TRACK: '0' })).toBe(true);
+    // The shape compose passes when an operator sets only TELEMETRY_DISABLED=0.
+    expect(telemetryEnabled({ TELEMETRY_DISABLED: '0', DO_NOT_TRACK: '' })).toBe(true);
   });
 
   it('stays off when DO_NOT_TRACK is set, even with TELEMETRY_DISABLED=0', () => {
     expect(telemetryEnabled({ TELEMETRY_DISABLED: '0', DO_NOT_TRACK: '1' })).toBe(false);
+    expect(telemetryEnabled({ TELEMETRY_DISABLED: '0', DO_NOT_TRACK: 'true' })).toBe(false);
+    expect(telemetryEnabled({ TELEMETRY_DISABLED: '0', DO_NOT_TRACK: 'false' })).toBe(false);
   });
 });
