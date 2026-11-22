@@ -85,8 +85,9 @@ Then propose a commit message in chat. Never run `git commit` or `git push` unle
 
 ## Commits
 
-`type(scope): summary`. PRs are squash-merged, so the PR title becomes the commit subject, and
-release-please reads it to pick the next version.
+`type(scope): summary`. A squash-merged PR's title becomes the commit subject. A PR landed as a
+merge commit keeps each commit's subject. release-please reads the subjects to pick the next
+version.
 
 - `feat`: a capability that did not exist, one that earns a "Highlights" entry.
 - `improvement`: a visible change to something that exists. Not a bug fix.

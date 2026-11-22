@@ -20,8 +20,8 @@ a conflict, and add a row in the same change that creates a new difference.
   moved.
 - **Land that pull request with "Create a merge commit", never "Squash and merge".** A squash drops
   upstream's ancestry: the merge-base stays where it was, GitHub keeps reporting the fork as
-  behind, and the next merge replays the same commits. Every other pull request in this repository
-  is squash-merged, so say this in the PR description.
+  behind, and the next merge replays the same commits. Most other pull requests in this
+  repository are squash-merged, so say this in the PR description.
 - **Upstream's commits reach `main` with their own subjects.** release-please reads them: an
   upstream `feat:` raises the fork's next minor version and is listed in `CHANGELOG.md`, and its
   `(#NNN)` would link to this fork's pull request of that number. This is inferred from how
