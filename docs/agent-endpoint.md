@@ -130,8 +130,9 @@ Call the API at `apiUrl`. Put the agent's API key in the `x-api-key` header:
 | `POST /agent-chats/:messageId/heartbeat` | none                                                                         |
 | `POST /agent-chats/:messageId/result`    | `{ "status": "success" \| "failed", "error" }`                               |
 
-`traceEvents` in the run body is true when the instance accepts run events. `attempt` is the
-run's `attempts` value. It is optional on the heartbeat and the result.
+`traceEvents` in the run body is true when the instance has the run events route. Post run
+events and send `attempt` only when it is true. `attempt` is the run's `attempts` value. It is
+optional on the heartbeat and the result.
 The run events route records the run's transcript, which the run page shows. It takes
 1 to 200 events per call, and `offset` is the number of events sent before this call.
 `sessionId` is optional and must be a UUID. The route answers

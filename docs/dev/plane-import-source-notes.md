@@ -156,8 +156,8 @@ project does embed images inline, they'd render as broken images pointing at a h
 instance can't necessarily reach, unless the Attachments phase also parses description HTML for
 embedded asset references, downloads and re-uploads those too, and rewrites the HTML before
 conversion to markdown. That means description handling can't be a pure function that finishes
-during Create — it may need a pass revisited during Attachments. The import does not do
-this: `htmlToMarkdown` turns the `<img>` into an image link to Plane's own address.
+during Create — it may need a pass revisited during Attachments. The import has no such
+pass: `htmlToMarkdown` turns the `<img>` into a Markdown image with the `src` unchanged.
 
 ## Comments
 

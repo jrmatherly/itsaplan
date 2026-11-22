@@ -36,8 +36,6 @@ clients. A client that loads all tool definitions at the start of a session spen
 "url": "http://localhost:3000/mcp?tools=catalog"
 ```
 
-An agent's key also lists the agent's configured tools.
-
 - The most used tools are listed as before and are called directly: `get_current_user`,
   `list_projects`, `get_project`, `get_issue_by_number`, `search_issues`, `list_issues`,
   `create_issue`, `update_issue` and `add_comment`.
@@ -49,6 +47,8 @@ An agent's key also lists the agent's configured tools.
   `{ "name": "delete_label", "arguments": { ... } }`. Each one accepts only the tools its
   annotations are true for, so a client that asks before a destructive call still asks.
   Permissions, validation and rate limits are those of a direct call.
+
+With an agent's key, both lists also hold the agent's configured tools. They are called directly.
 
 Use the default with a client that loads tool definitions on demand. Any other value of
 `tools` is refused with HTTP 400.

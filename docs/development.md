@@ -32,7 +32,8 @@ run in Docker; the apps run on the host.
 `.env.example` documents every variable and its default. The setup generates the two secrets,
 `BETTER_AUTH_SECRET` and `APP_ENCRYPTION_KEY`, only while the database volume does not exist —
 past that the instance is using them, and a new value would lock it out of its own data.
-**Generate env** writes a fresh set of values every time, the two secrets included.
+**Generate env** builds a fresh set of values every time, the two secrets included, and asks
+before it replaces an existing `.env`.
 
 ## Commands
 
