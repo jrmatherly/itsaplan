@@ -12,9 +12,11 @@ const dockerfiles = tracked.filter((file) => /^apps\/[^/]+\/Dockerfile$/.test(fi
 
 function copiedManifests(dockerfile: string): string[] {
   const text = readFileSync(join(ROOT, dockerfile), 'utf8');
-  return [...text.matchAll(/^COPY\s+(?:\.\/)?((?:apps|packages)\/[^/\s]+)\/package\.json\s/gm)].map(
-    (match) => match[1],
-  );
+  return [
+    ...text.matchAll(
+      /^COPY\s+(?:--\S+\s+)*(?:\.\/)?((?:apps|packages)\/[^/\s]+)\/package\.json\s/gm,
+    ),
+  ].map((match) => match[1]);
 }
 
 // Without its COPY line a member is missing from the install layer: the Docker build fails
