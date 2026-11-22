@@ -79,8 +79,9 @@ secrets:
 
 Ingress is disabled by default. Enable it and choose how the API is exposed.
 
-The API cannot serve behind a path prefix: better-auth mounts at `/api/auth/*`
-and treats a path inside `API_URL` as a replacement for its base path. The chart offers two modes instead.
+`API_URL` can also be a path on the web's host when the proxy removes that path before the
+request reaches the API. A standard Ingress has no portable way to do that, so the chart offers
+two modes instead.
 
 ### Separate host (default mode)
 
@@ -214,6 +215,7 @@ god mode, under **License**.
 | `api.healthcheck.periodSeconds`       | Probe period                                              | `15`                             |
 | `api.healthcheck.timeoutSeconds`      | Probe timeout                                             | `5`                              |
 | `api.healthcheck.failureThreshold`    | Probe failure threshold                                   | `5`                              |
+| `api.env.SKIP_PRE_MIGRATION_BACKUP`   | `"1"` migrates without the pre-migration dump             | (unset)                          |
 | `api.backups.persistence.enabled`     | Keep the pre-migration dump on a volume                   | `false`                          |
 | `api.backups.persistence.size`        | Backup volume size                                        | `10Gi`                           |
 | `api.backups.persistence.storageClass` | Backup volume storage class                              | `""`                             |

@@ -21,7 +21,9 @@ runner's own settings are in its
 The instance can also send the tasks to an endpoint that you run. See
 [Agent endpoint](agent-endpoint.md).
 
-Enable MCP for the project first, in Settings, MCP Server. It is off by default.
+Check first that MCP reaches the project. In the team's settings, open MCP: "MCP access" must be
+on, and the project must be on under "Projects MCP can reach". A team owner or manager changes
+these. A new project starts with the instance default, which is on unless god mode changed it.
 
 ## A shorter tool list
 
@@ -45,6 +47,8 @@ clients. A client that loads all tool definitions at the start of a session spen
   `{ "name": "delete_label", "arguments": { ... } }`. Each one accepts only the tools its
   annotations are true for, so a client that asks before a destructive call still asks.
   Permissions, validation and rate limits are those of a direct call.
+
+With an agent's key, both lists also hold the agent's configured tools. They are called directly.
 
 Use the default with a client that loads tool definitions on demand. Any other value of
 `tools` is refused with HTTP 400.

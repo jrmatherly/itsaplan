@@ -18,7 +18,7 @@ of them affect data you may not notice is missing until later.
 ## Steps
 
 1. Open the project's **Settings → Import/Export**.
-2. Enter the Plane URL, workspace slug, and API token, then **Test connection**. This
+2. Enter the Plane URL, workspace slug, and API token, then click **Connect**. This
    checks the token live against Plane and lists that workspace's projects — nothing is
    saved yet at this point.
 3. Pick the Plane project to import from. Its states appear for review (see below), with a
@@ -38,10 +38,11 @@ of them affect data you may not notice is missing until later.
   would go past that is imported without a parent, together with its own sub-issues.
 - **Assignees and comment authors** — matched to an existing project member by email. It is
   never assigned to the wrong person, and no placeholder account is created; what happens
-  when no member has that email is a choice you make in the mapping review step below.
+  when no member has that email is a choice you make in the mapping review step below. Only
+  the first assignee of a work item is kept.
 - **Comments** — body (converted to Markdown) and reply threading.
 - **Labels, workflow states, and cycles** — created if they do not already exist by that
-  name.
+  name. A cycle without both a start and an end date is not imported.
 - **Issue relations** — "blocks", "relates to", and "duplicates" only.
 - **Cross-references inside text, when both sides were imported.** A description or
   comment that says "see ROOMS-524" is rewritten to point at this project's own
@@ -60,8 +61,8 @@ of them affect data you may not notice is missing until later.
 
 - **A mention of an attachment inside a description or comment's own text** (an image
   pasted directly into the rich text, not listed as a separate attached file) comes
-  across as plain text with nothing behind it — only attachments listed as their own
-  files are downloaded.
+  across as an image link to Plane's own address, which may not open from here. The file
+  is not downloaded: only attachments listed as their own files are.
 - **Custom fields**, whatever they are named in the source project.
 - **Modules and milestones.**
 - **Work item types** (Epic and any custom type) — every imported item becomes a plain
@@ -73,24 +74,24 @@ of them affect data you may not notice is missing until later.
 ## Reviewing the mapping before you import
 
 After you pick the source project, its states are shown with the category itsaplan would
-automatically map each one to (matched by name, falling back to Plane's own backlog/
-unstarted/started/completed group when no name matches). This matters because Plane's own
+automatically map each one to: the category of its Plane group (backlog, unstarted,
+started, completed, cancelled; triage becomes Backlog). This matters because Plane's own
 state categories are not always accurate: a real workspace checked during development had a
 state named "Cancled" (misspelled) that Plane itself grouped as "completed" internally, not
 "canceled". Change any row that reads wrong before starting the import — a state you don't
 change keeps the automatic mapping.
 
-The same screen has one more choice: what happens to an assignee or comment author whose
-email matches no member of this project. "Leave unassigned" (the default) imports the issue
-or comment anyway, with that field empty. "Skip the assignment or comment" leaves an issue's
-assignee empty the same way, but drops a comment entirely rather than importing it with no
-attributed author.
+The same screen has one more choice, **Comments by people who aren't project members**: what
+happens to an assignee or comment author whose email matches no member of this project.
+**Import** (the default) imports the issue or comment anyway, with that field empty. **Don't
+import** leaves an issue's assignee empty the same way, but drops a comment entirely rather
+than importing it with no attributed author.
 
 ## Rate limits are real, and the import waits them out
 
 Plane limits how many requests it will answer per minute. A project of any real size will
-run into that limit, and the job pauses to wait it out — you will see "The source's rate
-limit was reached. Retrying in Ns." in the job list when this happens. This is normal, not a
+run into that limit, and the job pauses to wait it out — you will see "The source hit its
+request limit. Retrying in Ns." in the job list when this happens. This is normal, not a
 failure; the import resumes on its own once the wait is over. A large project can take a
 long time to finish for this reason alone.
 
@@ -104,8 +105,8 @@ reuses what a previous run already created instead of duplicating it: a state, c
 issue is matched by name (issue titles case- and whitespace-insensitively) against what is
 already in the project, and a comment is matched by its exact body and timestamp on the
 matched issue. Labels always dedupe this way too. Nothing about an existing match is
-overwritten — an existing state's category, for instance, is left as it is even if Plane
-categorizes it differently.
+overwritten, except that a reused label takes the Plane label's color. An existing state's
+category, for instance, is left as it is even if Plane categorizes it differently.
 
 This is a name/content match, not a record of which import created what, so it also means
 an issue you created by hand before importing — one that happens to share an exact title
@@ -117,7 +118,7 @@ by that same import.
 
 ## Exporting your project's data
 
-The **Export** section at the bottom of the page downloads a JSON file with the project's
+The **Export as JSON** button in the page header downloads a JSON file with the project's
 states, labels, cycles, and issues (with their comments and relations) — a self-contained
 snapshot, readable on its own, using this project's own identifiers rather than database
 ids. This is a download, not a live sync: it does not write anywhere, including back into

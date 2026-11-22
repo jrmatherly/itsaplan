@@ -18,11 +18,14 @@ This package runs such agents on your own machine — one, or several at once.
 
 ## Quick start
 
-**1. Get the agent's key.** In your project, go to Settings, AI agents. Create an agent
-of kind External. The key appears one time only, at creation.
+**1. Get the agent's key.** In the team's settings, go to AI agents. Create an agent of
+kind External and choose your project under "Works in these projects". The key appears
+one time only, at creation.
 
-**2. Enable MCP** for the project, in Settings, MCP Server. MCP is off by default. The
-agent reads the issue and writes its result through it.
+**2. Check that MCP reaches the project.** In the team's settings, open MCP. "MCP access"
+must be on, and the project must be on under "Projects MCP can reach". A new project
+starts with the instance default, which is on unless god mode changed it. The agent reads
+the issue and writes its result through MCP.
 
 **3. Give the coding agent the address of that server.** Claude Code, Oh My Pi, Mastra
 Code, and Pi (through `pi-mcp-adapter`) read `.mcp.json` from the folder they run in. For
@@ -290,13 +293,13 @@ sends `$ITSAPLAN_API_KEY` as a bearer token, and acts as its own user with its r
 
 Every run holds these variables:
 
-| Variable                 | What it holds                                                               |
-| ------------------------ | --------------------------------------------------------------------------- |
-| `ITSAPLAN_URL`           | the instance that sent the task                                             |
-| `ITSAPLAN_API_KEY`       | the agent's key, for the API and the MCP server                             |
-| `ITSAPLAN_TRIGGER`       | `mention`, `delegation`, `field`, `schedule`, `manual`, `status`, `api`, or `chat` |
-| `ITSAPLAN_SYSTEM_PROMPT` | the context of the run, for a command that takes a system prompt            |
-| `ITSAPLAN_TIMEOUT_MS`    | the task timeout in milliseconds                                            |
+| Variable                 | What it holds                                                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------- |
+| `ITSAPLAN_URL`           | the instance that sent the task                                                             |
+| `ITSAPLAN_API_KEY`       | the agent's key, for the API and the MCP server                                             |
+| `ITSAPLAN_TRIGGER`       | `mention`, `delegation`, `field`, `schedule`, `manual`, `status`, `event`, `api`, or `chat` |
+| `ITSAPLAN_SYSTEM_PROMPT` | the context of the run, for a command that takes a system prompt                            |
+| `ITSAPLAN_TIMEOUT_MS`    | the task timeout in milliseconds                                                            |
 
 A command can read `ITSAPLAN_TIMEOUT_MS` to set its own timeout. The value is the
 `timeoutMs` of that agent, and it replaces a value from the environment or from `env`.

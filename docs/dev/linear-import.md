@@ -90,12 +90,13 @@ taken, compared case-insensitively), because the store reuses an attachment with
 filename on the same issue.
 
 `pinnedFetch` follows no redirect and `downloadAttachment` refuses anything but 2xx, so
-`resolveAttachmentDownload` takes the hops itself: a `GET` that reads only the response head
-(`maxBytes: 0, truncateBody: true`), up to three redirects, `https` only. The `Authorization`
-header is sent only while the host is `uploads.linear.app`, never to the storage host a
-redirect points at. A 2xx returns the final URL (with the key when that URL is still on
-`uploads.linear.app`); a 429 is a rate limit; any other status, a redirect without a location,
-or a fourth redirect is an `AttachmentRejectedError`, logged and skipped.
+`resolveAttachmentDownload` calls `resolveDownloadRedirects` (`attachment-download.ts`), which
+takes the hops: a `GET` that reads only the response head (`maxBytes: 0, truncateBody: true`),
+up to three redirects, `https` only. The `Authorization` header is sent only while the host is
+`uploads.linear.app`, never to the storage host a redirect points at. A 2xx returns the final
+URL (with the key when that URL is still on `uploads.linear.app`); a 429 is a rate limit; any
+other status, a redirect without a location, or a fourth redirect is an
+`AttachmentRejectedError`, logged and skipped.
 
 ## Cycles
 

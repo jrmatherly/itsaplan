@@ -13,7 +13,7 @@ or on the request body is checked in the handler or the service.
   `x-api-key` header or the MCP OAuth token of a tool call.
 - A request with no account gets 401. The GET routes in `PUBLIC_GET` run with `user: null`
   instead: raw attachments, avatars, `/invites/:token` and `/share/*`. A `/share/*` token reads a
-  shared issue or view with no membership.
+  shared issue, view or Docs page with no membership.
 - `authContext` answers 401 for a deactivated account. `requestUser` leaves that check to its
   caller, so `/me`, which runs outside the planner, makes the check itself.
 - An API key cannot manage the account: `/api/auth/*` and `/account/connected-apps` refuse it.
@@ -40,6 +40,11 @@ or on the request body is checked in the handler or the service.
   runs the team; anyone else, a workspace admin included, reaches agents they own and those that share a
   `project_member` row with them. A private view takes a project membership of their own
   (`via: 'member'`).
+- A private Docs page opens only to its owner and the members it is shared with
+  (`project_document_member`, `documentVisibleTo` in `modules/documents/access.ts`). An owner of
+  the project or the workspace does not bypass it. Only the page's owner sets the list
+  (`POST /projects/:projectKey/documents/:documentId/access`). Only project members whose role
+  reads `documents` can be on it (400 otherwise), and agents never are.
 - **Whether someone else is a member:** assignees, mentions, watchers, notification recipients,
   seats, the last-owner check and SCIM read the rows. A workspace owner or admin with no row is in
   no member list, gets no notifications and takes no seat. With a row they count as any other
@@ -66,8 +71,8 @@ or on the request body is checked in the handler or the service.
   (`workItem: "edit"`). It injects `projectId` and runs `assertPermission` and
   `assertProjectReachable`.
 - **A handler that checks a permission itself** spreads `requiresPermission([...])` into its
-  `detail`, so the MCP tool table still reports the requirement: `GET /issues/:issueId`, and
-  `PATCH` and `DELETE /views/:viewId`.
+  `detail`, so the MCP tool table still reports the requirement, for example
+  `GET /issues/:issueId`, and `PATCH` and `DELETE /views/:viewId`.
 - **A route that resolves the project itself** runs one of two checks on it.
   `assertProjectReachable` covers the run binding, the MCP toggle, the optional section and writes
   to an archived project. `assertMcpAllowed` covers only the run binding and the MCP toggle, so a

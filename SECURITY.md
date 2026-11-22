@@ -2,8 +2,8 @@
 
 ## Supported versions
 
-The project is under active development before its first stable release. Security fixes
-are applied to `main`. There is no backporting to older tags yet.
+Security fixes go to `main` and ship in the next release. There is no backporting to older
+tags.
 
 ## Reporting a vulnerability
 

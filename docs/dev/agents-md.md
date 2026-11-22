@@ -89,7 +89,7 @@ Every language carries every key of `messages/en`.
 
 ## Limits
 
-`scripts/agents-md.test.ts` runs in CI on every pull request, and a failure blocks the merge. It
+`scripts/agents-md.test.ts` runs in CI on every pull request, and a failure fails the CI run. It
 reads every tracked `AGENTS.md` and fails when:
 
 - the file is over 10,000 bytes;

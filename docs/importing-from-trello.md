@@ -18,7 +18,7 @@ runs.
 
 ## Steps
 
-1. Open the project's **Settings → Import/Export** and choose **Trello** under Source.
+1. Open the project's **Settings → Import/Export** and pick the **Trello** tab.
 2. Enter the API key and click **Authorize in Trello**. Trello opens in a small window: allow
    read access there. The window closes, and the boards you can see are listed, open boards
    first. Nothing is saved at this point. The token is valid for 30 days.
@@ -91,15 +91,16 @@ them with project members by itself. Before the import starts you choose one of 
 ## Reviewing the mapping before you import
 
 After you pick a board, its open lists are shown with the category each one would get. The
-category comes from the list's name: "Done" or "Completed" gives Completed, "Doing", "In
-progress" or "Review" gives Started, "Backlog" or "Ideas" gives Backlog, and every other list
-gives Unstarted. Change any row that is wrong before you start the import. A list you do not
-change keeps the automatic category.
+category comes from a word in the list's name: "Done", "Complete", "Completed", "Finished",
+"Closed", "Shipped" or "Released" gives Completed; "Doing", "In progress", "WIP", "Review",
+"Testing" or "QA" gives Started; "Backlog", "Idea", "Ideas", "Icebox" or "Someday" gives
+Backlog; and every other list gives Unstarted. Change any row that is wrong before you start
+the import. A list you do not change keeps the automatic category.
 
 ## Rate limits
 
 Trello allows each token 100 requests every 10 seconds. When the import reaches that limit, it
-waits 10 seconds and continues. The job list then shows "The source's rate limit was reached.
+waits 10 seconds and continues. The job list then shows "The source hit its request limit.
 Retrying in Ns." This is normal, not a failure.
 
 ## Pausing, resuming, canceling, and running it again
@@ -110,8 +111,9 @@ issues that were already created stay, and nothing is rolled back.
 A new import of the same board uses what an earlier run created instead of making copies: a
 column is matched by name, an issue by title (not case-sensitive), a comment by its exact text
 and time, and a checklist by its title on the matched issue. Nothing about an existing match is
-overwritten. Because this is a match by name and content, an issue you created by hand with
-exactly the title of a card is treated as the same issue.
+overwritten, except that a reused label takes the Trello label's color. Because this is a
+match by name and content, an issue you created by hand with exactly the title of a card is
+treated as the same issue.
 
 ## Other sources
 

@@ -1,6 +1,6 @@
 # Local development
 
-Requirements: [Bun](https://bun.sh) 1.3+, Docker, Git.
+Requirements: [Bun](https://bun.sh) 1.4.4, the version `packageManager` pins, Docker, Git.
 
 ## Setup
 
@@ -9,7 +9,7 @@ git clone https://github.com/jrmatherly/itsaplan.git
 cd itsaplan
 bun install
 bun run setup   # "Develop", or "Generate env" for just the .env files
-bun run dev     # api + web together, via Turborepo
+bun run dev     # api, web, worker and bot in watch mode, via Turborepo
 ```
 
 **Develop** writes the env files, generates the secrets, starts Postgres and RustFS, creates
@@ -23,15 +23,17 @@ run in Docker; the apps run on the host.
 
 ## Environment
 
-| File            | Read by                                       |
-| --------------- | --------------------------------------------- |
-| `.env`          | api, worker, bot, drizzle                     |
-| `apps/web/.env` | web — Next reads env only from its own folder |
-| `.env.test`     | the api test suite                            |
+| File            | Read by                                         |
+| --------------- | ----------------------------------------------- |
+| `.env`          | api, worker, bot, drizzle                       |
+| `apps/web/.env` | web — Next reads env only from its own folder   |
+| `.env.test`     | the api, bot, worker and `@repo/db` test suites |
 
-`.env.example` documents every variable and its default. The three secrets have none and are
-generated while the database volume does not exist — past that the instance is using them,
-and a new value would lock it out of its own data.
+`.env.example` documents every variable and its default. The setup generates the two secrets,
+`BETTER_AUTH_SECRET` and `APP_ENCRYPTION_KEY`, only while the database volume does not exist —
+past that the instance is using them, and a new value would lock it out of its own data.
+**Generate env** builds a fresh set of values every time, the two secrets included, and asks
+before it replaces an existing `.env`.
 
 ## Commands
 

@@ -1,7 +1,7 @@
 # MCP tool results
 
 Every MCP tool result contains an object in `structuredContent`, except a successful call
-of an image tool (see below). The existing text block
+of an image tool or of an agent's configured tool (see below). The existing text block
 contains the original REST response body, including an empty string for HTTP 204. Existing
 clients can continue reading that text. The internal agent runtime keeps its existing result
 format.
@@ -93,6 +93,11 @@ describe `data` for their corresponding HTTP statuses. The schema also permits t
 envelope, so SDK clients can validate failed calls. Undeclared statuses and unresolved or
 runtime-only schemas use a permissive data schema. JSON Schema formats and runtime metadata
 are omitted; the API remains responsible for validating its responses.
+
+An agent's configured tools are the exception. They advertise no `outputSchema`. A
+successful call returns one text block with the tool's JSON result and no
+`structuredContent`. A failed call returns the error envelope with status 400 for invalid
+arguments or 502 when the tool fails.
 
 This uses the existing SDK's support for
 [structured content and output schemas](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content).
