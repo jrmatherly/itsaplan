@@ -48,7 +48,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | The worker sends telemetry unless `TELEMETRY_DISABLED` is set to a value other than `0` | The worker sends nothing unless `TELEMETRY_DISABLED=0`: `apps/worker/src/telemetry.ts`, `apps/worker/src/telemetry-schedule.ts` | KEEP the switch logic. ADAPT any upstream change to what is sent. Pinned by `apps/worker/src/__tests__/integration/telemetry-switch.test.ts` and `apps/worker/src/__tests__/unit/telemetry-schedule.test.ts`. |
 | Compose files and `.env.example` describe opt-out | describe opt-in and default it off; the chart has no `worker.env.TELEMETRY_DISABLED` | KEEP in the five compose files, `.env.example`, `charts/itsaplan/values.yaml`, the telemetry rows of the values table in `charts/itsaplan/README.md`, `TELEMETRY.md`, and "the telemetry switch" in `docs/coolify.md` and `docs/self-hosting.md`. `TELEMETRY.md` and the worker's log line say the collector is run by the upstream project: KEEP. |
 
-## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`; PR 11)
+## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`; PR 11; PR 13)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
@@ -94,11 +94,12 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | `.gitignore` | adds `.remember/`, `.codegraph/`, `/private/` | ADAPT. Keep both sides. |
 | no `.serena/` | `.serena/project.yml`, `.serena/.gitignore` | KEEP (fork-only). |
 
-## Plane import (PR 10)
+## Plane import (PR 10; PR 14)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
 | `apps/worker/src/plane-adapter.ts` maps `blocking` and `blocked_by` both to `blocks` from the issue being read, and expects id strings in the relation lists | reads `blocking` only and accepts an id or a `{ project_id, issue_id }` entry | KEEP `listIssueRelations` and `RELATION_KIND_MAP`. Pinned by `apps/worker/src/__tests__/unit/plane-adapter.test.ts`. The relation passages of `docs/dev/plane-import-source-notes.md`, `docs/dev/plane-import.md` and `docs/importing-from-plane.md` follow it: KEEP. |
+| `mapWorkItem` reads `cycle_id` or `cycle` from the work item, which Plane's response does not carry, so every imported issue has no cycle | `listCycleIssues` in `apps/worker/src/plane-adapter.ts` reads one page of a cycle's work items; `apps/worker/src/reader.ts` declares it as an optional `SourceReader` method; `runLink` in `apps/worker/src/import-worker.ts` reads one page per tick before its issue loop and calls `setIssueCycleIfUnset` in `apps/worker/src/import-store.ts` | KEEP all four. When upstream edits `runLink`, keep the cycle stage and its `LinkCursor` fields ahead of the issue loop, and keep `cyclesDone: true` in the cursor the loop saves. Pinned by the `listCycleIssues` cases in `apps/worker/src/__tests__/unit/plane-adapter.test.ts`, the cycle case of `runLink` in `apps/worker/src/__tests__/integration/import-rewrite.test.ts` and the cycle case of `runCreate` in `apps/worker/src/__tests__/integration/import-create.test.ts`. The cycle lines of `docs/importing-from-plane.md`, `docs/dev/plane-import.md` and `docs/dev/plane-import-source-notes.md` follow it: KEEP. |
 
 ## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11)
 

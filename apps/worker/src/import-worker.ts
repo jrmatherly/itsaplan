@@ -49,6 +49,7 @@ import {
   setIssueCustomFieldValue,
   createLocalChecklistAndRecord,
   setIssueParentIfUnset,
+  setIssueCycleIfUnset,
   createLocalComment,
   createIssueLink,
   findProjectMemberUserId,
@@ -531,9 +532,21 @@ async function createComments(
 // second chance to resolve: Create only knew what import_record held at the
 // moment it ran, so a sub-issue processed before its parent existed was left
 // with no parent — by Link, every issue in the job has been created.
+// First, for a source with listCycleIssues, one page of one cycle per tick sets the
+// cycles: afterCycleId is the last cycle record finished, cyclePage the next page.
+
+interface LinkCursor extends RecordCursor {
+  cyclesDone: boolean;
+  afterCycleId: number;
+  cyclePage: string | null;
+}
 
 export async function runLink(job: ClaimedImportJob, reader: SourceReader): Promise<void> {
-  const cursor = job.cursor as Partial<RecordCursor>;
+  const cursor = job.cursor as Partial<LinkCursor>;
+  if (!cursor.cyclesDone && reader.listCycleIssues) {
+    await linkCyclePage(job, reader.listCycleIssues.bind(reader), cursor);
+    return;
+  }
   const afterId = cursor.lastRecordId ?? 0;
   const pending = await listCreatedImportRecords(job.id, 'issue', afterId, ISSUES_PER_TICK);
   if (pending.length === 0) {
@@ -555,7 +568,37 @@ export async function runLink(job: ClaimedImportJob, reader: SourceReader): Prom
       await createIssueLink(record.localId, targetRecord.localId, relation.kind);
     }
   }
-  const next: RecordCursor = { lastRecordId: pending[pending.length - 1]!.id };
+  const next: Partial<LinkCursor> = {
+    cyclesDone: true,
+    lastRecordId: pending[pending.length - 1]!.id,
+  };
+  await saveImportJobCursor(job.id, next);
+}
+
+async function linkCyclePage(
+  job: ClaimedImportJob,
+  listCycleIssues: NonNullable<SourceReader['listCycleIssues']>,
+  cursor: Partial<LinkCursor>,
+): Promise<void> {
+  const afterCycleId = cursor.afterCycleId ?? 0;
+  const [cycle] = await listCreatedImportRecords(job.id, 'cycle', afterCycleId, 1);
+  if (!cycle) {
+    await saveImportJobCursor(job.id, { ...cursor, cyclesDone: true });
+    return;
+  }
+  const pageCursor = cursor.cyclePage ?? null;
+  const page = await listCycleIssues(cycle.sourceId, pageCursor);
+  for (const issueSourceId of page.items) {
+    const record = await findImportRecord(job.id, 'issue', issueSourceId);
+    if (record?.localId != null) await setIssueCycleIfUnset(record.localId, cycle.localId);
+  }
+  // A source that hands back the cursor it was given would loop on one page.
+  const more = page.cursor !== null && page.cursor !== pageCursor;
+  const next: Partial<LinkCursor> = {
+    ...cursor,
+    afterCycleId: more ? afterCycleId : cycle.id,
+    cyclePage: more ? page.cursor : null,
+  };
   await saveImportJobCursor(job.id, next);
 }
 

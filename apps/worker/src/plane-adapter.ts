@@ -34,10 +34,8 @@ const PER_PAGE = 100;
 
 // A 404 confirmed live to mean "this Plane version doesn't have this
 // endpoint" (custom properties, work item types, ...) rather than a broken
-// import, when it happens on one of those. Nothing catches it specially yet —
-// it currently propagates like any other failure — because this milestone
-// doesn't call those version-dependent endpoints (custom fields are not
-// imported yet).
+// import, when it happens on one of those. Only listCycleIssues catches it; on
+// every other call it fails the tick like any other error.
 export class PlaneNotFoundError extends Error {}
 
 // Plane's GroupEnum uses British spelling ('cancelled') and adds 'triage',
@@ -280,6 +278,24 @@ export class PlaneReader implements SourceReader {
     return mapWorkItem(raw);
   }
 
+  // A 404 is a Plane version without the route or a cycle deleted since Discover:
+  // the import goes on without that cycle's work items.
+  async listCycleIssues(cycleSourceId: string, cursor: string | null): Promise<Page<string>> {
+    const query = `per_page=${PER_PAGE}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ''}`;
+    try {
+      const envelope = await this.getJson<PlaneListEnvelope<{ id: string }>>(
+        `/cycles/${cycleSourceId}/cycle-issues/?${query}`,
+      );
+      return {
+        items: envelope.results.map((item) => item.id),
+        cursor: nextPageCursor(envelope.next_cursor, envelope.next_page_results),
+      };
+    } catch (error) {
+      if (error instanceof PlaneNotFoundError) return { items: [], cursor: null };
+      throw error;
+    }
+  }
+
   async listIssueRelations(issueSourceId: string): Promise<CanonicalRelation[]> {
     // Plane 1.3.1 and later return { project_id, issue_id } entries, and 1.3.0 returns the id.
     const grouped = await this.getJson<Record<string, (string | { issue_id: string })[]>>(
@@ -417,11 +433,11 @@ function dateOnly(isoTimestamp: string): string {
   return isoTimestamp.slice(0, 10);
 }
 
-// Plane's work-item shape. title/cycle/parent/due-date field names below are a
-// best-effort reading (name / cycle_id / parent_id / target_date) — the notes
-// file confirms description_html, state, assignees and labels live but does
-// not pin these down; verify against a live response if issues import with an
-// empty title, or a missing cycle/parent/due date.
+// Plane's work-item shape. title/parent/due-date field names below are a
+// best-effort reading (name / parent_id / target_date) — the notes file confirms
+// description_html, state, assignees and labels live but does not pin these down;
+// verify against a live response if issues import with an empty title, or a
+// missing parent/due date. Plane 1.3.0 to 1.5.0 send neither cycle field.
 interface PlaneWorkItem {
   id: string;
   name?: string;

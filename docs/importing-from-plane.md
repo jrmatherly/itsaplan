@@ -42,7 +42,8 @@ of them affect data you may not notice is missing until later.
   the first assignee of a work item is kept.
 - **Comments** — body (converted to Markdown) and reply threading.
 - **Labels, workflow states, and cycles** — created if they do not already exist by that
-  name. A cycle without both a start and an end date is not imported.
+  name. A cycle without both a start and an end date is not imported, and neither is a cycle
+  archived in Plane. A work item in such a cycle is imported without a cycle.
 - **Issue relations** — "blocks", "relates to", and "duplicates" only. "Blocked by" is
   imported as the other work item's "blocks". Plane does not say which of two duplicates is
   the original, so that direction is not kept. A relation to a work item in another Plane

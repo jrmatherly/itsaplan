@@ -266,3 +266,47 @@ describe('listIssueRelations', () => {
     ]);
   });
 });
+
+describe('listCycleIssues', () => {
+  const base = 'https://plane.example.test/api/v1/workspaces/acme/projects/project-1';
+
+  it("returns a page of the cycle's work-item ids and the next cursor", async () => {
+    const sent: SentRequest[] = [];
+    const envelope = {
+      results: [{ id: 'issue-1' }, { id: 'issue-2' }],
+      next_cursor: '100:1:0',
+      next_page_results: true,
+    };
+    const reader = readerAnswering(Response.json(envelope), sent);
+
+    expect(await reader.listCycleIssues('cycle-1', null)).toEqual({
+      items: ['issue-1', 'issue-2'],
+      cursor: '100:1:0',
+    });
+    expect(sent[0]!.url).toBe(`${base}/cycles/cycle-1/cycle-issues/?per_page=100`);
+  });
+
+  it('sends the cursor it is given', async () => {
+    const sent: SentRequest[] = [];
+    const envelope = {
+      results: [{ id: 'issue-3' }],
+      next_cursor: '100:2:0',
+      next_page_results: false,
+    };
+    const reader = readerAnswering(Response.json(envelope), sent);
+
+    expect(await reader.listCycleIssues('cycle-1', '100:1:0')).toEqual({
+      items: ['issue-3'],
+      cursor: null,
+    });
+    expect(sent[0]!.url).toBe(
+      `${base}/cycles/cycle-1/cycle-issues/?per_page=100&cursor=100%3A1%3A0`,
+    );
+  });
+
+  it('returns an empty last page on a 404', async () => {
+    const reader = readerAnswering(new Response('Not found', { status: 404 }));
+
+    expect(await reader.listCycleIssues('cycle-gone', null)).toEqual({ items: [], cursor: null });
+  });
+});
