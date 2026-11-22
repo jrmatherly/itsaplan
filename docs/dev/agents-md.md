@@ -20,6 +20,7 @@ a wrong line. So these files contain only what an agent would get wrong without 
 | --------------------------------------------------------- | ---------------------------------------- |
 | A rule the code does not show, that most tasks there need | the nearest `AGENTS.md`                  |
 | A rule a tool can check                                   | the tool: ESLint, tsc, a test, CI        |
+| A rule with no exception that Claude Code can block       | `.claude/settings.json`, a deny rule     |
 | How a feature works, a walkthrough, a design reason       | `docs/dev/<topic>.md`                    |
 | A rule for one topic only                                 | that doc, plus one routing row           |
 | Steps for a rare procedure                                | `docs/dev/<topic>.md`                    |

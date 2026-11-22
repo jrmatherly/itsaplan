@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "deny": [
+      "Edit(/packages/db/src/schema/auth.ts)",
+      "Bash(npm *)",
+      "Bash(pnpm *)",
+      "Bash(yarn *)",
+      "Bash(* --no-verify)",
+      "Bash(* --no-verify *)",
+      "Bash(drizzle-kit push)",
+      "Bash(drizzle-kit push *)",
+      "Bash(* drizzle-kit push)",
+      "Bash(* drizzle-kit push *)"
+    ]
+  }
+}
