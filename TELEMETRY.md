@@ -4,7 +4,9 @@ A self-hosted instance sends one snapshot of itself a day. It tells the project 
 versions are still running, which features get used, and where deliveries fail on
 machines nobody reports from.
 
-Telemetry is on by default. Everything it sends is listed below.
+The worker sends it unless told not to. The compose files and the Helm chart in this
+repository set `TELEMETRY_DISABLED=1`, so a deployment made from them sends nothing.
+Everything it sends when it is on is listed below.
 
 ## When it is sent
 
@@ -16,9 +18,10 @@ spreads the traffic instead of every instance reporting at midnight UTC.
 A send that fails is retried with a growing delay for five attempts, then once an hour.
 The worker logs each failure and carries on with its other work.
 
-## Turning it off
+## Turning it on or off
 
-Set either variable in `.env`:
+With the compose files, set `TELEMETRY_DISABLED=0` in `.env` to turn it on. Where the worker
+runs without them, such as `bun run dev`, it is on unless you set either variable in `.env`:
 
 ```bash
 TELEMETRY_DISABLED=1

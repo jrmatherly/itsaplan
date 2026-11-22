@@ -177,7 +177,7 @@ services:
       APP_URL: ${APP_URL:?public origin of the web app, e.g. https://app.example.com}
       # Anonymous telemetry (TELEMETRY.md). Either variable, set to anything but 0,
       # turns it off.
-      TELEMETRY_DISABLED: ${TELEMETRY_DISABLED:-}
+      TELEMETRY_DISABLED: ${TELEMETRY_DISABLED:-1}
       DO_NOT_TRACK: ${DO_NOT_TRACK:-}
       TELEMETRY_DEBUG: ${TELEMETRY_DEBUG:-}
       # The same list the api reads. This process delivers webhooks to those hosts.

@@ -44,7 +44,7 @@ data. [Fast Deploy](https://itsaplan.dev/pro#fast-deploy) in your Pro account in
 stack with Caddy for HTTPS on a new server in your Hetzner, Vultr or DigitalOcean account.
 
 `.env.example` documents every variable, including the optional ones: legal document URLs,
-passkey and cookie settings, telemetry opt-out, and worker tuning.
+passkey and cookie settings, the telemetry switch, and worker tuning.
 
 ## Where the api lives
 
