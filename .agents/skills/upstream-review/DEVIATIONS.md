@@ -27,6 +27,7 @@ A new deviation gets a row in the same change that makes it. A removed path also
 | Docs recommend upstream's own services: "Railway — recommended" in `README.md`, "Pro (recommended)" in `docs/coolify.md`, and `SECURITY.md` sends dependency findings "upstream" | The Railway heading has no "recommended" and says upstream runs the template; `docs/coolify.md` says "Pro (upstream images)"; the commercial-licence paragraph in `README.md` names upstream as the licensor; `SECURITY.md` says "that dependency's project" | KEEP the wording. |
 | Conduct reports go to `conduct@itsaplan.dev` | go to the fork owner on GitHub, in `CODE_OF_CONDUCT.md` | KEEP. |
 | Contributor licence agreement | none | See "Deleted paths". `CONTRIBUTING.md` has no CLA section: KEEP. |
+| `packages/runner/README.md` links to upstream's `docs/runner.md` by absolute URL | a relative link to `docs/runner.md` | KEEP. The fork does not publish the package, so the README is read on GitHub and in clones. |
 
 ## Deliberately left on upstream
 

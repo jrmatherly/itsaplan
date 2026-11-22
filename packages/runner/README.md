@@ -30,7 +30,7 @@ the issue and writes its result through MCP.
 **3. Give the coding agent the address of that server.** Claude Code, Oh My Pi, Mastra
 Code, and Pi (through `pi-mcp-adapter`) read `.mcp.json` from the folder they run in. For
 the other CLIs, see
-[Coding agent setup](https://github.com/croffasia/itsaplan/blob/main/docs/runner.md).
+[Coding agent setup](../../docs/runner.md).
 
 ```json
 {
@@ -88,7 +88,7 @@ flags for an unattended run, and the session resume. Every preset keeps a chat s
 | `mastracode`  | [Mastra Code](https://code.mastra.ai)                                        |
 
 Each preset needs the CLI's own MCP config.
-[Coding agent setup](https://github.com/croffasia/itsaplan/blob/main/docs/runner.md) holds
+[Coding agent setup](../../docs/runner.md) holds
 that file, and the notes for each CLI.
 
 `--agent` on the command line has priority over the file, except over an `agents` entry
