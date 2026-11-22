@@ -59,6 +59,10 @@ api:
     # PASSKEY_RP_NAME: "It's a Plan"
     # Fallback From address, read by the api and the worker. Resend needs a From address.
     # EMAIL_FROM: "It's a Plan <notifications@example.com>"
+    # Private hosts a server-side fetch may reach, comma-separated, read by the api and the worker.
+    # SSRF_ALLOWED_HOSTS: "git.internal.example.com"
+    # Days the pre-migration dumps are kept. Unset keeps them 30 days.
+    # BACKUP_RETENTION_DAYS: "30"
     S3_BUCKET: ""
     S3_REGION: "us-east-1"
     S3_FORCE_PATH_STYLE: "true"
@@ -122,6 +126,8 @@ worker:
     pullPolicy: IfNotPresent
   env:
     DO_NOT_TRACK: "1"
+    # "1" logs the exact telemetry body before each send.
+    # TELEMETRY_DEBUG: "1"
   resources: {}
   nodeSelector: {}
   tolerations: []

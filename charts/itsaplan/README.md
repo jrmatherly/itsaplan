@@ -219,6 +219,8 @@ god mode, under **License**.
 | `api.healthcheck.timeoutSeconds`      | Probe timeout                                             | `5`                              |
 | `api.healthcheck.failureThreshold`    | Probe failure threshold                                   | `5`                              |
 | `api.env.SKIP_PRE_MIGRATION_BACKUP`   | `"1"` migrates without the pre-migration dump             | (unset)                          |
+| `api.env.BACKUP_RETENTION_DAYS`       | Days the pre-migration dumps are kept                     | (unset, 30)                      |
+| `api.env.SSRF_ALLOWED_HOSTS`          | Private hosts a server-side fetch may reach (api, worker) | (unset)                          |
 | `api.backups.persistence.enabled`     | Keep the pre-migration dump on a volume                   | `false`                          |
 | `api.backups.persistence.size`        | Backup volume size                                        | `10Gi`                           |
 | `api.backups.persistence.storageClass` | Backup volume storage class                              | `""`                             |
@@ -255,6 +257,7 @@ god mode, under **License**.
 | `worker.image.tag`              | Image tag (defaults to `appVersion`) | `""`                                |
 | `worker.image.pullPolicy`       | Image pull policy                    | `IfNotPresent`                      |
 | `worker.env.DO_NOT_TRACK` | Keeps telemetry off unless `"0"` | `"1"` |
+| `worker.env.TELEMETRY_DEBUG` | `"1"` logs the telemetry body before each send | (unset) |
 | `worker.resources`              | CPU/memory requests and limits       | `{}`                                |
 | `worker.nodeSelector`           | Node selector                        | `{}`                                |
 | `worker.tolerations`            | Tolerations                          | `[]`                                |
