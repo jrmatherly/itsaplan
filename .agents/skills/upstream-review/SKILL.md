@@ -24,7 +24,8 @@ a conflict, and add a row in the same change that creates a new difference.
   is squash-merged, so say this in the PR description.
 - **Upstream's commits reach `main` with their own subjects.** release-please reads them: an
   upstream `feat:` raises the fork's next minor version and is listed in `CHANGELOG.md`, and its
-  `(#NNN)` links to this fork's pull request of that number. Tell the owner before the first merge.
+  `(#NNN)` would link to this fork's pull request of that number. This is inferred from how
+  release-please reads commits and is not tested. Tell the owner before the first merge.
 - **A SKIP is a merge followed by a revert.** Merge, then `git revert <sha>` with the subject
   `revert: <original subject> (upstream <short-sha>)`, and add a row to DEVIATIONS.md with the SHA.
   Holding back the whole merge for one commit leaves every later commit unmerged.
@@ -68,7 +69,7 @@ Markers in `--stat`, our `HEAD` against the commit's own parent:
 | | Meaning | In a merge |
 | --- | --- | --- |
 | `=` | ours equals the pre-image | clean |
-| `<` | ours equals the merge-base | an earlier un-reviewed upstream commit touched it; both come |
+| `<` | ours equals the merge-base | an earlier unmerged upstream commit touched it; both come |
 | `~` | ours differs from both | we changed it; resolve by its DEVIATIONS.md row |
 | `x` | we removed it | check "Deleted paths" in DEVIATIONS.md |
 | `+` | new upstream file | created |
@@ -76,7 +77,8 @@ Markers in `--stat`, our `HEAD` against the commit's own parent:
 
 ## Method
 
-1. Run `--stat` and `--github`.
+1. Run `--stat` and `--github`. "Nothing new to review" with commits not merged yet means a
+   reviewed window is waiting: go to step 7 with the tip SHA in the last decision log.
 2. For each commit that is not `[merge]` or `[picked]`, run `--show <sha>` and read the diff. For a
    window over about 20 commits, give each area to a subagent with the SHAs and steps 2 to 4.
 3. Run the checks under "What to look for" on the window.
@@ -87,21 +89,24 @@ Markers in `--stat`, our `HEAD` against the commit's own parent:
 6. Write the decision log from the template below, with file-level evidence for each verdict.
 7. Run `--dry-run-merge` again and check it names the tip SHA you reviewed. On a branch:
    `git merge <tip-sha>`, resolve, apply the SKIP reverts, run the validation batch.
-8. `--advance <tip-sha>` with the SHA from the listing you reviewed, and include `.upstream-review/`
-   in the merge's pull request.
+8. `--advance <tip-sha>` with the SHA from the listing you reviewed, and commit `.upstream-review/`.
+
+A review can be recorded before its merge: write the log, advance, and merge later. The watermark
+then runs ahead of the merge-base. `--dry-run-merge` and `git merge <tip-sha>` always cover every
+unmerged commit up to that SHA, reviewed in this window or an earlier one.
 
 ## What to look for
 
 A clean merge can still break the fork. Check the window for each of these:
 
 - **A new environment variable.**
-  `git diff <base> upstream/main | grep -E '^\+.*(process|Bun)\.env\.'`. Root `AGENTS.md` says
-  where each one goes: `.env.example`, the five compose files and the Helm chart. Upstream does
-  not always add all of them.
+  `git diff <last-reviewed-sha> <tip-sha> | grep -E '^\+.*(process|Bun)\.env\b'`. Root `AGENTS.md`
+  says where each one goes: `.env.example`, the five compose files and the Helm chart. Upstream
+  does not always add all of them.
 - **A new image, service or workflow.** It names `ghcr.io/croffasia` or an unpinned action. Apply
   the "Distribution" and "CI" rows.
 - **A new link to `croffasia/itsaplan` or `itsaplan.dev`.**
-  `git diff <base> upstream/main | grep -E '^\+.*(croffasia|itsaplan\.dev)'`. Decide by the
+  `git diff <last-reviewed-sha> <tip-sha> | grep -E '^\+.*(croffasia|itsaplan\.dev)'`. Decide by the
   "Distribution" and "Deliberately left on upstream" tables.
 - **A telemetry change.** Any hunk in `apps/worker/src/telemetry*.ts` or `TELEMETRY.md`.
 - **A migration.** New files in `packages/db/drizzle/`. The fork has none of its own. If it ever
@@ -164,5 +169,6 @@ Window: <last-reviewed-short>..<tip-full-sha> (<N> commits). Merge-base <short>.
 - Squash-merging the upstream pull request.
 - Merging without `--dry-run-merge`, or resolving a `~` conflict without reading its row.
 - Running `git fetch upstream` without `--no-tags` in a clone the driver has not configured.
-- Advancing the watermark before the decision log names the SHA. The driver refuses.
+- Advancing the watermark before a decision log has the `Window:` line for the SHA. The driver
+  refuses.
 - Changing an upstream-owned file without adding a row to DEVIATIONS.md.

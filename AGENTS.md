@@ -22,7 +22,8 @@ Before you change files in an app or package, read its `AGENTS.md`: `apps/api`, 
   no Bun or Node APIs. Dependencies run `api → @repo/auth → @repo/db → @repo/crypto`.
 - A server-side fetch of a supplied URL goes through `@repo/net`, the SSRF guard.
 - Add a row to `.agents/skills/upstream-review/DEVIATIONS.md` in the same change as a deliberate
-  edit to a file that upstream `croffasia/itsaplan` also has. A later upstream merge reads the row.
+  edit to a file that upstream `croffasia/itsaplan` also has. The row says which side to keep when
+  a later upstream merge conflicts there.
 - Never skip the pre-commit hook with `--no-verify`. It runs `eslint --fix` and `prettier --write`.
 - Minimum comments. A comment says why; the code says what. No comment longer than its code, none
   on layout or styling. Change or delete a comment in the same edit as its code. Full rules are

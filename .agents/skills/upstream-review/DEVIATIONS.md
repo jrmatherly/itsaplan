@@ -57,7 +57,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | `release-please-config.json` updates `Chart.yaml` | also updates the version block in `docs/helm.md` | ADAPT. |
 | `docs/dev/releasing.md` has no note on registry visibility | a bullet says each new GHCR package starts private and is set to public by hand | KEEP the bullet. |
 | Version tokens and `CHANGELOG.md` follow upstream's releases | follow the fork's own release-please runs | KEEP ours in `package.json` `version`, `.release-please-manifest.json`, `charts/itsaplan/Chart.yaml` `version` and `appVersion`, the `docs/helm.md` version block and `CHANGELOG.md`. An upstream `chore: release main` commit is ADOPT for everything else it touches. |
-| Tags `vX.Y.Z` name upstream's release commits | The fork cuts its own `vX.Y.Z` tags. The same number names a different commit in each repository. | Never fetch upstream's tags (the driver sets `remote.upstream.tagOpt --no-tags`). Never dispatch the publish workflows for `v1.12.0`: that tag's chart names upstream's images. |
+| Tags `vX.Y.Z` name upstream's release commits | The fork cuts its own `vX.Y.Z` tags from its first release. From then on the same number names a different commit in each repository. | Never fetch upstream's tags (the driver sets `remote.upstream.tagOpt --no-tags`). Never dispatch the publish workflows for `v1.12.0`: that tag's chart names upstream's images. |
 
 ## Agent rules and their checks (PR 1, `f41815c7`; PR 7, `1de9700a`)
 
@@ -65,12 +65,12 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | --- | --- | --- |
 | no `.claude/` settings | `.claude/settings.json` with deny rules for the no-exception rules | KEEP ours for `.claude/settings.json`, also when upstream adds a file at that path. Any other upstream file under `.claude/` is ADAPT: read it, port what is useful. |
 | `scripts/agents-md.test.ts` checks size and paths | also checks each `AGENTS.md` has a `CLAUDE.md` holding `@AGENTS.md` | ADAPT. |
-| The Dockerfile workspace rule is prose in `AGENTS.md` | `scripts/dockerfile-workspaces.test.ts` checks it; the `AGENTS.md` line is removed | KEEP the test. If upstream edits the removed line, drop the hunk. |
-| "Never `process.env.NEXT_PUBLIC_*` in a component" is prose in `apps/web/AGENTS.md` | a `no-restricted-syntax` rule in `apps/web/eslint.config.mjs`; the sentence is removed | KEEP the rule. An upstream file that reads `process.env.NEXT_PUBLIC_*` fails the fork's lint: ADAPT it to `utils/runtimeEnv`. |
-| `docs/dev/agents-md.md` | adds the deny-rule row and the CI checks the fork runs | ADAPT. |
-| `.agents/skills/tidy/SKILL.md` points at `.cursor/rules/` | the pointer is removed | KEEP. |
+| The Dockerfile workspace rule is prose in `AGENTS.md` | `scripts/dockerfile-workspaces.test.ts` checks it; `AGENTS.md` has no such line | KEEP the test. If upstream edits that line, drop the hunk. |
+| "Never `process.env.NEXT_PUBLIC_*` in a component" is prose in `apps/web/AGENTS.md` | a `no-restricted-syntax` rule in `apps/web/eslint.config.mjs`; `apps/web/AGENTS.md` has no such sentence | KEEP the rule. An upstream file that reads `process.env.NEXT_PUBLIC_*` fails the fork's lint: ADAPT it to `utils/runtimeEnv`. |
+| `docs/dev/agents-md.md` | adds the deny-rule row, the row for a difference from upstream and the CI checks the fork runs; its "Good" example quotes the fork's Coolify rule | ADAPT. |
+| `.agents/skills/tidy/SKILL.md` points at `.cursor/rules/` | no pointer: the repository tracks no `.cursor/rules/` | KEEP. |
 | no `upstream-review` skill | `.agents/skills/upstream-review/`, `.upstream-review/`, and a rule in root `AGENTS.md` that points at this file | KEEP (fork-only). |
-| `apps/web/AGENTS.md`: "One component per file, no exceptions. On finding a file with two, split it. File name = exported name, with the feature name as a PascalCase prefix." | "**One component per file.** File name = exported name." | KEEP ours if upstream edits the bullet. 351 of the 856 component files lack the prefix, and four files have exported two components since the first commit. |
+| `apps/web/AGENTS.md`: "One component per file, no exceptions. On finding a file with two, split it. File name = exported name, with the feature name as a PascalCase prefix." | "**One component per file.** File name = exported name." | KEEP ours if upstream edits the bullet. The code does not follow the prefix or the "no exceptions" clause. |
 | `apps/api/AGENTS.md`: jsonb is validated "only as `t.Any()`"; a SCIM `project_member` row is refused "for edit or removal" | no `t.Any()` clause; refused "for a role change or removal" | KEEP. Several models validate jsonb with a schema, and the description route has no SCIM check. |
 | `apps/worker/AGENTS.md`: leases and attempts come from the job settings | adds that imports read only their poll interval there | KEEP the added sentence. |
 | `packages/auth/AGENTS.md`: switch to `sameSite: "none"` when frontend and backend are on different domains | keep `lax`: subdomains share the cookie and another registrable domain is not supported | KEEP. |
