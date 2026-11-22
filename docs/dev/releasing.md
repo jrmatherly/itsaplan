@@ -24,4 +24,6 @@ Release config traps:
   `changelog-sections` from the release notes.
 - Keep `"package-name": ""` in `release-please-config.json`. Without it, release-please skips
   every release and stops at `There are untagged, merged release PRs outstanding - aborting`.
-
+- A package a release publishes to GHCR for the first time is private. Set each new one to public
+  in its package settings: the four `itsaplan-*` images and `charts/itsaplan`. Until then
+  `docker compose pull` and `helm install` fail for a user who is not signed in to the registry.
