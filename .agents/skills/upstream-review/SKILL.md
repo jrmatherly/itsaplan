@@ -135,6 +135,10 @@ bun run test              # needs the test Postgres; see docs/development.md
 
 Say in the decision log which of these ran and which did not.
 
+- When `bun run lint` fails on `no-restricted-imports` in a file the merge brought in, add the pair
+  to `allowedFeatureImports` in `apps/web/eslint.config.mjs` in the merge PR and name the pair in
+  the PR body.
+
 ## Decision log template
 
 ```markdown

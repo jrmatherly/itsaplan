@@ -7,9 +7,9 @@ Next.js App Router. Pages server-render, API data loads in the browser. Tailwind
 - Imports within the same feature are relative (`./`, `../`). The shared layer and other features
   use the `@/` alias.
 - A feature imports the shared layer (`@/utils`, `@/lib`, `@/hooks`, `@/context`, `@/services`,
-  `@/i18n`, `@/components/*`), never another feature. One accepted one-way exception: `work-items`
-  and `documents` may compose `issue` components (the read-only issue a public board or document
-  opens). A second such need moves the piece to `components/common`.
+  `@/i18n`, `@/components/*`), never another feature. ESLint fails a new cross-feature import. The
+  existing ones are listed in `allowedFeatureImports` in `eslint.config.mjs`; a second need for a
+  piece moves it to `components/common`.
 - The shared layer never imports a feature. `app/` pages stay thin: mount the feature page and
   providers, or redirect.
 

@@ -77,6 +77,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | `apps/worker/AGENTS.md`: leases and attempts come from the job settings | adds that imports read only their poll interval there | KEEP the added sentence. |
 | `packages/auth/AGENTS.md`: switch to `sameSite: "none"` when frontend and backend are on different domains | keep `lax`: subdomains share the cookie and another registrable domain is not supported | KEEP. |
 | Root `AGENTS.md`: "Never add `image:` to `docker-compose.coolify.yml`" | "to a service that has `build:`" | KEEP. Three services in that file have `image:` and no `build:`. |
+| The cross-feature import rule is prose in `apps/web/AGENTS.md`, and the code has 15 exceptions to it | a `no-restricted-imports` rule in `apps/web/eslint.config.mjs` with an allowlist of those pairs; the `apps/web/AGENTS.md` bullet points at it | KEEP the rule. An upstream file that adds a pair fails the fork's lint: extend the allowlist in the merge PR. |
 
 ## Environment variables that reach the services (PR 10)
 
