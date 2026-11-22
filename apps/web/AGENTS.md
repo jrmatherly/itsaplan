@@ -15,8 +15,7 @@ Next.js App Router. Pages server-render, API data loads in the browser. Tailwind
 
 ## Feature structure
 
-- **One component per file, no exceptions.** On finding a file with two, split it. File name =
-  exported name, with the feature name as a PascalCase prefix.
+- **One component per file.** File name = exported name.
 - Split a component past ~120 lines or one that mixes layout, fetch, mutation and dialog.
 - A feature's parts go in `components/`, `hooks/`, `context/`, `services/`, `utils/`, even when a
   folder holds one file. A React context and its `use*` reader go in `context/`. The feature root

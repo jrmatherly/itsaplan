@@ -7,7 +7,7 @@
       "Bash(yarn *)",
       "Bash(* --no-verify)",
       "Bash(* --no-verify *)",
-      "Bash(git commit -n *)",
+      "Bash(git commit -n*)",
       "Bash(git commit * -n)",
       "Bash(git commit * -n *)",
       "Bash(drizzle-kit push)",

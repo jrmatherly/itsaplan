@@ -1,0 +1,12 @@
+{
+  "upstreamUrl": "https://github.com/croffasia/itsaplan.git",
+  "upstreamRemote": "upstream",
+  "upstreamBranch": "main",
+  "forkPointSha": "3c0875ea1130ef0b269e6568b36fdd356833d714",
+  "forkPointDate": "2026-11-21",
+  "lastReviewedSha": "d913129c20291db7774f4dc52b7abf91de030caf",
+  "lastReviewedShaShort": "d913129c",
+  "lastReviewedDate": "2026-11-22",
+  "note": "forkPointSha is the upstream commit the fork was created from and never moves. lastReviewedSha is the last upstream commit reviewed; advance it with .agents/skills/upstream-review/scripts/upstream-review.sh --advance <tip-sha>. The driver computes the merge-base itself.",
+  "lastAdvancedAt": "2026-11-22T20:20:21Z"
+}

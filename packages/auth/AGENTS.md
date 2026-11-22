@@ -37,5 +37,5 @@ sign-in method, setting and token works. Read it before you change one.
   provider could name any address.
 - **`API_URL` with a path:** better-auth's `baseURL` gets only the origin. Every public URL built
   from it gets the path back through `apiPublicUrl` / `withPublicOrigin`.
-- **Cookies:** `sameSite: "lax"`. If frontend and backend run on different domains, switch to
-  `sameSite: "none"` + `secure: true`.
+- **Cookies:** `sameSite: "lax"`. Keep it: subdomains share the cookie through
+  `crossSubDomainCookies`, and an api on another registrable domain is not supported.

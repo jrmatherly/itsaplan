@@ -1,0 +1,109 @@
+# Deviations from upstream
+
+Every place this fork differs from `croffasia/itsaplan` on purpose. A merge conflict in a path
+listed here is resolved by its row. A conflict in a path not listed here is a deviation nobody
+recorded: add the row first, then resolve.
+
+Hunk rules used in Notes:
+
+- **KEEP**: the file or line is ours. Keep our side.
+- **ADAPT**: take upstream's change, then re-apply what the row says is ours.
+- **ADOPT**: take upstream's side. Listed only where a reader might expect otherwise.
+- **SKIP**: we do not carry the upstream change. Merge, then revert it in its own commit, and name
+  the SHA here.
+
+A new deviation gets a row in the same change that makes it. A removed path also gets a line under
+"Deleted paths". The footprint is `upstream-review.sh --diverged`.
+
+## Distribution and ownership (PR 4, `5945ce20`)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| Community images `ghcr.io/croffasia/itsaplan-{api,worker,bot,web}` | `ghcr.io/jrmatherly/itsaplan-*` in `docker-compose.yml`, `docker-compose.coolify-images.yml`, `charts/itsaplan/values.yaml` and `charts/itsaplan/README.md`. `publish-images.yml` takes the owner from `github.repository`, and `docker-compose.coolify.yml` builds from source. | ADAPT. An upstream hunk that adds or renames a community image keeps the service change and takes our registry owner. |
+| Chart published to and installed from `oci://ghcr.io/croffasia/charts` | `oci://ghcr.io/jrmatherly/charts`; `Chart.yaml` has `home` and `sources` naming the fork | ADAPT in `docs/helm.md` and the comment in `publish-chart.yml`. |
+| Update feed `https://github.com/croffasia/itsaplan/releases.atom` | the fork's feed, in `apps/api/src/modules/settings/updates.ts` | KEEP the URL. The instance reports the fork's releases, so the fork's versions must be the ones it compares. |
+| Repository links, clone URL, Discussions and advisory links name `croffasia/itsaplan` | name `jrmatherly/itsaplan` in `README.md`, `SECURITY.md`, `docs/development.md`, `docs/self-hosting.md`, `docs/coolify.md`, `docs/runner.md`, `docs/agent-endpoint.md`, `charts/itsaplan/README.md`, `.github/ISSUE_TEMPLATE/config.yml`, `.github/CODEOWNERS` and the `TODO(jrmatherly)` owner in `.github/workflows/ci.yml` | ADAPT. A new upstream link to its own repository becomes ours unless it points at something only upstream has (next table). |
+| `README.md` opens with the product; Trendshift badges and a Product Hunt link | a fork notice at the top that names what upstream runs; no Trendshift or Product Hunt (PR 6, `e03a41ef`) | ADAPT. Feature-list hunks are ADOPT. A returning badge is dropped again. |
+| Docs recommend upstream's own services: "Railway — recommended" in `README.md`, "Pro (recommended)" in `docs/coolify.md`, and `SECURITY.md` sends dependency findings "upstream" | The Railway heading has no "recommended" and says upstream runs the template; `docs/coolify.md` says "Pro (upstream images)"; the commercial-licence paragraph in `README.md` names upstream as the licensor; `SECURITY.md` says "that dependency's project" | KEEP the wording. |
+| Conduct reports go to `conduct@itsaplan.dev` | go to the fork owner on GitHub, in `CODE_OF_CONDUCT.md` | KEEP. |
+| Contributor licence agreement | none | See "Deleted paths". `CONTRIBUTING.md` has no CLA section: KEEP. |
+
+## Deliberately left on upstream
+
+These name upstream on purpose. An upstream change to them is ADOPT.
+
+| Path or value | Why it stays |
+| --- | --- |
+| Pro images `ghcr.io/croffasia/itsaplan-pro-*` in `docker-compose.pro.yml` and `docker-compose.coolify-pro.yml` | The Pro build is upstream's product and the fork does not build it. |
+| `packages/runner` npm name, repository and author metadata | The package is published to npm by upstream. |
+| Copyright lines and `LICENSE` files | They state who holds the copyright. |
+| `itsaplan.dev` links in `apps/web/src/utils/app.ts` and `apps/api/src/modules/project-templates/publish.ts` | They point at upstream's site and template gallery. |
+| The telemetry collector address | The collector is upstream's. The fork changes only whether the worker sends to it. |
+
+## Telemetry (PR 4, `5945ce20`)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| The worker sends telemetry unless `TELEMETRY_DISABLED` is set to a value other than `0` | The worker sends nothing unless `TELEMETRY_DISABLED=0`: `apps/worker/src/telemetry.ts`, `apps/worker/src/telemetry-schedule.ts` | KEEP the switch logic. ADAPT any upstream change to what is sent. Pinned by `apps/worker/src/__tests__/integration/telemetry-switch.test.ts` and `apps/worker/src/__tests__/unit/telemetry-schedule.test.ts`. |
+| Compose files and `.env.example` describe opt-out | describe opt-in and default it off; the chart has no `worker.env.TELEMETRY_DISABLED` | KEEP in the five compose files, `.env.example`, `charts/itsaplan/values.yaml`, the telemetry rows of the values table in `charts/itsaplan/README.md`, `TELEMETRY.md`, and "the telemetry switch" in `docs/coolify.md` and `docs/self-hosting.md`. `TELEMETRY.md` and the worker's log line say the collector is run by the upstream project: KEEP. |
+
+## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| Actions referenced by tag (`actions/checkout@v7`) | Every action pinned to a commit SHA with the tag as a comment; every step has a name | ADAPT in every file under `.github/workflows/`. Take upstream's job or step change, then pin and name it. Renovate keeps the pins current. |
+| The chart job uses the runner image's Helm | `publish-chart.yml` installs a pinned Helm 4 (`HELM_VERSION`) | KEEP. `docs/helm.md` and `charts/itsaplan/README.md` state Helm 4: KEEP. |
+| no `renovate.json` | `renovate.json`, scoped to the action pins and `HELM_VERSION` | KEEP (fork-only file). npm packages, base images, runner images and Bun are out of its scope on purpose. |
+| `release-please-config.json` updates `Chart.yaml` | also updates the version block in `docs/helm.md` | ADAPT. |
+| `docs/dev/releasing.md` has no note on registry visibility | a bullet says each new GHCR package starts private and is set to public by hand | KEEP the bullet. |
+| Version tokens and `CHANGELOG.md` follow upstream's releases | follow the fork's own release-please runs | KEEP ours in `package.json` `version`, `.release-please-manifest.json`, `charts/itsaplan/Chart.yaml` `version` and `appVersion`, the `docs/helm.md` version block and `CHANGELOG.md`. An upstream `chore: release main` commit is ADOPT for everything else it touches. |
+| Tags `vX.Y.Z` name upstream's release commits | The fork cuts its own `vX.Y.Z` tags. The same number names a different commit in each repository. | Never fetch upstream's tags (the driver sets `remote.upstream.tagOpt --no-tags`). Never dispatch the publish workflows for `v1.12.0`: that tag's chart names upstream's images. |
+
+## Agent rules and their checks (PR 1, `f41815c7`; PR 7, `1de9700a`)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| no `.claude/` settings | `.claude/settings.json` with deny rules for the no-exception rules | KEEP ours for `.claude/settings.json`, also when upstream adds a file at that path. Any other upstream file under `.claude/` is ADAPT: read it, port what is useful. |
+| `scripts/agents-md.test.ts` checks size and paths | also checks each `AGENTS.md` has a `CLAUDE.md` holding `@AGENTS.md` | ADAPT. |
+| The Dockerfile workspace rule is prose in `AGENTS.md` | `scripts/dockerfile-workspaces.test.ts` checks it; the `AGENTS.md` line is removed | KEEP the test. If upstream edits the removed line, drop the hunk. |
+| "Never `process.env.NEXT_PUBLIC_*` in a component" is prose in `apps/web/AGENTS.md` | a `no-restricted-syntax` rule in `apps/web/eslint.config.mjs`; the sentence is removed | KEEP the rule. An upstream file that reads `process.env.NEXT_PUBLIC_*` fails the fork's lint: ADAPT it to `utils/runtimeEnv`. |
+| `docs/dev/agents-md.md` | adds the deny-rule row and the CI checks the fork runs | ADAPT. |
+| `.agents/skills/tidy/SKILL.md` points at `.cursor/rules/` | the pointer is removed | KEEP. |
+| no `upstream-review` skill | `.agents/skills/upstream-review/`, `.upstream-review/`, and a rule in root `AGENTS.md` that points at this file | KEEP (fork-only). |
+| `apps/web/AGENTS.md`: "One component per file, no exceptions. On finding a file with two, split it. File name = exported name, with the feature name as a PascalCase prefix." | "**One component per file.** File name = exported name." | KEEP ours if upstream edits the bullet. 351 of the 856 component files lack the prefix, and four files have exported two components since the first commit. |
+| `apps/api/AGENTS.md`: jsonb is validated "only as `t.Any()`"; a SCIM `project_member` row is refused "for edit or removal" | no `t.Any()` clause; refused "for a role change or removal" | KEEP. Several models validate jsonb with a schema, and the description route has no SCIM check. |
+| `apps/worker/AGENTS.md`: leases and attempts come from the job settings | adds that imports read only their poll interval there | KEEP the added sentence. |
+| `packages/auth/AGENTS.md`: switch to `sameSite: "none"` when frontend and backend are on different domains | keep `lax`: subdomains share the cookie and another registrable domain is not supported | KEEP. |
+| Root `AGENTS.md`: "Never add `image:` to `docker-compose.coolify.yml`" | "to a service that has `build:`" | KEEP. Three services in that file have `image:` and no `build:`. |
+
+## Local tooling
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| `.gitignore` | adds `.remember/`, `.codegraph/`, `/private/` | ADAPT. Keep both sides. |
+| no `.serena/` | `.serena/project.yml`, `.serena/.gitignore` | KEEP (fork-only). |
+
+## Docs corrected against the code (PR 8, `920a9cfb`)
+
+Each row is a statement upstream's doc gets wrong and the code proves otherwise. All are ADAPT:
+take upstream's new content, keep our corrected fact. When upstream's hunk also changes the code
+the fact rests on, check the fact against the new code before keeping either side.
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| Import guides quote labels the app does not show: **Test connection**, "choose under Source", "Leave unassigned", "The source's rate limit was reached", an **Export** section | The labels in `apps/web/messages/en/settings.json`: **Connect**, the source tabs, **Import** and **Don't import**, "The source hit its request limit", the **Export as JSON** button | `docs/importing-from-{linear,plane,trello}.md`. Re-read the message file when upstream renames a label. |
+| Import guides and notes describe behaviour the importers do not have: Plane states matched by name, an inline image as plain text, an existing match never overwritten, seven Trello list keywords, a Linear import that stops on the first error; the Plane notes call comments, re-runs, relations and Linear undecided | What `apps/worker/src/` does: states by Plane group, first assignee only, cycles need both dates, an image link to Plane, a reused label takes the source colour, the full keyword list, retries up to `MAX_ATTEMPTS` | The three guides, `docs/dev/plane-import-source-notes.md`. Also `docs/dev/plane-import.md` (the Trello routes, markdown custom fields in Rewrite) and `docs/dev/linear-import.md` (`resolveDownloadRedirects`). The notes still say `blocked_by` is "read both ways": the importer stores it reversed, an open code finding. |
+| MCP is enabled per project in Settings, MCP Server, and is off by default; an agent is created in the project's settings | MCP access and the project list are in the team's settings and a new project starts on; an agent is created in the team's settings and attached | `docs/runner.md`, `packages/runner/README.md`. The README also lists the `event` trigger, and `docs/runner.md` says catalog mode also lists an agent's configured tools. |
+| The agent endpoint has no run events route; a stopped chat answer gets `canceled` from its result route; every MCP tool has an `outputSchema` | `POST /agent-runs/:runId/events`, `attempt` and `usage` on the run routes, `traceEvents`, what a stopped run returns, `canceled` from only the events and heartbeat routes of a stopped chat answer; an agent's configured tools have no `outputSchema` | `docs/agent-endpoint.md`, `docs/mcp-results.md`. Field names come from `apps/api/src/modules/agents/runner/model.ts`. |
+| Four paths in `docs/dev/agents.md` lack the `modules/agents/` prefix | the full paths | `docs/dev/agents.md`. |
+| The chart says the API cannot run behind a path prefix; the values table lacks `api.env.SKIP_PRE_MIGRATION_BACKUP`; a comment names `apiMode` and `apiHost` | A path in `API_URL` works when the proxy removes it; the row exists; the comment names `ingress.api.mode` and `ingress.api.host` | `charts/itsaplan/README.md`, `charts/itsaplan/values.yaml` (comments only). |
+| Self-hosting docs say eight required values, a generated worker token, and passkey settings and worker tuning in `.env` | seven values, no worker token, background job tuning in god mode, and only the optional variables the compose file passes | `docs/self-hosting.md`, `docs/coolify.md`, `docs/railway.md`. |
+| `access-model.md` omits private Docs pages and Docs share links; `revision-engine.md` lists five scopes, says nothing in the application writes a counter and shows a `project_member`-only query; `scim.md` ends mid-sentence | the `documentVisibleTo` check and `/share/document/*`; the `documents` and `runnerQueue` scopes, `appendRunEvents`, what `readRevs` joins, the lock order of `packages/db/AGENTS.md`; the finished sentence | `docs/dev/access-model.md`, `docs/dev/revision-engine.md`, `docs/dev/scim.md`. |
+| Contributor docs say four packages, web imports no package, no package builds, Bun 1.3+, `bun run dev` starts api and web, three generated secrets, `.env.test` for the api suite only | the ten packages, `@repo/editor` in web, `packages/runner` builds, Bun 1.4.4, four apps, two secrets, the four suites that read `.env.test` | `CONTRIBUTING.md`, `docs/development.md`. A Bun bump updates the version here. |
+| `DESIGN.md` gives the dark border as `white / 10%`; `SECURITY.md` says "before its first stable release"; `TELEMETRY.md` gives no Helm note for `TELEMETRY_DEBUG`; `agents-md.md` says a failing test blocks the merge | `12%`; fixes ship in the next release; the chart has no value for it; a failure fails the CI run | `DESIGN.md`, `SECURITY.md`, `TELEMETRY.md`, `docs/dev/agents-md.md`. The last two change when the chart gains the value or `main` gains required checks. |
+
+## Deleted paths
+
+- `ICLA.md`, `.github/workflows/cla.yml` (PR 4, `5945ce20`): the agreement named upstream's owner
+  as its only beneficiary. An upstream commit that touches either is SKIP, and the merge keeps the
+  deletion.

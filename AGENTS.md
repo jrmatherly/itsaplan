@@ -21,6 +21,8 @@ Before you change files in an app or package, read its `AGENTS.md`: `apps/api`, 
   calls the API over HTTP for everything else. `@repo/editor` also runs in the browser, so it uses
   no Bun or Node APIs. Dependencies run `api → @repo/auth → @repo/db → @repo/crypto`.
 - A server-side fetch of a supplied URL goes through `@repo/net`, the SSRF guard.
+- Add a row to `.agents/skills/upstream-review/DEVIATIONS.md` in the same change as a deliberate
+  edit to a file that upstream `croffasia/itsaplan` also has. A later upstream merge reads the row.
 - Never skip the pre-commit hook with `--no-verify`. It runs `eslint --fix` and `prettier --write`.
 - Minimum comments. A comment says why; the code says what. No comment longer than its code, none
   on layout or styling. Change or delete a comment in the same edit as its code. Full rules are
@@ -75,8 +77,8 @@ Then propose a commit message in chat. Never run `git commit` or `git push` unle
 - Add that variable to the Helm chart too: `values.yaml`, `templates/configmap.yaml` or
   `templates/secret.yaml`, and the values table in `charts/itsaplan/README.md`.
 - A deploy stack change usually needs an edit in the same five compose files and the Helm chart.
-- Never add `image:` to `docker-compose.coolify.yml`: with both `image:` and `build:` Coolify
-  still builds and stops making rollback images.
+- Never add `image:` to a service that has `build:` in `docker-compose.coolify.yml`: with both,
+  Coolify still builds and stops making rollback images.
 - Run exactly one `bot` replica. It uses Telegram long polling.
 - Migrations run as a separate step before the apps start. See `docs/dev/deploy-stack.md`.
 
