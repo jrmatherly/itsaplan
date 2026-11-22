@@ -168,7 +168,7 @@ server in your Hetzner, Vultr or DigitalOcean account. See [Pro edition](#pro-ed
 Requirements: Docker and [Bun](https://bun.sh).
 
 ```bash
-git clone https://github.com/croffasia/itsaplan.git
+git clone https://github.com/jrmatherly/itsaplan.git
 cd itsaplan
 bun install
 bun run setup   # answer "Try it"
@@ -209,20 +209,23 @@ gets merged. Be kind; we follow a [Code of Conduct](CODE_OF_CONDUCT.md).
 
 Thank you to everyone who has contributed to It's a Plan:
 
-<a href="https://github.com/croffasia/itsaplan/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=croffasia/itsaplan&columns=20" alt="Contributors" />
+<a href="https://github.com/jrmatherly/itsaplan/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=jrmatherly/itsaplan&columns=20" alt="Contributors" />
 </a>
 
-Not ready to contribute code? [Star the repo](https://github.com/croffasia/itsaplan) and share
+Not ready to contribute code? [Star the repo](https://github.com/jrmatherly/itsaplan) and share
 it — it is the simplest way to help the project grow.
 
 ## Security
 
 Found a vulnerability? Report it privately through
-[GitHub Security Advisories](https://github.com/croffasia/itsaplan/security/advisories/new),
+[GitHub Security Advisories](https://github.com/jrmatherly/itsaplan/security/advisories/new),
 not a public issue, so we can fix it first. Details in [SECURITY.md](SECURITY.md).
 
 ## License
+
+This repository is a fork of [croffasia/itsaplan](https://github.com/croffasia/itsaplan),
+modified since November 2026.
 
 Copyright © 2026 Andrii Poluosmak.
 

@@ -142,7 +142,7 @@ Without it, that run is the project's work.
 
 With `listen`, `@itsaplan/runner` is the endpoint. It receives the tasks on a port and
 runs them with a coding agent CLI, the same as when it polls. See
-[Receiving tasks on a port](https://github.com/croffasia/itsaplan/blob/main/packages/runner/README.md#receiving-tasks-on-a-port).
+[Receiving tasks on a port](https://github.com/jrmatherly/itsaplan/blob/main/packages/runner/README.md#receiving-tasks-on-a-port).
 
 ## Example: AWS Lambda
 

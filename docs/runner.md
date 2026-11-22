@@ -16,7 +16,7 @@ for the person of the agent's run. Without it, that run is the project's work.
 
 This page holds both files for each preset, and the notes that apply to that CLI. The
 runner's own settings are in its
-[README](https://github.com/croffasia/itsaplan/blob/main/packages/runner/README.md).
+[README](https://github.com/jrmatherly/itsaplan/blob/main/packages/runner/README.md).
 
 The instance can also send the tasks to an endpoint that you run. See
 [Agent endpoint](agent-endpoint.md).
