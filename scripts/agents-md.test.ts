@@ -36,6 +36,12 @@ describe('AGENTS.md files', () => {
       expect(statSync(join(ROOT, file)).size).toBeLessThanOrEqual(MAX_BYTES);
     });
 
+    test(`${file} has a CLAUDE.md beside it that only imports it`, () => {
+      const shim = join(ROOT, dirname(file), 'CLAUDE.md');
+      expect(existsSync(shim)).toBe(true);
+      expect(readFileSync(shim, 'utf8')).toBe('@AGENTS.md\n');
+    });
+
     test(`${file} names only paths that exist`, () => {
       expect(missingReferences(file)).toEqual([]);
     });
