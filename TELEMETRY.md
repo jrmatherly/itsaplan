@@ -88,6 +88,7 @@ domain, your keys, or anything else in the instance.
 
 ## Where it goes
 
-`https://telemetry.itsaplan.dev`, operated by the project. No third-party analytics
+`https://telemetry.itsaplan.dev`, operated by the upstream project
+([croffasia/itsaplan](https://github.com/croffasia/itsaplan)), not by this fork. No third-party analytics
 service is involved. The address is fixed in the worker; there is no setting that
 points it somewhere else.

@@ -9,6 +9,10 @@ way you give it to a colleague, and review the result yourself or let another ag
 Put agents on a schedule, or build a workflow that passes an issue from agent to agent.
 Self-hosted, on your own server.
 
+This repository is a fork of [croffasia/itsaplan](https://github.com/croffasia/itsaplan),
+modified since November 2026. The Railway template, the Pro edition and itsaplan.dev are
+run by the upstream project, not by this fork.
+
 <a href="https://trendshift.io/repositories/95056?utm_source=repository-badge&utm_medium=badge&utm_campaign=badge-repository-95056" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/repositories/95056" alt="#8 Repository of the Day on GitHub Trending" width="250" height="55"/></a>
 <a href="https://trendshift.io/repositories/95056?utm_source=trendshift-badge&utm_medium=badge&utm_campaign=badge-trendshift-95056" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/95056/daily?language=TypeScript" alt="#13 TypeScript Repository of the Day on Trendshift" width="250" height="55"/></a>
 
@@ -150,11 +154,12 @@ runs as Community. Your data stays when you switch editions.
 
 ## Getting started
 
-### Deploy on Railway — recommended
+### Deploy on Railway
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/its-a-plan?referralCode=lQ5O6i&utm_medium=integration&utm_source=button&utm_campaign=itsaplan)
 
-The whole stack in one click, with no server to maintain. You give Railway two hostnames,
+The upstream template deploys the upstream Pro images, not a build of this fork. The whole
+stack in one click, with no server to maintain. You give Railway two hostnames,
 and it generates every secret. You need a domain of your own: [the guide](docs/railway.md)
 explains why, and what to do after the deploy.
 
@@ -224,13 +229,10 @@ not a public issue, so we can fix it first. Details in [SECURITY.md](SECURITY.md
 
 ## License
 
-This repository is a fork of [croffasia/itsaplan](https://github.com/croffasia/itsaplan),
-modified since November 2026.
-
 Copyright © 2026 Andrii Poluosmak.
 
 [AGPL-3.0](LICENSE), except `packages/runner`, which is
 [Apache-2.0](packages/runner/LICENSE).
 
-A commercial licence is available if AGPL-3.0 does not fit your company. Ask on
-[Telegram](https://telegram.me/croffasia).
+A commercial licence is available from the upstream author if AGPL-3.0 does not fit your
+company. Ask on [Telegram](https://telegram.me/croffasia).
