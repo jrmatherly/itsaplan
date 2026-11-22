@@ -239,3 +239,30 @@ describe('PlaneReader', () => {
     );
   });
 });
+
+describe('listIssueRelations', () => {
+  it('reads the object entries of Plane 1.3.1 and later, and skips blocked_by', async () => {
+    const entry = (issue_id: string) => ({ project_id: 'project-1', issue_id });
+    const reader = readerAnswering(
+      Response.json({
+        blocking: [entry('b')],
+        blocked_by: [entry('a')],
+        duplicate: [entry('d')],
+        relates_to: [entry('r')],
+        start_before: [entry('s')],
+      }),
+    );
+    expect(await reader.listIssueRelations('x')).toEqual([
+      { kind: 'blocks', sourceIssueSourceId: 'x', targetIssueSourceId: 'b' },
+      { kind: 'duplicates', sourceIssueSourceId: 'x', targetIssueSourceId: 'd' },
+      { kind: 'relates', sourceIssueSourceId: 'x', targetIssueSourceId: 'r' },
+    ]);
+  });
+
+  it('reads the plain id entries of Plane 1.3.0', async () => {
+    const reader = readerAnswering(Response.json({ blocking: ['b'], blocked_by: ['a'] }));
+    expect(await reader.listIssueRelations('x')).toEqual([
+      { kind: 'blocks', sourceIssueSourceId: 'x', targetIssueSourceId: 'b' },
+    ]);
+  });
+});

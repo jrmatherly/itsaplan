@@ -90,6 +90,12 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | `.gitignore` | adds `.remember/`, `.codegraph/`, `/private/` | ADAPT. Keep both sides. |
 | no `.serena/` | `.serena/project.yml`, `.serena/.gitignore` | KEEP (fork-only). |
 
+## Plane import
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| `apps/worker/src/plane-adapter.ts` maps `blocking` and `blocked_by` both to `blocks` from the issue being read, and expects id strings in the relation lists | reads `blocking` only and accepts an id or a `{ project_id, issue_id }` entry | KEEP `listIssueRelations` and `RELATION_KIND_MAP`. Pinned by `apps/worker/src/__tests__/unit/plane-adapter.test.ts`. The relation passages of `docs/dev/plane-import-source-notes.md`, `docs/dev/plane-import.md` and `docs/importing-from-plane.md` follow it: KEEP. |
+
 ## Docs corrected against the code (PR 8, `920a9cfb`)
 
 Each row is a statement upstream's doc gets wrong and the code proves otherwise. All are ADAPT:
@@ -99,7 +105,7 @@ the fact rests on, check the fact against the new code before keeping either sid
 | Upstream | Ours | Notes |
 | --- | --- | --- |
 | Import guides quote labels the app does not show: **Test connection**, "choose under Source", "Leave unassigned", "The source's rate limit was reached", an **Export** section | The labels in `apps/web/messages/en/settings.json`: **Connect**, the source tabs, **Import** and **Don't import**, "The source hit its request limit", the **Export as JSON** button | `docs/importing-from-{linear,plane,trello}.md`. Re-read the message file when upstream renames a label. |
-| Import guides and notes describe behaviour the importers do not have: Plane states matched by name, an inline image as plain text, an existing match never overwritten, seven Trello list keywords, a Linear import that stops on the first error; the Plane notes call comments, re-runs, relations and Linear undecided | What `apps/worker/src/` does: states by Plane group, first assignee only, cycles need both dates, an image link to Plane, a reused label takes the source colour, the full keyword list, retries up to `MAX_ATTEMPTS` | The three guides, `docs/dev/plane-import-source-notes.md`. Also `docs/dev/plane-import.md` (the Trello routes, markdown custom fields in Rewrite) and `docs/dev/linear-import.md` (`resolveDownloadRedirects`). The notes still say `blocked_by` is "read both ways": the importer stores it reversed, an open code finding. |
+| Import guides and notes describe behaviour the importers do not have: Plane states matched by name, an inline image as plain text, an existing match never overwritten, seven Trello list keywords, a Linear import that stops on the first error; the Plane notes call comments, re-runs, relations and Linear undecided | What `apps/worker/src/` does: states by Plane group, first assignee only, cycles need both dates, an image link to Plane, a reused label takes the source colour, the full keyword list, retries up to `MAX_ATTEMPTS` | The three guides, `docs/dev/plane-import-source-notes.md`. Also `docs/dev/plane-import.md` (the Trello routes, markdown custom fields in Rewrite) and `docs/dev/linear-import.md` (`resolveDownloadRedirects`). |
 | MCP is enabled per project in Settings, MCP Server, and is off by default; an agent is created in the project's settings | MCP access and the project list are in the team's settings and a new project starts on; an agent is created in the team's settings and attached | `docs/runner.md`, `packages/runner/README.md`. The README also lists the `event` trigger, and `docs/runner.md` says catalog mode also lists an agent's configured tools. |
 | The agent endpoint has no run events route; a stopped chat answer gets `canceled` from its result route; every MCP tool has an `outputSchema` | `POST /agent-runs/:runId/events`, `attempt` and `usage` on the run routes, `traceEvents`, what a stopped run returns, `canceled` from only the events and heartbeat routes of a stopped chat answer; an agent's configured tools have no `outputSchema` | `docs/agent-endpoint.md`, `docs/mcp-results.md`. Field names come from `apps/api/src/modules/agents/runner/model.ts`. |
 | Four paths in `docs/dev/agents.md` lack the `modules/agents/` prefix | the full paths | `docs/dev/agents.md`. |
