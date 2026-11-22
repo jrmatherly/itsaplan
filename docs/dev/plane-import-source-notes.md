@@ -231,11 +231,15 @@ than folded wordlessly into the does-not-migrate list.
 `WorkItemRelationTypeEnum`: `blocking, blocked_by, duplicate, relates_to, start_before,
 start_after, finish_before, finish_after`. Three map cleanly onto itsaplan's `issue_link.kind`:
 
-| Plane                     | itsaplan `issue_link.kind` |
-| ------------------------- | --------------------------- |
-| `blocking` / `blocked_by` | `blocks` (one row, direction read both ways) |
-| `duplicate`               | `duplicates`                 |
-| `relates_to`               | `relates`                     |
+| Plane                     | itsaplan `issue_link.kind`                                                                          |
+| ------------------------- | --------------------------------------------------------------------------------------------------- |
+| `blocking` / `blocked_by` | `blocking` maps to `blocks`. `blocked_by` is the same row read from the other issue and is skipped. |
+| `duplicate`               | `duplicates`                                                                                        |
+| `relates_to`              | `relates`                                                                                           |
+
+The relation lists hold `{ project_id, issue_id }` objects from Plane 1.3.1 and plain ids in
+1.3.0. `duplicate` lists both directions, so the imported direction of a duplicate is that of the
+first issue processed.
 
 The other four (`start_before/after`, `finish_before/after`) are Gantt-style scheduling
 dependencies with no destination in itsaplan's schema at all — not a translation problem, an
@@ -307,9 +311,10 @@ FORMULA`.
   `projects/`/`work-items/` — confirmed live after a real import failed immediately on
   `cycles/` assuming otherwise. A work item's `relations/` isn't a list at all: it's one array
   per relation kind, `{blocking: [...], blocked_by: [...], duplicate: [...], relates_to:
-  [...], start_after: [...], ...}`, each holding the related work item's id directly, not
-  `{relation_type, related_work_item}` rows. Every endpoint needs its own live check against a
-  real response before an adapter relies on its shape.
+  [...], start_after: [...], ...}`. Each entry is the related work item's id in 1.3.0 and a
+  `{ project_id, issue_id }` object from 1.3.1, not a `{relation_type, related_work_item}` row.
+  Every endpoint needs its own live check against a real response before an adapter relies on
+  its shape.
 - **Labels have a `parent` field** (nullable, self-referential UUID) — Plane supports real
   label hierarchies natively. Unused in this workspace (66 labels, all `parent: null`, using a
   `"Suggestion: X"` / `"Page: Y"` naming convention instead of the real hierarchy) but a source

@@ -55,12 +55,9 @@ export function normalizeStateCategory(planeGroup: string): CanonicalStateCatego
   return STATE_CATEGORY_MAP[planeGroup] ?? 'backlog';
 }
 
-// Plane's WorkItemRelationTypeEnum. start_before/after and finish_before/after
-// are Gantt-style scheduling dependencies with no destination in itsaplan's
-// schema at all, so they are dropped rather than mapped.
+// blocked_by is the same relation read from the blocked issue; the blocker's list carries it.
 const RELATION_KIND_MAP: Record<string, CanonicalRelation['kind']> = {
   blocking: 'blocks',
-  blocked_by: 'blocks',
   duplicate: 'duplicates',
   relates_to: 'relates',
 };
@@ -284,19 +281,17 @@ export class PlaneReader implements SourceReader {
   }
 
   async listIssueRelations(issueSourceId: string): Promise<CanonicalRelation[]> {
-    // Not a list: one array per relation kind, each holding the related issue's
-    // id directly (confirmed live) — {blocking: [...], blocked_by: [...], ...},
-    // not {relation_type, related_work_item}[].
-    const grouped = await this.getJson<Record<string, string[]>>(
+    // Plane 1.3.1 and later return { project_id, issue_id } entries, and 1.3.0 returns the id.
+    const grouped = await this.getJson<Record<string, (string | { issue_id: string })[]>>(
       `/work-items/${issueSourceId}/relations/`,
     );
-    return Object.entries(grouped).flatMap(([planeKind, targetIds]) => {
+    return Object.entries(grouped).flatMap(([planeKind, entries]) => {
       const kind = RELATION_KIND_MAP[planeKind];
       if (!kind) return [];
-      return targetIds.map((targetIssueSourceId) => ({
+      return entries.map((entry) => ({
         kind,
         sourceIssueSourceId: issueSourceId,
-        targetIssueSourceId,
+        targetIssueSourceId: typeof entry === 'string' ? entry : entry.issue_id,
       }));
     });
   }

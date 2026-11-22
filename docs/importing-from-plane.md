@@ -43,7 +43,10 @@ of them affect data you may not notice is missing until later.
 - **Comments** — body (converted to Markdown) and reply threading.
 - **Labels, workflow states, and cycles** — created if they do not already exist by that
   name. A cycle without both a start and an end date is not imported.
-- **Issue relations** — "blocks", "relates to", and "duplicates" only.
+- **Issue relations** — "blocks", "relates to", and "duplicates" only. "Blocked by" is
+  imported as the other work item's "blocks". Plane does not say which of two duplicates is
+  the original, so that direction is not kept. A relation to a work item in another Plane
+  project is not imported.
 - **Cross-references inside text, when both sides were imported.** A description or
   comment that says "see ROOMS-524" is rewritten to point at this project's own
   identifier for that issue, once it has been imported too. A mention of an issue

@@ -147,6 +147,7 @@ once on the replica that saved it and within a minute on the others.
 
 The instance sends password resets, address confirmations, sign-in links and invites through
 the mail provider set in god mode under **Integrations → Email provider**: SMTP or Resend.
+When the provider has no From address, the api and the worker send from `EMAIL_FROM` in `.env`.
 
 A Microsoft 365 mailbox refuses a password over SMTP once it has MFA. Set **Authentication**
 to **Microsoft 365 (OAuth)** instead: the instance signs in as an Entra ID app registration
@@ -165,7 +166,7 @@ refused token is reported as rejected credentials and is not retried.
 
 ## Push notifications
 
-Members can get their notifications as Web Push, next to email and Telegram, in each browser
+Members can get their notifications as Web Push, next to email, Telegram and Slack, in each browser
 they turn it on in: Chrome, Edge and Firefox, Safari on macOS, and Safari on iOS and iPadOS
 16.4 or later once the app is added to the Home Screen. Push needs three variables, set on the
 api and on the worker:
@@ -180,6 +181,54 @@ While any of them is unset, push is off and the app does not offer it. Generate 
 once: a new pair ends every existing subscription, and members turn push on again in each
 browser. The worker sends to the browsers' push services (Google, Mozilla, Apple), so it needs
 outbound HTTPS. [docs/dev/web-push.md](dev/web-push.md) describes the whole path.
+
+## Slack notifications
+
+A Slack app sends notifications to members as direct messages. Each member connects their Slack
+account with Sign in with Slack.
+
+Configure the app for the instance:
+
+1. At [api.slack.com/apps](https://api.slack.com/apps), select **Create New App** → **From a
+   manifest**. Select your Slack workspace and paste the manifest below. Replace
+   `https://plan.example.com` with your `APP_URL`.
+2. Install the app to the Slack workspace.
+3. Copy the **Bot User OAuth Token** (`xoxb-…`) from **OAuth & Permissions**. Copy the **Client
+   ID** and the **Client Secret** from **Basic Information**.
+4. In god mode, open **Slack**. Paste the three values, set **Enabled** and save. Slack checks the
+   token when you save.
+
+```yaml
+display_information:
+  name: It's a Plan
+features:
+  bot_user:
+    display_name: It's a Plan
+    always_online: true
+  app_home:
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: true
+oauth_config:
+  redirect_urls:
+    - https://plan.example.com/slack/connect
+  scopes:
+    bot:
+      - chat:write
+settings:
+  token_rotation_enabled: false
+```
+
+Keep token rotation off. A rotated token expires after 12 hours.
+
+If the members of a workspace use a different Slack workspace, the workspace owner creates a
+separate app with the same steps. The owner pastes its values in the workspace settings →
+**Slack**.
+
+Members connect their Slack account in the notification settings of a project, once for each
+Slack workspace.
+
+The Slack tools of an agent use a separate credential in **Integrations**. Each tool lists the
+bot scopes that it needs.
 
 ## Single sign-on
 
@@ -286,6 +335,12 @@ the volume before it costs one command:
 ```bash
 docker run --rm -v itsaplan_minio-data:/data -v "$PWD":/out alpine tar czf /out/minio-data.tgz -C /data .
 ```
+
+The compose files pass `PASSKEY_RP_ID`, `PASSKEY_RP_NAME` and `EMAIL_FROM` from `.env` to the
+services. The compose files of release 1.12.0 and older ignore them. Before you update from one
+of those, check that `PASSKEY_RP_ID` equals the host of the first `APP_URL`, or remove the line:
+another value makes the registered passkeys unusable. Check that `EMAIL_FROM` is the sender you
+want.
 
 If you call the API from your own scripts or from an MCP client, read the
 [release notes](https://github.com/jrmatherly/itsaplan/releases) for the paths a release removed.

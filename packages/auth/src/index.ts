@@ -81,9 +81,9 @@ const cookieDomain =
 // WebAuthn relying-party id: the frontend domain the passkey is bound to (no port,
 // no scheme). The WebAuthn ceremony runs in the frontend JS, so the expected origin
 // is the frontend origin(s) — the same trustedOrigins list. On localhost this all
-// works over http (localhost is a secure context). In prod set PASSKEY_RP_ID to the
-// public frontend hostname.
-const passkeyRpID = process.env.PASSKEY_RP_ID ?? new URL(trustedOrigins[0]).hostname;
+// works over http (localhost is a secure context). `||` because compose passes an unset
+// PASSKEY_RP_ID as an empty string.
+const passkeyRpID = process.env.PASSKEY_RP_ID || new URL(trustedOrigins[0]).hostname;
 
 // The client IP keys the rate limit. Unset, better-auth reads X-Forwarded-For and takes
 // it only when it holds one address; TRUSTED_PROXIES lets it read a chain.
@@ -954,7 +954,7 @@ function createAuth() {
       // then used to sign in (signIn.passkey). Adds the `passkey` table.
       passkey({
         rpID: passkeyRpID,
-        rpName: process.env.PASSKEY_RP_NAME ?? "It's a Plan",
+        rpName: process.env.PASSKEY_RP_NAME || "It's a Plan",
         // Expected origin(s) of the WebAuthn ceremony — the frontend origins.
         origin: trustedOrigins,
       }),

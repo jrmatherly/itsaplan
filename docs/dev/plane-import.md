@@ -130,10 +130,11 @@ attachment) are a distinct path, not covered by this — see "Inline images" in
   `CanonicalIssue.customFields` exists as a type but `plane-adapter.ts` hardcodes it to `[]`
   (see the source notes file's "Custom properties" section for why — no project-wide list
   endpoint, and the endpoint 404s on some self-hosted versions).
-- **Four of Plane's eight relation kinds are dropped intentionally**: `RELATION_KIND_MAP`
+- **Five of Plane's eight relation kinds are dropped intentionally**: `RELATION_KIND_MAP`
   (`plane-adapter.ts`) has no entry for `start_before`/`start_after`/`finish_before`/
   `finish_after` — itsaplan's `issue_link.kind` has no scheduling-dependency concept, so
-  these are filtered out, not a bug.
+  these are filtered out, not a bug. `blocked_by` is also dropped: the `blocking` list of the
+  other issue carries the same relation.
 - Create advances its local record cursor after the entire batch finishes, including labels,
   comments and attachment discovery. A retry revisits every issue after that cursor and reuses
   its existing job/source mapping, then finishes its child records without replacing local

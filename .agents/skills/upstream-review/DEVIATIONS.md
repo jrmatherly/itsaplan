@@ -27,6 +27,7 @@ A new deviation gets a row in the same change that makes it. A removed path also
 | Docs recommend upstream's own services: "Railway — recommended" in `README.md`, "Pro (recommended)" in `docs/coolify.md`, and `SECURITY.md` sends dependency findings "upstream" | The Railway heading has no "recommended" and says upstream runs the template; `docs/coolify.md` says "Pro (upstream images)"; the commercial-licence paragraph in `README.md` names upstream as the licensor; `SECURITY.md` says "that dependency's project" | KEEP the wording. |
 | Conduct reports go to `conduct@itsaplan.dev` | go to the fork owner on GitHub, in `CODE_OF_CONDUCT.md` | KEEP. |
 | Contributor licence agreement | none | See "Deleted paths". `CONTRIBUTING.md` has no CLA section: KEEP. |
+| `packages/runner/README.md` links to upstream's `docs/runner.md` by absolute URL | a relative link to `docs/runner.md` | KEEP. The fork does not publish the package, so the README is read on GitHub and in clones. |
 
 ## Deliberately left on upstream
 
@@ -76,12 +77,24 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | `packages/auth/AGENTS.md`: switch to `sameSite: "none"` when frontend and backend are on different domains | keep `lax`: subdomains share the cookie and another registrable domain is not supported | KEEP. |
 | Root `AGENTS.md`: "Never add `image:` to `docker-compose.coolify.yml`" | "to a service that has `build:`" | KEEP. Three services in that file have `image:` and no `build:`. |
 
+## Environment variables that reach the services (PR 10)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| `.env.example` documents `PASSKEY_RP_ID`, `PASSKEY_RP_NAME` and `EMAIL_FROM`, no compose file or chart key passes them, and `packages/auth/src/index.ts` reads the two passkey ones with `??` | the five compose files pass all three to the api and `EMAIL_FROM` to the worker; the chart has `api.env.PASSKEY_RP_ID`, `api.env.PASSKEY_RP_NAME` and `api.env.EMAIL_FROM`; the two passkey reads use `\|\|` | ADAPT in the five compose files, `charts/itsaplan/templates/configmap.yaml`, `charts/itsaplan/values.yaml` and the values table in `charts/itsaplan/README.md`. KEEP the `\|\|` reads: compose passes an unset variable as an empty string, and `??` would make it the relying-party ID. `.env.example`, `docs/dev/auth.md` (Passkey) and `docs/self-hosting.md` (Mail, Updating) describe ours: ADAPT. |
+
 ## Local tooling
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
 | `.gitignore` | adds `.remember/`, `.codegraph/`, `/private/` | ADAPT. Keep both sides. |
 | no `.serena/` | `.serena/project.yml`, `.serena/.gitignore` | KEEP (fork-only). |
+
+## Plane import (PR 10)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| `apps/worker/src/plane-adapter.ts` maps `blocking` and `blocked_by` both to `blocks` from the issue being read, and expects id strings in the relation lists | reads `blocking` only and accepts an id or a `{ project_id, issue_id }` entry | KEEP `listIssueRelations` and `RELATION_KIND_MAP`. Pinned by `apps/worker/src/__tests__/unit/plane-adapter.test.ts`. The relation passages of `docs/dev/plane-import-source-notes.md`, `docs/dev/plane-import.md` and `docs/importing-from-plane.md` follow it: KEEP. |
 
 ## Docs corrected against the code (PR 8, `920a9cfb`)
 
@@ -92,12 +105,12 @@ the fact rests on, check the fact against the new code before keeping either sid
 | Upstream | Ours | Notes |
 | --- | --- | --- |
 | Import guides quote labels the app does not show: **Test connection**, "choose under Source", "Leave unassigned", "The source's rate limit was reached", an **Export** section | The labels in `apps/web/messages/en/settings.json`: **Connect**, the source tabs, **Import** and **Don't import**, "The source hit its request limit", the **Export as JSON** button | `docs/importing-from-{linear,plane,trello}.md`. Re-read the message file when upstream renames a label. |
-| Import guides and notes describe behaviour the importers do not have: Plane states matched by name, an inline image as plain text, an existing match never overwritten, seven Trello list keywords, a Linear import that stops on the first error; the Plane notes call comments, re-runs, relations and Linear undecided | What `apps/worker/src/` does: states by Plane group, first assignee only, cycles need both dates, an image link to Plane, a reused label takes the source colour, the full keyword list, retries up to `MAX_ATTEMPTS` | The three guides, `docs/dev/plane-import-source-notes.md`. Also `docs/dev/plane-import.md` (the Trello routes, markdown custom fields in Rewrite) and `docs/dev/linear-import.md` (`resolveDownloadRedirects`). The notes still say `blocked_by` is "read both ways": the importer stores it reversed, an open code finding. |
+| Import guides and notes describe behaviour the importers do not have: Plane states matched by name, an inline image as plain text, an existing match never overwritten, seven Trello list keywords, a Linear import that stops on the first error; the Plane notes call comments, re-runs, relations and Linear undecided | What `apps/worker/src/` does: states by Plane group, first assignee only, cycles need both dates, an image link to Plane, a reused label takes the source colour, the full keyword list, retries up to `MAX_ATTEMPTS` | The three guides, `docs/dev/plane-import-source-notes.md`. Also `docs/dev/plane-import.md` (the Trello routes, markdown custom fields in Rewrite) and `docs/dev/linear-import.md` (`resolveDownloadRedirects`). |
 | MCP is enabled per project in Settings, MCP Server, and is off by default; an agent is created in the project's settings | MCP access and the project list are in the team's settings and a new project starts on; an agent is created in the team's settings and attached | `docs/runner.md`, `packages/runner/README.md`. The README also lists the `event` trigger, and `docs/runner.md` says catalog mode also lists an agent's configured tools. |
 | The agent endpoint has no run events route; a stopped chat answer gets `canceled` from its result route; every MCP tool has an `outputSchema` | `POST /agent-runs/:runId/events`, `attempt` and `usage` on the run routes, `traceEvents`, what a stopped run returns, `canceled` from only the events and heartbeat routes of a stopped chat answer; an agent's configured tools have no `outputSchema` | `docs/agent-endpoint.md`, `docs/mcp-results.md`. Field names come from `apps/api/src/modules/agents/runner/model.ts`. |
 | Four paths in `docs/dev/agents.md` lack the `modules/agents/` prefix | the full paths | `docs/dev/agents.md`. |
 | The chart says the API cannot run behind a path prefix; the values table lacks `api.env.SKIP_PRE_MIGRATION_BACKUP`; a comment names `apiMode` and `apiHost` | A path in `API_URL` works when the proxy removes it; the row exists; the comment names `ingress.api.mode` and `ingress.api.host` | `charts/itsaplan/README.md`, `charts/itsaplan/values.yaml` (comments only). |
-| Self-hosting docs say eight required values, a generated worker token, and passkey settings and worker tuning in `.env` | seven values, no worker token, background job tuning in god mode, and only the optional variables the compose file passes | `docs/self-hosting.md`, `docs/coolify.md`, `docs/railway.md`. |
+| Self-hosting docs say eight required values, a generated worker token, and passkey settings and worker tuning in `.env` | seven values, no worker token, background job tuning in god mode, and only the optional variables the compose file passes, which include the passkey and From variables | `docs/self-hosting.md`, `docs/coolify.md`, `docs/railway.md`. |
 | `access-model.md` omits private Docs pages and Docs share links; `revision-engine.md` lists five scopes, says nothing in the application writes a counter and shows a `project_member`-only query; `scim.md` ends mid-sentence | the `documentVisibleTo` check and `/share/document/*`; the `documents` and `runnerQueue` scopes, `appendRunEvents`, what `readRevs` joins, the lock order of `packages/db/AGENTS.md`; the finished sentence | `docs/dev/access-model.md`, `docs/dev/revision-engine.md`, `docs/dev/scim.md`. |
 | Contributor docs say four packages, web imports no package, no package builds, Bun 1.3+, `bun run dev` starts api and web, three generated secrets, `.env.test` for the api suite only | the ten packages, `@repo/editor` in web, `packages/runner` builds, Bun 1.4.4, four apps, two secrets, the four suites that read `.env.test` | `CONTRIBUTING.md`, `docs/development.md`. A Bun bump updates the version here. |
 | `DESIGN.md` gives the dark border as `white / 10%`; `SECURITY.md` says "before its first stable release"; `TELEMETRY.md` gives no Helm note for `TELEMETRY_DEBUG`; `agents-md.md` says a failing test blocks the merge | `12%`; fixes ship in the next release; the chart has no value for it; a failure fails the CI run | `DESIGN.md`, `SECURITY.md`, `TELEMETRY.md`, `docs/dev/agents-md.md`. The last two change when the chart gains the value or `main` gains required checks. |

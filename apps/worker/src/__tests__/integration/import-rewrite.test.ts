@@ -1,6 +1,16 @@
 import { describe, it, expect } from 'bun:test';
 import { randomUUID } from 'node:crypto';
-import { db, workspace, team, project, projectColumn, issue, importJob, user } from '@repo/db';
+import {
+  db,
+  workspace,
+  team,
+  project,
+  projectColumn,
+  issue,
+  issueLink,
+  importJob,
+  user,
+} from '@repo/db';
 import { eq } from 'drizzle-orm';
 import {
   createLocalInitiativeAndRecord,
@@ -8,7 +18,7 @@ import {
   getInitiativeDescription,
   type ClaimedImportJob,
 } from '../../import-store';
-import { runAttachments, runRewrite } from '../../import-worker';
+import { runAttachments, runLink, runRewrite } from '../../import-worker';
 import type { SourceReader } from '../../reader';
 
 // Each test makes its own team, project and job, like import-store.test.ts. The job
@@ -186,5 +196,35 @@ describe('runAttachments', () => {
     await runAttachments({ ...job, phase: 'attachments', cursor }, reader);
 
     expect(await getInitiativeDescription(initiativeId)).toBe('See spec.pdf');
+  });
+});
+
+describe('runLink', () => {
+  it('stores a relation from the issue that was read to its target, and skips a target that was not imported', async () => {
+    const linear = await makeLinearJob('ATO');
+    const blocker = await importIssue(linear, 'a', 1, '');
+    const blocked = await importIssue(linear, 'b', 2, '');
+    const reader = {
+      getIssue: async () => ({ parentSourceId: null }),
+      listIssueRelations: async (sourceId: string) =>
+        sourceId === 'a'
+          ? [
+              { kind: 'blocks', sourceIssueSourceId: 'a', targetIssueSourceId: 'b' },
+              { kind: 'blocks', sourceIssueSourceId: 'a', targetIssueSourceId: 'not-imported' },
+            ]
+          : [],
+    } as unknown as SourceReader;
+
+    await runLink({ ...linear.job, phase: 'link' }, reader);
+
+    const links = await db
+      .select({
+        source: issueLink.sourceIssueId,
+        target: issueLink.targetIssueId,
+        kind: issueLink.kind,
+      })
+      .from(issueLink)
+      .where(eq(issueLink.sourceIssueId, blocker));
+    expect(links).toEqual([{ source: blocker, target: blocked, kind: 'blocks' }]);
   });
 });

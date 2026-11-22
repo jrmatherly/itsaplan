@@ -43,7 +43,9 @@ Sessions are deleted on sign-out, so they are no record of when someone last use
 
 Registration mode, which sign-in methods are offered, the mail provider, the OAuth credentials
 and the SCIM token are stored in the database, so god mode can change them without a restart.
-The mail From address falls back to env (`EMAIL_FROM`, then `NOTIFICATIONS_EMAIL_FROM`).
+The mail From address falls back to env: `EMAIL_FROM`, or `NOTIFICATIONS_EMAIL_FROM` when
+`EMAIL_FROM` is unset. An empty `EMAIL_FROM`, which the compose files pass, does not count as
+unset.
 
 - `app_setting` key `auth` → `{ registration, requireEmailVerification, magicLink,
   emailPassword, trustProviderEmails, personalWorkspaces, inviteTtlDays, inviteSearch,
@@ -204,11 +206,11 @@ sign-in then fails.
 ## Passkey
 
 `passkey({ rpID, rpName, origin })` adds WebAuthn. `rpID` is the hostname the credential binds to:
-the host of the first `APP_URL` entry, or `PASSKEY_RP_ID` when it is set. `rpName` is
-`PASSKEY_RP_NAME`, "It's a Plan" by default. The compose files and the Helm chart pass neither
-variable to the api. `origin` is the whole `APP_URL` list, because the WebAuthn ceremony runs in
-the frontend JS. The plugin adds the `passkey` table, which is mapped in the drizzle adapter's
-`schema`. localhost is a secure context, so passkeys work over http in dev.
+`PASSKEY_RP_ID` when it is set and not empty, else the host of the first `APP_URL` entry. `rpName`
+is `PASSKEY_RP_NAME`, "It's a Plan" when it is unset or empty. `origin` is the whole `APP_URL`
+list, because the WebAuthn ceremony runs in the frontend JS. The plugin adds the `passkey` table,
+which is mapped in the drizzle adapter's `schema`. localhost is a secure context, so passkeys work
+over http in dev.
 
 ## Google sign-in
 
