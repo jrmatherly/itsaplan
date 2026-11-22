@@ -9,16 +9,17 @@ team. Their routes are under `:teamId` and use the `teamPermission` guard. The i
 catalog, the provider models and the credential options take `teamMember` only.
 
 Saving a credential, new or with changed fields, first asks its service whether it accepts it
-(`integrations/credential-check.ts`), with one request that spends nothing. The api refuses only a
-credential the service refused, so an outage never blocks a save through MCP. The dialog validates
-first, on edit too (the stored secrets fill the fields left blank), and also holds back a credential the service gave no answer for (`unavailable`: an outage, a
-timeout, a bot wall); one that cannot be checked from here (`unknown`: no such request, an address
-the SSRF guard refuses) can be saved. A tool integration
-checks itself (`verify` in its folder of `@repo/agent-tools`), and so does a service an extension
-adds through `setExtraIntegrations`; one without `verify` cannot be checked (`unknown`). An AI provider is asked for
-`/models` at the address in Mastra's registry, or at the credential's base URL; the providers whose
-address only their SDK holds, and the few with another request or refusal status, are listed by
-hand in `integrations/provider-check.ts`.
+(`modules/agents/integrations/credential-check.ts`), with one request that spends nothing. The api
+refuses only a credential the service refused, so an outage never blocks a save through MCP. The
+dialog validates first, on edit too (the stored secrets fill the fields left blank), and also holds
+back a credential the service gave no answer for (`unavailable`: an outage, a timeout, a bot wall);
+one that cannot be checked from here (`unknown`: no such request, an address the SSRF guard refuses)
+can be saved. A tool integration checks itself (`verify` in its folder of `@repo/agent-tools`), and
+so does a service an extension adds through `setExtraIntegrations`; one without `verify` cannot be
+checked (`unknown`). An AI provider is asked for `/models` at the address in Mastra's registry, or
+at the credential's base URL; the providers whose address only their SDK holds, and the few with
+another request or refusal status, are listed by hand in
+`modules/agents/integrations/provider-check.ts`.
 
 A configured tool is bound to one credential of its integration, or to none when the integration
 has no credential fields (PDF). An integration marked `credentialOptional` (Keenable) takes both: a
@@ -78,9 +79,9 @@ agent has no such list, so its key is checked against the role alone.
 
 A configured tool (`agent_tool`) is a catalog tool from `@repo/agent-tools` bound to a credential,
 or a tool an extension of the api defines: its key is `<source>:...`, and the source set with
-`setToolSource` (`agents/tools/extension.ts`) names it and runs it. A tool the instance does not
-have, its integration or its source gone, stays listed with `supported: false` and no agent gets
-it. An internal agent gets its enabled tools in its runs and chat answers, an external one over
+`setToolSource` (`modules/agents/tools/extension.ts`) names it and runs it. A tool the instance
+does not have, its integration or its source gone, stays listed with `supported: false` and no
+agent gets it. An internal agent gets its enabled tools in its runs and chat answers, an external one over
 MCP; a tool named as a core tool of the agent is left out.
 
 `ai_agent_team_username_uq` makes the mention handle unique per team, ignoring case.
@@ -137,9 +138,9 @@ does not claim a run again while it is running, unless a tool call outlasts that
 
 `maxAnswerChars` in the same setting is how many characters of an agent's answer are saved:
 200,000 by default, 0 for none. It applies to the output of every run, internal or external, and to
-an external agent's chat reply. The start of the answer is kept: `agents/core/answer-limit.ts` cuts
-it with Postgres `left()`, which counts characters. The limit does not apply to Mastra's memory
-tables, which hold an internal agent's chat.
+an external agent's chat reply. The start of the answer is kept:
+`modules/agents/core/answer-limit.ts` cuts it with Postgres `left()`, which counts characters. The
+limit does not apply to Mastra's memory tables, which hold an internal agent's chat.
 
 ## Dashboard and cost
 

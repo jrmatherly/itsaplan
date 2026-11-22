@@ -62,7 +62,7 @@ Configure Auto Updates**, or narrow the window there.
 
 ## Notes
 
-Secrets — auth secret, encryption key, worker token, database password — are generated per
+Secrets — auth secret, encryption key, database password — are generated per
 deploy and never stored in the template. Attachments go to the Railway bucket, which is why
 `S3_FORCE_PATH_STYLE` is `false` here; RustFS in the Compose stack needs the default.
 

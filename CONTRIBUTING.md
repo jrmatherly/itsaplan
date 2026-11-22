@@ -22,18 +22,24 @@ commands you run from the repository root.
 ## Project layout
 
 ```
-apps/api        Elysia (Bun) HTTP API, mounts better-auth at /api/auth/*
-apps/web        Next.js App Router, server-side rendered
-apps/worker     background jobs: webhooks, notifications, agent runs
-apps/bot        Telegram bot, long polling
-packages/db     Drizzle client, schema, migrations
-packages/auth   better-auth server instance
-packages/crypto AES-256-GCM encryption for secrets at rest
-packages/mailer SMTP and Resend transport, email templates
+apps/api               Elysia (Bun) HTTP API, mounts better-auth at /api/auth/*
+apps/web               Next.js App Router, server-side rendered
+apps/worker            background jobs: webhooks, notifications, agent runs
+apps/bot               Telegram bot, long polling
+packages/db            Drizzle client, schema, migrations
+packages/auth          better-auth server instance
+packages/crypto        AES-256-GCM encryption for secrets at rest
+packages/mailer        SMTP and Resend transport, email templates
+packages/editor        page model shared by the api and the web app, runs in the browser
+packages/net           SSRF guard for server-side fetches of a supplied URL
+packages/storage       S3-compatible object store client
+packages/agent-tools   tools that internal agents call on external services
+packages/runner        @itsaplan/runner CLI for external agents, published to npm
+packages/eslint-config shared ESLint configs
 ```
 
-Dependency direction is `api → @repo/auth → @repo/db`. The web app never imports the
-packages directly, it talks to the API over HTTP.
+Dependency direction is `api → @repo/auth → @repo/db → @repo/crypto`. The web app imports
+one package, `@repo/editor`, and calls the API over HTTP for everything else.
 
 Each app, plus `packages/auth` and `packages/db`, has an `AGENTS.md` with the rules that
 apply inside it. Read the one for the area you are changing.
@@ -49,6 +55,7 @@ belongs there.
   and reuse the shared components and utilities instead of adding parallel ones.
 - **All code, comments, and strings are in English.**
 - Shared packages are consumed as TypeScript source. Do not add a build step for them.
+  `packages/runner` is the exception: it is published to npm and bundles to `dist/`.
 - Formatting and linting are enforced by a pre-commit hook (lefthook), and again in CI.
 
 ### Database changes

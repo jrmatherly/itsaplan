@@ -134,9 +134,9 @@ bot:
   affinity: {}
 
 # -- Ingress
-# The API cannot live under a path prefix: better-auth mounts at /api/auth/*
-# and treats a path inside API_URL as a replacement for its base path. Use a
-# separate host for the API, or a Traefik entrypoint (see apiMode below).
+# API_URL can be a path on the web's host when the proxy removes that path before
+# the request reaches the API. A standard Ingress has no portable way to do that, so
+# use a separate host for the API, or a Traefik entrypoint (see ingress.api.mode below).
 ingress:
   enabled: false
   className: ""
@@ -146,7 +146,7 @@ ingress:
     enabled: false
     secretName: ""
   api:
-    # "separate-host" — standard Ingress on a second hostname (set apiHost).
+    # "separate-host" — standard Ingress on a second hostname (set ingress.api.host).
     # "traefik-entrypoint" — Traefik IngressRoute CRD on a dedicated entrypoint
     #   (same hostname, different port). Requires Traefik.
     mode: "separate-host"

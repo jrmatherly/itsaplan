@@ -35,7 +35,7 @@ a divider shows on every surface.
 - `muted` / `muted-foreground` — quiet fills and secondary text.
 - `secondary` — the active/selected chip fill (tabs, toggles).
 - `accent` / `accent-foreground` — hover fill for interactive rows/buttons.
-- `border` — hairline, never flat gray; in the default dark it is `white / 10%`.
+- `border` — hairline, never flat gray; in the default dark it is `white / 12%`.
 - `primary` — high-contrast solid (primary buttons); near-black in light and near-white in dark
   in the default palette, the accent in the others, under a white or near-black label.
 - `destructive` — error / overdue / delete only. It serves two roles at once: `text-destructive`

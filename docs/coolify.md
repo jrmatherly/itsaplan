@@ -39,10 +39,10 @@ Press **Deploy**. Postgres, RustFS, api, worker, bot, and web come up together; 
 one-shot `migrate` service applies the migrations first, and api, worker and bot start once
 it exits. The first account registered becomes the instance admin.
 
-Secrets (database password, auth secret, encryption key, worker token, object store credentials)
-are generated on the first deploy and stay stable across later ones — nothing to fill in by
-hand. Optional variables from `.env.example` — legal document URLs, the telemetry switch,
-worker tuning — go in **Environment Variables**.
+Secrets (database password, auth secret, encryption key, object store credentials) are
+generated on the first deploy and stay stable across later ones — nothing to fill in by hand.
+Optional variables from `.env.example` — legal document URLs, the telemetry switch — go in
+**Environment Variables**. Background job tuning is set in god mode, under **Background jobs**.
 
 ## Upgrade
 

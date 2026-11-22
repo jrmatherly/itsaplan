@@ -35,6 +35,8 @@ and never do arithmetic on it, so gaps in the numbers are harmless.
 | `initiative:<initiativeId>`  | the initiative screen         | the initiative or any issue inside it changes                     |
 | `inbox:<projectId>:<userId>` | the inbox                     | that user gets a notification, reads one, or deletes one          |
 | `inbox:all`                  | the app icon badge, desktop notifications | any `inbox:<projectId>:<userId>` of a project the user can read moves, or such a project is gained or lost |
+| `documents:<projectId>`      | the Docs pages of the project | a row of `project_document`, `document_asset`, `project_document_preference`, `document_comment`, `project_document_issue` or `project_document_initiative` changes |
+| `runnerQueue:1`              | the agent run queue           | a row of `agent_run` changes or a run's events are appended; read from the `runner-queue:<projectId>` rows of the projects the queue may list |
 
 Comments deliberately do not move the board: the board does not show them, so refetching it
 would be wasted work.
@@ -49,18 +51,21 @@ come back to an earlier value when a project is lost while another inbox moves.
 
 ## Where the code lives
 
-| File                                   | What it holds                                            |
-| -------------------------------------- | -------------------------------------------------------- |
-| `packages/db/drizzle/0070_*.sql`       | `bump_rev`, the trigger functions, and their triggers    |
-| `apps/api/src/modules/sync/service.ts` | the scope names and the read queries                     |
-| `apps/api/src/modules/sync/index.ts`   | `GET /sync/rev`                                          |
-| `apps/web/src/context/syncContext.tsx` | the one poll every screen shares                         |
-| `apps/web/src/hooks/useLiveRefresh.ts` | what a screen calls                                      |
-| `apps/web/src/utils/revScopes.ts`      | the scope names on the client                            |
+| File                                   | What it holds                                                                |
+| -------------------------------------- | ---------------------------------------------------------------------------- |
+| `packages/db/drizzle/0070_*.sql`       | `bump_rev`, the first trigger functions, and their triggers                  |
+| later migrations                       | triggers and functions added or replaced since; search for the function name |
+| `apps/api/src/modules/sync/service.ts` | the scope names and the read queries                                         |
+| `apps/api/src/modules/sync/index.ts`   | `GET /sync/rev`                                                              |
+| `apps/web/src/context/syncContext.tsx` | the one poll every screen shares                                             |
+| `apps/web/src/hooks/useLiveRefresh.ts` | what a screen calls                                                          |
+| `apps/web/src/utils/revScopes.ts`      | the scope names on the client                                                |
 
-Nothing in the application writes a counter. The triggers do, which means a write from the
-worker, the bot, an MCP tool or a hand-typed `UPDATE` in psql moves the marker as surely as a
-write from the API.
+The triggers write the counters. The one exception in the application is `appendRunEvents`
+(`apps/api/src/modules/agents/runner/run-events.ts`), which calls `bump_rev` for
+`runner-queue:<projectId>` because `agent_run_trace` has no trigger. Because the triggers write
+them, a write from the worker, the bot, an MCP tool or a hand-typed `UPDATE` in psql moves the
+marker as surely as a write from the API.
 
 ## Using it in a screen
 
@@ -81,18 +86,16 @@ are on, so a hidden tab still reads the inbox marker while its other screens sta
 
 ## Reading the counters
 
-```sql
-select r.scope, r.rev, m.role, pr.permissions
-from revision r
-join project_member m on m.project_id = r.project_id and m.user_id = $userId
-left join team_role pr on pr.id = m.role_id
-where r.scope = any($scopes)
-```
+`readRevs` in `apps/api/src/modules/sync/service.ts` reads every requested row of `revision` in
+one query. It joins `project`, left-joins the caller's `project_member` row and its `team_role`,
+and keeps a row only when the caller has that membership or reaches the project's team through a
+workspace role (the grants from `workspaceGrants`).
 
-The join is also the access check. Ask for a project you are not a member of and no row comes
-back, so the answer is `"0"`, exactly what a scope that has never changed returns. The role
-decides the rest: each scope kind names a resource (`work_items` for the board and an issue,
-`initiatives` for an initiative), and a member whose role may not read it gets the same `"0"`.
+The query is also the access check. Ask for a project you do not reach and no row comes back, so
+the answer is `"0"`, exactly what a scope that has never changed returns. The access decides the
+rest: `projectAccess` merges the membership with the workspace grant, each scope kind names a
+resource (`work_items` for the board and an issue, `documents` for Docs, `initiatives` for an
+initiative), and a caller whose access may not read it gets the same `"0"`.
 The inbox names no resource — it is the caller's own.
 
 A new scope therefore needs a correct `project_id` on the row and the resource its watchers must
@@ -117,16 +120,19 @@ the migration. `rev_checklist_item()` is the example to copy: it goes from
 
 ## Adding a new scope
 
-A new kind of scope touches two more places: the entry in `scopeKind` in
+A new kind of scope touches three more places: the entry in `scopeKind` in
 `apps/api/src/modules/sync/service.ts`, which names it, makes the API accept it, and says which resource a
-watcher must be allowed to read, and the mirror in `apps/web/src/utils/revScopes.ts`.
+watcher must be allowed to read; its name in `apps/api/src/modules/sync/model.ts`; and the mirror
+in `apps/web/src/utils/revScopes.ts`. A scope across projects, such as `inbox:all`, has no
+`scopeKind` entry: `apps/api/src/modules/sync/index.ts` handles it.
 `packages/db/AGENTS.md` keeps the same recipe next to the schema.
 
 ## Four rules before you touch the triggers
 
-**Take the scopes in one order everywhere: board, then issue, then initiative.** Opposite orders
-deadlock. Two counters of the same kind — the initiatives an issue moved between — go in id
-order, for the same reason.
+**Take the scopes in one order everywhere: board, then issue, then initiative, with documents
+before issue and initiative.** Opposite orders deadlock. Two counters of the same kind — the
+initiatives an issue moved between — go in id order, for the same reason. `inbox` and
+`runner-queue` are outside the order: each is taken alone.
 
 **`revision.project_id` has no foreign key on purpose.** Deleting a project cascades into its
 issues, and each of those deletes inserts a counter row for a project on its way out — a foreign

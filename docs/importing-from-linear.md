@@ -18,8 +18,8 @@ until later.
 
 ## Steps
 
-1. Open the project's **Settings → Import/Export** and choose **Linear** under Source.
-2. Paste the API key, then **Test connection**. This checks the key live against Linear and
+1. Open the project's **Settings → Import/Export** and pick the **Linear** tab.
+2. Paste the API key, then click **Connect**. This checks the key live against Linear and
    lists the teams it can see, each with its projects — nothing is saved yet at this point.
 3. Pick the team, then one of its projects or **Issues with no project**. The team's workflow
    states appear for review (see below), with a choice for how to handle an unmatched
@@ -107,8 +107,9 @@ project, plus one for the team's issues with no project.
 ## Limits on labels and links
 
 An issue can have at most 50 labels and at most 50 link attachments. When an issue has more,
-the import stops with an error that names the issue and says it is stopping to avoid a
-truncated import, instead of importing the issue without the rest.
+the job does not import the issue without the rest. It shows an error that names the issue
+and says it is stopping to avoid a truncated import, retries with growing waits, and fails
+after 10 failed attempts in a row.
 
 ## Reviewing the mapping before you import
 
@@ -118,18 +119,18 @@ Completed, and Canceled types map to the same categories, Triage to Backlog, and
 Canceled. Change any row that reads wrong before starting the import — a state you don't
 change keeps the automatic mapping.
 
-The same screen has one more choice: what happens to an assignee or comment author whose
-email matches no member of this project. "Leave unassigned" (the default) imports the issue
-or comment anyway, with that field empty. "Skip the assignment or comment" leaves an issue's
-assignee empty the same way, but drops a comment entirely rather than importing it with no
-attributed author. A comment from an integration has no email to match, so it is always
-imported under the integration's name.
+The same screen has one more choice, **Comments by people who aren't project members**: what
+happens to an assignee or comment author whose email matches no member of this project.
+**Import** (the default) imports the issue or comment anyway, with that field empty. **Don't
+import** leaves an issue's assignee empty the same way, but drops a comment entirely rather
+than importing it with no attributed author. A comment from an integration has no email to
+match, so it is always imported under the integration's name.
 
 ## Rate limits are real, and the import waits them out
 
 Linear allows each API key a fixed number of requests, and of query complexity, per hour. A
 project of any real size can reach that limit, and the job pauses to wait it out — you will
-see "The source's rate limit was reached. Retrying in Ns." in the job list when this happens.
+see "The source hit its request limit. Retrying in Ns." in the job list when this happens.
 This is normal, not a failure; the import resumes on its own once Linear's limit resets,
 which can take up to an hour. A large project can take a long time to finish for this reason
 alone.
@@ -143,7 +144,8 @@ Starting a *new* import of the same Linear project reuses what a previous run al
 created instead of duplicating it: a state, cycle, or issue is matched by name (issue titles
 case- and whitespace-insensitively) against what is already in the project, and a comment is
 matched by its exact body and timestamp on the matched issue. Labels always dedupe this way
-too. Nothing about an existing match is overwritten.
+too. Nothing about an existing match is overwritten, except that a reused label takes the
+Linear label's color.
 
 This is a name/content match, not a record of which import created what, so an issue you
 created by hand before importing, with exactly the title of an issue in Linear, is treated as

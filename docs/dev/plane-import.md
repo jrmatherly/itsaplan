@@ -21,7 +21,8 @@ returns.
   limits, shared with `apps/api` so an imported attachment is held to the same rules an
   interactive upload is.
 - `apps/api/src/modules/import-export/` — create/test-connection/plane-preview/export/status/
-  pause/resume/cancel routes, and linear-test-connection/linear-preview.
+  pause/resume/cancel routes, linear-test-connection/linear-preview, and
+  trello-test-connection/trello-preview.
 - The Linear source (`linear-adapter.ts`, `linear-mapping.ts`, the api's `linear.ts`, the
   Linear tab) has its own notes: [linear-import.md](linear-import.md). So does the Trello
   source: [trello-import.md](trello-import.md).
@@ -76,11 +77,12 @@ already had via `runLink`:
   `import_record.source_display_id` carries Plane's own `sequence_id` for every imported
   issue (stashed at Create time, from `CanonicalIssue.sequenceId`); the job's `config.
   planeProjectKey` (the source project's Plane identifier, e.g. `"ROOMS"`, stored at job
-  creation) is what a mention has to start with. For every created issue, its description
-  and every comment on it are scanned for `<planeProjectKey>-<number>` and rewritten to
-  this project's own identifier when the referenced number was itself imported into this
-  job; an unresolvable mention (outside the imported set) is left exactly as it was. The
-  matching and substitution logic is pure and unit-tested in `cross-reference.ts`
+  creation) is what a mention has to start with. For every created issue, its description,
+  every comment on it and its markdown custom fields (a Plane job has none) are scanned for
+  `<planeProjectKey>-<number>` and rewritten to this project's own identifier when the
+  referenced number was itself imported into this job; an unresolvable mention (outside the
+  imported set) is left exactly as it was. The matching and substitution logic is pure and
+  unit-tested in `cross-reference.ts`
   (`extractCrossReferences`/`applyCrossReferenceReplacements`) — no database, no network.
   A job created before this phase existed has no `planeProjectKey`, and Rewrite is a
   no-op for it rather than a failure.

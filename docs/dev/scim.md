@@ -116,3 +116,5 @@ belonged to the first workspace reads `scim_<id>_<secret>` and keeps working. A 
 is stored under `workspace.<id>.scim` and reads `scim_<workspaceId>_<secret>`, so
 `verifyScimToken` checks the instance's first and then reads only the named workspace's.
 The token is returned in the clear exactly once, when it is generated; only its prefix is
+kept in the redacted mirror (`tokenPrefix`: everything up to the last `_` and six characters
+of the secret), so a lost token is replaced, not recovered.

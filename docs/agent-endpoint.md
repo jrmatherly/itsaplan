@@ -54,6 +54,7 @@ The body of an `agent.run` request:
     "prompt": "The task, framed with what started it",
     "systemPrompt": "The project, the people, and the agent's instructions",
     "attempts": 1,
+    "traceEvents": true,
     "issueId": 678,
     "issueIdentifier": "MKT-42"
   }
@@ -120,18 +121,30 @@ a task comes only through the routes below.
 
 Call the API at `apiUrl`. Put the agent's API key in the `x-api-key` header:
 
-| Route                                    | Body                                                     |
-| ---------------------------------------- | -------------------------------------------------------- |
-| `POST /agent-runs/:runId/heartbeat`      | none                                                     |
-| `POST /agent-runs/:runId/result`         | `{ "status": "success" \| "failed", "output", "error" }` |
-| `POST /agent-chats/:messageId/events`    | `{ "events": [AG-UI events], "sessionId" }`              |
-| `POST /agent-chats/:messageId/heartbeat` | none                                                     |
-| `POST /agent-chats/:messageId/result`    | `{ "status": "success" \| "failed", "error" }`           |
+| Route                                    | Body                                                                         |
+| ---------------------------------------- | ---------------------------------------------------------------------------- |
+| `POST /agent-runs/:runId/heartbeat`      | none, or `{ "attempt" }`                                                     |
+| `POST /agent-runs/:runId/events`         | `{ "attempt", "offset", "events": [AG-UI events], "sessionId" }`             |
+| `POST /agent-runs/:runId/result`         | `{ "status": "success" \| "failed", "output", "error", "attempt", "usage" }` |
+| `POST /agent-chats/:messageId/events`    | `{ "events": [AG-UI events], "sessionId" }`                                  |
+| `POST /agent-chats/:messageId/heartbeat` | none                                                                         |
+| `POST /agent-chats/:messageId/result`    | `{ "status": "success" \| "failed", "error" }`                               |
+
+`traceEvents` in the run body is true when the instance accepts run events. `attempt` is the
+run's `attempts` value. It is optional on the heartbeat and the result.
+The run events route records the run's transcript, which the run page shows. It takes
+1 to 200 events per call, and `offset` is the number of events sent before this call.
+`sessionId` is optional and must be a UUID. The route answers
+`{ "nextOffset", "truncated", "canceled" }`.
 
 A chat answer is a sequence of AG-UI events. Send a `TEXT_MESSAGE_CONTENT` event with a
 `delta` for each part of the text. Send the tool call events for each tool that the agent
-uses. When the person stops the answer, the events, heartbeat and result routes of that
-answer return `{ "canceled": true }`. Then stop the work on that answer.
+uses. When the person stops the answer, the events and heartbeat routes of that answer
+return `{ "canceled": true }`. Then stop the work on that answer.
+
+When someone stops a run, the heartbeat and events routes of that run return
+`{ "canceled": true }`. Then stop the work on that run and send no result: the run is
+already ended, and the result route answers 404.
 
 The agent reads and changes issues with the same key, through the REST API or the MCP
 server at `<apiUrl>/mcp`. On its MCP calls in a run, send `run.id` in the `X-Itsaplan-Run-Id`

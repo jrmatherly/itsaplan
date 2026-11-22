@@ -11,7 +11,7 @@ one exception in Chrome and Firefox; WebKit browsers such as Safari refuse it th
 git clone https://github.com/jrmatherly/itsaplan.git
 cd itsaplan
 cp .env.example .env
-# fill in the eight values below
+# fill in the seven values below
 docker compose up -d
 ```
 
@@ -43,8 +43,9 @@ volumes are those of `docker-compose.yml`, so an existing instance moves to Pro 
 data. [Fast Deploy](https://itsaplan.dev/pro#fast-deploy) in your Pro account installs this
 stack with Caddy for HTTPS on a new server in your Hetzner, Vultr or DigitalOcean account.
 
-`.env.example` documents every variable, including the optional ones: legal document URLs,
-passkey and cookie settings, the telemetry switch, and worker tuning.
+`.env.example` documents every variable. The optional ones the compose file passes on include
+the legal document URLs, the cookie domain and the telemetry switch. Background job tuning is
+set in god mode, under **Background jobs**.
 
 ## Where the api lives
 

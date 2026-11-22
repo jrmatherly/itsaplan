@@ -156,34 +156,28 @@ project does embed images inline, they'd render as broken images pointing at a h
 instance can't necessarily reach, unless the Attachments phase also parses description HTML for
 embedded asset references, downloads and re-uploads those too, and rewrites the HTML before
 conversion to markdown. That means description handling can't be a pure function that finishes
-during Create — it may need a pass revisited during Attachments. Not yet designed; flagged here
-so it isn't discovered mid-implementation.
+during Create — it may need a pass revisited during Attachments. The import does not do
+this: `htmlToMarkdown` turns the `<img>` into an image link to Plane's own address.
 
-## Comments — not yet placed in the phase design
+## Comments
 
-`GET .../work-items/{id}/comments/` is a real, working, unpaginated array endpoint
-(`comment_html`, `comment_stripped`, `created_by`, `created_at`, ...) — the one work item
-checked here had zero comments, so its shape wasn't fully exercised, but the endpoint itself is
-confirmed live. **The phase list posted to #253 (Discover → Create → Link → Attachments → Done)
-has nowhere for comments to go.** They need either their own phase (most likely between Create
-and Link, since a comment can itself contain a cross-reference needing the same second-pass
-resolution as description text) or an explicit decision that comments don't migrate in v1 — but
-right now the design implies neither, silently. Comments also carry `created_by`, which needs
-the same unmatched-user policy as `assignees` do. On a 488-issue project, comments plausibly
-outnumber issues — this isn't a minor omission to patch in later.
+`GET .../work-items/{id}/comments/` is a real, working endpoint (`comment_html`,
+`comment_stripped`, `created_by`, `created_at`, ...) — the one work item checked here had zero
+comments, so its shape wasn't fully exercised, but the endpoint itself is confirmed live.
+
+In this repo the Create phase imports an issue's comments with the issue (`createComments` in
+`import-worker.ts`), and the Rewrite phase resolves cross-references in them. `created_by` is
+matched through `members/` and follows the job's unmatched-user policy.
 
 ## Idempotency vs. re-run — resume and re-run are different problems
 
 `import_record` (source id → local id, keyed per job) solves *resume*: a crashed job picks up
-where it left off without duplicating. It does not solve *re-run*: if someone imports, doesn't
-like the state/user mapping, and runs a fresh import against the same source project, nothing
-currently stops that from creating 976 issues instead of updating the original 488. Plane's own
-`external_id`/`external_source` fields — present on `WorkItem`, `WorkItemComment`, and
-`WorkItemAttachment` already, confirmed in the models — exist for exactly this kind of
-cross-system dedup. Whether itsaplan's own tables need an equivalent persisted reference (a
-migration, not just the job-scoped `import_record`) is an open product/schema decision, not
-something to default silently — the maintainer should weigh in given it's a real schema change
-beyond what's already proposed.
+where it left off without duplicating. It does not solve *re-run* across two jobs. In this repo
+a re-run reuses what the first job created by name or content match (issue title, state and
+cycle name, comment body and time); "Other real limitations" in
+[plane-import.md](plane-import.md) describes it. Plane's own `external_id`/`external_source`
+fields — present on `WorkItem`, `WorkItemComment`, and `WorkItemAttachment`, confirmed in the
+models — exist for cross-system dedup. itsaplan's tables store no such persisted reference.
 
 ## Version skew is broader than one endpoint
 
@@ -245,8 +239,8 @@ start_after, finish_before, finish_after`. Three map cleanly onto itsaplan's `is
 
 The other four (`start_before/after`, `finish_before/after`) are Gantt-style scheduling
 dependencies with no destination in itsaplan's schema at all — not a translation problem, an
-absent concept. Add to the does-not-migrate list, or collapse to `relates` as a lossy
-best-effort (undecided — see open questions).
+absent concept. `RELATION_KIND_MAP` in `plane-adapter.ts` has no entry for them, so the import
+drops them.
 
 There is also a separate **custom relation definitions** system
 (`work_item_relation_definitions.py`, `CreateWorkItemCustomRelation`) — workspaces can define
@@ -300,10 +294,9 @@ FORMULA`.
 - **The real data makes the case for a mandatory review step, not just politeness.** This
   workspace's actual states include one named "In Progress" whose `group` is `backlog`, and one
   named "Cancled" (a typo in the display name) whose `group` is `completed`, not `cancelled`.
-  Name-match-then-category-fallback, applied automatically with no review, would silently
-  place both in the wrong local state. The mapping step in the UI design (states shown with an
-  editable target, not auto-applied) exists because of exactly this — confirmed on a real
-  workspace, not a hypothetical.
+  The import maps a state by its `group` alone (`normalizeStateCategory` in
+  `plane-adapter.ts`), which would place both in the wrong local state. The mapping review step
+  shows each state with an editable category before the job starts because of exactly this.
 
 ## Other real shapes worth knowing
 
@@ -360,6 +353,5 @@ against a different Plane instance (or version) where the endpoint actually resp
   built-in relation types.
 - A real 429 response's exact headers (only ever saw a normal 200 with remaining/reset).
 - Milestones' actual field shape — not pulled (modules already resolved above).
-- Linear (GraphQL cursor shape, attachment auth) and Jira (REST pagination token, ADF shape) —
-  not started; same source-code-first approach applies once there's an SDK or OpenAPI spec to
-  read for each.
+- Jira (REST pagination token, ADF shape) — not started; same source-code-first approach
+  applies once there's an SDK or OpenAPI spec to read for it.
