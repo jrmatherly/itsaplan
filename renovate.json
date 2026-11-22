@@ -1,7 +1,7 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["config:recommended", "helpers:pinGitHubActionDigests", ":semanticCommits"],
-  "description": "Scope: what the workflows pin. npm packages, the Dockerfile base images and the compose service images arrive with upstream merges, so Renovate leaves them alone. The Bun version is set in package.json, four Dockerfiles and ci.yml: raise all six by hand in one change.",
+  "description": "Scope: what the workflows pin. npm packages, the Dockerfile base images and the compose service images arrive with upstream merges, so Renovate leaves them alone. The Bun version is set in package.json, four Dockerfiles, ci.yml and docs/development.md: raise all seven by hand in one change.",
   "enabledManagers": ["github-actions", "custom.regex"],
   "forkProcessing": "enabled",
   "timezone": "America/New_York",

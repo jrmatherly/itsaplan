@@ -36,8 +36,8 @@ quote them in a values file, or pass them with `--set-string`.
 TELEMETRY_DEBUG=1
 ```
 
-The worker logs the exact body before each send. The Helm chart has no value for
-`TELEMETRY_DEBUG`.
+The worker logs the exact body before each send. With Helm, set `worker.env.TELEMETRY_DEBUG` to
+`"1"`.
 
 ## What is sent
 
