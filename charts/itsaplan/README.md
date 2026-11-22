@@ -204,7 +204,7 @@ god mode, under **License**.
 | `api.env.S3_BUCKET`                   | S3 bucket name                                            | `""`                             |
 | `api.env.S3_REGION`                   | S3 region                                                 | `us-east-1`                      |
 | `api.env.S3_FORCE_PATH_STYLE`         | S3 path-style access                                      | `"true"`                         |
-| `api.env.TELEMETRY_DISABLED`          | Disable telemetry                                         | `"1"`                            |
+| `api.env.TELEMETRY_DISABLED` | Worker telemetry switch. Telemetry is on only when this and `worker.env.DO_NOT_TRACK` are `"0"`. See `TELEMETRY.md` | `"1"` |
 | `api.resources`                       | CPU/memory requests and limits                            | `{}`                             |
 | `api.nodeSelector`                    | Node selector                                             | `{}`                             |
 | `api.tolerations`                     | Tolerations                                               | `[]`                             |
@@ -249,8 +249,7 @@ god mode, under **License**.
 | `worker.image.repository`       | Image repository                     | `ghcr.io/jrmatherly/itsaplan-worker` |
 | `worker.image.tag`              | Image tag (defaults to `appVersion`) | `""`                                |
 | `worker.image.pullPolicy`       | Image pull policy                    | `IfNotPresent`                      |
-| `worker.env.TELEMETRY_DISABLED` | Disable telemetry                    | `"1"`                               |
-| `worker.env.DO_NOT_TRACK`       | Do not track                         | `"1"`                               |
+| `worker.env.DO_NOT_TRACK` | Keeps telemetry off unless `"0"` | `"1"` |
 | `worker.resources`              | CPU/memory requests and limits       | `{}`                                |
 | `worker.nodeSelector`           | Node selector                        | `{}`                                |
 | `worker.tolerations`            | Tolerations                          | `[]`                                |

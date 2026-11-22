@@ -12,7 +12,7 @@ Paste the whole of one file into **Docker Compose file** and press **Save**:
 
 | Edition             | File                                                                       |
 | ------------------- | -------------------------------------------------------------------------- |
-| Pro (recommended)   | [`docker-compose.coolify-pro.yml`](../docker-compose.coolify-pro.yml)       |
+| Pro (upstream images) | [`docker-compose.coolify-pro.yml`](../docker-compose.coolify-pro.yml)       |
 | Community           | [`docker-compose.coolify-images.yml`](../docker-compose.coolify-images.yml) |
 
 Without a license key the Pro images run as Community does. To unlock the Pro features later,

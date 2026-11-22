@@ -175,8 +175,8 @@ services:
       APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:?set APP_ENCRYPTION_KEY in .env}
       # The Pro license is checked against the host of this origin, as the api does.
       APP_URL: ${APP_URL:?public origin of the web app, e.g. https://app.example.com}
-      # Anonymous telemetry (TELEMETRY.md). Either variable, set to anything but 0,
-      # turns it off.
+      # Anonymous telemetry (TELEMETRY.md). It is on only when TELEMETRY_DISABLED is 0
+      # and DO_NOT_TRACK is unset, empty or 0.
       TELEMETRY_DISABLED: ${TELEMETRY_DISABLED:-1}
       DO_NOT_TRACK: ${DO_NOT_TRACK:-}
       TELEMETRY_DEBUG: ${TELEMETRY_DEBUG:-}

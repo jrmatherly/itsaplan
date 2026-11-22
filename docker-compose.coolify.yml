@@ -183,8 +183,8 @@ services:
       # provider credentials stored in the database — encrypted with this key, the
       # same value the api uses.
       APP_ENCRYPTION_KEY: ${SERVICE_PASSWORD_64_ENCRYPTION}
-      # Anonymous telemetry (TELEMETRY.md). Either variable, set to anything but 0,
-      # turns it off.
+      # Anonymous telemetry (TELEMETRY.md). It is on only when TELEMETRY_DISABLED is 0
+      # and DO_NOT_TRACK is unset, empty or 0.
       TELEMETRY_DISABLED: ${TELEMETRY_DISABLED:-1}
       DO_NOT_TRACK: ${DO_NOT_TRACK:-}
       TELEMETRY_DEBUG: ${TELEMETRY_DEBUG:-}

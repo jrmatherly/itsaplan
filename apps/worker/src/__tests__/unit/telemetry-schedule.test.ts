@@ -77,7 +77,7 @@ describe('shouldSend', () => {
 });
 
 describe('telemetryEnabled', () => {
-  it('is off when nothing is set, and when compose passes the variables through empty', () => {
+  it('is off when nothing is set, and when both variables are empty', () => {
     expect(telemetryEnabled({})).toBe(false);
     expect(telemetryEnabled({ TELEMETRY_DISABLED: '', DO_NOT_TRACK: '' })).toBe(false);
   });

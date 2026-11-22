@@ -55,9 +55,9 @@ async function instanceId(): Promise<string> {
   if (typeof stored === 'string' && stored.length > 0) return stored;
   // Insert-if-absent: replicas racing on the first start settle on one id.
   const id = await getOrCreateSetting(INSTANCE_ID_KEY, crypto.randomUUID());
-  // Printed once ever, so an operator who never reads the docs still finds out.
+  // Printed when the id is created, so the log records when sending started.
   console.log(
-    '[telemetry] this instance now sends one anonymous snapshot a day. ' +
+    '[telemetry] this instance now sends one anonymous snapshot a day to the upstream project. ' +
       'It carries no names and no content, only totals for the whole instance — see TELEMETRY.md. ' +
       'Turn it off by unsetting TELEMETRY_DISABLED or with DO_NOT_TRACK=1.',
   );

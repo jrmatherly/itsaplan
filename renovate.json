@@ -32,13 +32,13 @@
       "automerge": false
     },
     {
-      "description": "publish-chart.yml was checked under Helm 4 only. A Helm 5 needs its breaking changes read first.",
+      "description": "publish-chart.yml is written for Helm 4. Read the Helm 5 breaking changes before raising this limit.",
       "matchDepNames": ["helm/helm"],
       "semanticCommitType": "ci",
       "allowedVersions": "<5"
     },
     {
-      "description": "Runner images: one job names ubuntu-24.04 and the image matrix names it twice more where Renovate cannot see it. Move them together by hand after a trial run.",
+      "description": "Runner images: the manifest job names ubuntu-24.04, and the build matrix names ubuntu-24.04 and ubuntu-24.04-arm where Renovate cannot see them. Move all three by hand after a trial run.",
       "matchDatasources": ["github-runners"],
       "enabled": false
     }

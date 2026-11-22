@@ -158,8 +158,8 @@ runs as Community. Your data stays when you switch editions.
 
 [![Deploy on Railway](https://railway.com/button.svg)](https://railway.com/deploy/its-a-plan?referralCode=lQ5O6i&utm_medium=integration&utm_source=button&utm_campaign=itsaplan)
 
-The upstream template deploys the upstream Pro images, not a build of this fork. The whole
-stack in one click, with no server to maintain. You give Railway two hostnames,
+The template is run by the upstream project and deploys the upstream Pro images. It starts the
+whole stack in one click, with no server to maintain. You give Railway two hostnames,
 and it generates every secret. You need a domain of your own: [the guide](docs/railway.md)
 explains why, and what to do after the deploy.
 
@@ -234,5 +234,5 @@ Copyright © 2026 Andrii Poluosmak.
 [AGPL-3.0](LICENSE), except `packages/runner`, which is
 [Apache-2.0](packages/runner/LICENSE).
 
-A commercial licence is available from the upstream author if AGPL-3.0 does not fit your
-company. Ask on [Telegram](https://telegram.me/croffasia).
+The upstream author offers a commercial licence for the upstream code if AGPL-3.0 does not
+fit your company. Ask on [Telegram](https://telegram.me/croffasia).

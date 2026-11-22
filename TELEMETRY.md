@@ -1,8 +1,8 @@
 # Telemetry
 
-A self-hosted instance sends one snapshot of itself a day. It tells the project which
-versions are still running, which features get used, and where deliveries fail on
-machines nobody reports from.
+With telemetry on, a self-hosted instance sends one snapshot of itself a day. It tells the
+upstream project which versions are still running, which features get used, and where
+deliveries fail on machines nobody reports from.
 
 Telemetry is off by default. The worker sends nothing unless `TELEMETRY_DISABLED=0` is set.
 Everything it sends when it is on is listed below.
@@ -26,8 +26,9 @@ TELEMETRY_DISABLED=0
 ```
 
 Unset, empty or any other value keeps it off, and no instance id is generated.
-`DO_NOT_TRACK` set to any value but `0` keeps it off even then. With the Helm chart, set
-`api.env.TELEMETRY_DISABLED` and `worker.env.DO_NOT_TRACK` to `"0"`.
+`DO_NOT_TRACK` set to any non-empty value but `0` keeps it off even then. With the Helm chart,
+set `api.env.TELEMETRY_DISABLED` and `worker.env.DO_NOT_TRACK` to `"0"`. Both are strings:
+quote them in a values file, or pass them with `--set-string`.
 
 ## Seeing what is sent
 
@@ -88,7 +89,7 @@ domain, your keys, or anything else in the instance.
 
 ## Where it goes
 
-`https://telemetry.itsaplan.dev`, operated by the upstream project
-([croffasia/itsaplan](https://github.com/croffasia/itsaplan)), not by this fork. No third-party analytics
+`https://telemetry.itsaplan.dev`, operated by the upstream project,
+[croffasia/itsaplan](https://github.com/croffasia/itsaplan). No third-party analytics
 service is involved. The address is fixed in the worker; there is no setting that
 points it somewhere else.
