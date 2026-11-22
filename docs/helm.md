@@ -52,6 +52,8 @@ stay put: in the values file of a GitOps app spec, or in the install command.
 
 For the Pro edition, pass `charts/itsaplan/values-pro.yaml` before it. Without a valid license
 the Pro images run as the core does; the license key is entered in god mode, under **License**.
+Upstream builds the Pro images and versions them itself, so that file sets their tag. Change
+`image.tag` there to the Pro release you run.
 
 ```bash
 helm install itsaplan charts/itsaplan -f charts/itsaplan/values-pro.yaml -f values.yaml

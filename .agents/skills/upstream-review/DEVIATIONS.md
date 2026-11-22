@@ -28,6 +28,7 @@ A new deviation gets a row in the same change that makes it. A removed path also
 | Conduct reports go to `conduct@itsaplan.dev` | go to the fork owner on GitHub, in `CODE_OF_CONDUCT.md` | KEEP. |
 | Contributor licence agreement | none | See "Deleted paths". `CONTRIBUTING.md` has no CLA section: KEEP. |
 | `packages/runner/README.md` links to upstream's `docs/runner.md` by absolute URL | a relative link to `docs/runner.md` | KEEP. The fork does not publish the package, so the README is read on GitHub and in clones. |
+| `charts/itsaplan/values-pro.yaml` sets no image tag, so the Pro images take the chart's `appVersion` | `tag: "1.12.0"` on each Pro image, upstream's Pro release | KEEP the tag: the chart's `appVersion` is the fork's version, which upstream does not publish a Pro image for. Raise it to upstream's Pro release when a merge brings one in. The repositories stay on upstream (next table). |
 
 ## Deliberately left on upstream
 
