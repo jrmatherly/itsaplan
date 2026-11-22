@@ -5,7 +5,7 @@ Helm chart for deploying [It's a Plan](https://github.com/jrmatherly/itsaplan) o
 ## Prerequisites
 
 - Kubernetes 1.24+
-- Helm 3.10+
+- Helm 4
 - The published container images from `ghcr.io/jrmatherly/itsaplan-{api,web,worker,bot}`
 
 ## Quick start
