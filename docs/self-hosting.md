@@ -8,7 +8,7 @@ request succeeds, but no session is kept and the app stays signed out. `http://l
 one exception in Chrome and Firefox; WebKit browsers such as Safari refuse it there too.
 
 ```bash
-git clone https://github.com/croffasia/itsaplan.git
+git clone https://github.com/jrmatherly/itsaplan.git
 cd itsaplan
 cp .env.example .env
 # fill in the eight values below
@@ -44,7 +44,7 @@ data. [Fast Deploy](https://itsaplan.dev/pro#fast-deploy) in your Pro account in
 stack with Caddy for HTTPS on a new server in your Hetzner, Vultr or DigitalOcean account.
 
 `.env.example` documents every variable, including the optional ones: legal document URLs,
-passkey and cookie settings, telemetry opt-out, and worker tuning.
+passkey and cookie settings, the telemetry switch, and worker tuning.
 
 ## Where the api lives
 
@@ -287,7 +287,7 @@ docker run --rm -v itsaplan_minio-data:/data -v "$PWD":/out alpine tar czf /out/
 ```
 
 If you call the API from your own scripts or from an MCP client, read the
-[release notes](https://github.com/croffasia/itsaplan/releases) for the paths a release removed.
+[release notes](https://github.com/jrmatherly/itsaplan/releases) for the paths a release removed.
 
 ## Building from source instead
 

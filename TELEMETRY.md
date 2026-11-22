@@ -1,10 +1,11 @@
 # Telemetry
 
-A self-hosted instance sends one snapshot of itself a day. It tells the project which
-versions are still running, which features get used, and where deliveries fail on
-machines nobody reports from.
+With telemetry on, a self-hosted instance sends one snapshot of itself a day. It tells the
+upstream project which versions are still running, which features get used, and where
+deliveries fail on machines nobody reports from.
 
-Telemetry is on by default. Everything it sends is listed below.
+Telemetry is off by default. The worker sends nothing unless `TELEMETRY_DISABLED=0` is set.
+Everything it sends when it is on is listed below.
 
 ## When it is sent
 
@@ -16,18 +17,18 @@ spreads the traffic instead of every instance reporting at midnight UTC.
 A send that fails is retried with a growing delay for five attempts, then once an hour.
 The worker logs each failure and carries on with its other work.
 
-## Turning it off
+## Turning it on or off
 
-Set either variable in `.env`:
+Set this in `.env` to turn it on:
 
 ```bash
-TELEMETRY_DISABLED=1
-# or the cross-tool convention, read the same way:
-DO_NOT_TRACK=1
+TELEMETRY_DISABLED=0
 ```
 
-Any value except `0` (and an empty one) turns telemetry off. Nothing is sent after
-that, and no instance id is generated.
+Unset, empty or any other value keeps it off, and no instance id is generated.
+`DO_NOT_TRACK` set to any non-empty value but `0` keeps it off even then. With the Helm chart,
+set `api.env.TELEMETRY_DISABLED` and `worker.env.DO_NOT_TRACK` to `"0"`. Both are strings:
+quote them in a values file, or pass them with `--set-string`.
 
 ## Seeing what is sent
 
@@ -88,6 +89,7 @@ domain, your keys, or anything else in the instance.
 
 ## Where it goes
 
-`https://telemetry.itsaplan.dev`, operated by the project. No third-party analytics
+`https://telemetry.itsaplan.dev`, operated by the upstream project,
+[croffasia/itsaplan](https://github.com/croffasia/itsaplan). No third-party analytics
 service is involved. The address is fixed in the worker; there is no setting that
 points it somewhere else.

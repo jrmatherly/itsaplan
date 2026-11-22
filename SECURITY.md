@@ -11,7 +11,7 @@ are applied to `main`. There is no backporting to older tags yet.
 
 Report it privately through GitHub Security Advisories:
 
-<https://github.com/croffasia/itsaplan/security/advisories/new>
+<https://github.com/jrmatherly/itsaplan/security/advisories/new>
 
 Include:
 
@@ -31,7 +31,7 @@ In scope: the API, the web app, the worker, the Telegram bot, the shared package
 the deployment files in this repository.
 
 Out of scope: vulnerabilities in third-party dependencies that have no exploitable path
-in this project (report them upstream), findings that require an already compromised
+in this project (report them to that dependency's project), findings that require an already compromised
 host or database, missing hardening headers with no demonstrated impact, and denial of
 service through raw request volume.
 

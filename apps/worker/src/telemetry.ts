@@ -12,13 +12,14 @@ import {
   minuteOfDay,
   randomSendMinute,
   shouldSend,
+  telemetryEnabled,
   utcDay,
   MINUTES_PER_DAY,
 } from './telemetry-schedule';
 import pkg from '../../../package.json';
 
 // Sends one anonymous snapshot of this instance a day. TELEMETRY.md documents what
-// goes out and how to turn it off (TELEMETRY_DISABLED=1 / DO_NOT_TRACK=1).
+// goes out and how to turn it on (TELEMETRY_DISABLED=0).
 
 const ENDPOINT = 'https://telemetry.itsaplan.dev/v1/telemetry';
 const TIMEOUT_MS = 10_000;
@@ -49,25 +50,16 @@ let state: State | null = null;
 let failures = 0;
 let retryAfterMs = 0;
 
-// Any value but '' and '0' opts out; compose passes an unset variable through as ''.
-function optedOut(value: string | undefined): boolean {
-  return value !== undefined && value !== '' && value !== '0';
-}
-
-function telemetryEnabled(): boolean {
-  return !optedOut(process.env.TELEMETRY_DISABLED) && !optedOut(process.env.DO_NOT_TRACK);
-}
-
 async function instanceId(): Promise<string> {
   const stored = await getSetting<string>(INSTANCE_ID_KEY);
   if (typeof stored === 'string' && stored.length > 0) return stored;
   // Insert-if-absent: replicas racing on the first start settle on one id.
   const id = await getOrCreateSetting(INSTANCE_ID_KEY, crypto.randomUUID());
-  // Printed once ever, so an operator who never reads the docs still finds out.
+  // Printed when the id is created, so the log records when sending started.
   console.log(
-    '[telemetry] this instance now sends one anonymous snapshot a day. ' +
+    '[telemetry] this instance now sends one anonymous snapshot a day to the upstream project. ' +
       'It carries no names and no content, only totals for the whole instance — see TELEMETRY.md. ' +
-      'Turn it off with TELEMETRY_DISABLED=1 or DO_NOT_TRACK=1.',
+      'Turn it off by unsetting TELEMETRY_DISABLED or with DO_NOT_TRACK=1.',
   );
   return id;
 }
@@ -410,7 +402,7 @@ async function installedDay(): Promise<string | null> {
 // The stored day is advanced only after the collector accepted the body, so a failed
 // send is retried rather than lost for the day.
 export async function processTelemetry(): Promise<void> {
-  if (!telemetryEnabled()) return;
+  if (!telemetryEnabled(process.env)) return;
 
   const now = new Date();
   if (now.getTime() < retryAfterMs) return;

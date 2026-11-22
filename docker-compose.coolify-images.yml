@@ -88,7 +88,7 @@ services:
   # and bot start only after it succeeds, so none of them runs against an old schema.
   # restart 'no' keeps a finished run from being started again.
   migrate:
-    image: ghcr.io/croffasia/itsaplan-api:${VERSION:-latest}
+    image: ghcr.io/jrmatherly/itsaplan-api:${VERSION:-latest}
     restart: 'no'
     exclude_from_hc: true
     command: ['bun', 'run', 'packages/db/src/migrate.ts']
@@ -107,7 +107,7 @@ services:
       - db-backups:/backups
 
   api:
-    image: ghcr.io/croffasia/itsaplan-api:${VERSION:-latest}
+    image: ghcr.io/jrmatherly/itsaplan-api:${VERSION:-latest}
     restart: unless-stopped
     # The image's own CMD migrates first; here the migrate service has done that.
     command: ['bun', 'run', 'apps/api/src/index.ts']
@@ -166,7 +166,7 @@ services:
   # schedules, whose runs it queues for the api to execute. Shares the database with
   # the api. No public ports, so nothing to probe.
   worker:
-    image: ghcr.io/croffasia/itsaplan-worker:${VERSION:-latest}
+    image: ghcr.io/jrmatherly/itsaplan-worker:${VERSION:-latest}
     restart: unless-stopped
     exclude_from_hc: true
     depends_on:
@@ -181,9 +181,9 @@ services:
       # provider credentials stored in the database — encrypted with this key, the
       # same value the api uses.
       APP_ENCRYPTION_KEY: ${SERVICE_PASSWORD_64_ENCRYPTION}
-      # Anonymous telemetry (TELEMETRY.md). Either variable, set to anything but 0,
-      # turns it off.
-      TELEMETRY_DISABLED: ${TELEMETRY_DISABLED:-}
+      # Anonymous telemetry (TELEMETRY.md). It is on only when TELEMETRY_DISABLED is 0
+      # and DO_NOT_TRACK is unset, empty or 0.
+      TELEMETRY_DISABLED: ${TELEMETRY_DISABLED:-1}
       DO_NOT_TRACK: ${DO_NOT_TRACK:-}
       TELEMETRY_DEBUG: ${TELEMETRY_DEBUG:-}
       # The same list the api reads. This process delivers webhooks to those hosts.
@@ -208,7 +208,7 @@ services:
   # Must stay at one replica: Telegram hands each getUpdates call to a single caller,
   # so a second instance would take updates away from the first.
   bot:
-    image: ghcr.io/croffasia/itsaplan-bot:${VERSION:-latest}
+    image: ghcr.io/jrmatherly/itsaplan-bot:${VERSION:-latest}
     restart: unless-stopped
     exclude_from_hc: true
     depends_on:
@@ -224,7 +224,7 @@ services:
       # in god mode, so the service picks up a change without a redeploy.
 
   web:
-    image: ghcr.io/croffasia/itsaplan-web:${VERSION:-latest}
+    image: ghcr.io/jrmatherly/itsaplan-web:${VERSION:-latest}
     restart: unless-stopped
     depends_on:
       - api

@@ -21,86 +21,95 @@ jobs:
     name: Format, lint, typecheck
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: 📥 Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: oven-sh/setup-bun@v2
+      - name: 🥟 Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: ${{ env.BUN_VERSION }}
 
       # Cache the global bun install cache, keyed by the lockfile.
-      - uses: actions/cache@v6
+      - name: 💾 Cache dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
           restore-keys: ${{ runner.os }}-bun-
 
-      - run: bun install --frozen-lockfile
+      - name: 📦 Install dependencies
+        run: bun install --frozen-lockfile
 
-      - name: Format check
+      - name: 🎨 Format check
         run: bun run format:check
 
-      - name: Lint
+      - name: 🧹 Lint
         run: bun run lint
 
-      - name: Typecheck
+      - name: 🔎 Typecheck
         run: bun run typecheck
 
       # High and critical advisories fail the job; moderate and lower only print.
-      # TODO(croffasia): drop GHSA-fc5q-39xc-vjpf (picomatch ReDoS) once picomatch has a
+      # TODO(jrmatherly): drop GHSA-fc5q-39xc-vjpf (picomatch ReDoS) once picomatch has a
       # patched release; 4.0.7 is the latest. No user-supplied glob reaches it: the api gets
       # it only through Mastra's workspace and skill loaders, which it does not use, and the
       # other paths are build tools.
-      - name: Audit dependencies
+      - name: 🛡️ Audit dependencies
         run: bun audit --audit-level=high --ignore=GHSA-fc5q-39xc-vjpf
 
-      - name: Script tests
+      - name: 🧪 Script tests
         run: bun test scripts/
 
-      - name: Mailer tests
+      - name: 🧪 Mailer tests
         run: bun test packages/mailer/
 
   build:
     name: Build apps
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: 📥 Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - uses: oven-sh/setup-bun@v2
+      - name: 🥟 Set up Bun
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
         with:
           bun-version: ${{ env.BUN_VERSION }}
 
       # Cache the global bun install cache, keyed by the lockfile.
-      - uses: actions/cache@v6
+      - name: 💾 Cache dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
           restore-keys: ${{ runner.os }}-bun-
 
-      - run: bun install --frozen-lockfile
+      - name: 📦 Install dependencies
+        run: bun install --frozen-lockfile
 
-      - name: Build
+      - name: 🏗️ Build
         run: bun run build
 
   test:
     name: Test suite
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7
+      - name: 📥 Check out the code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       # Integration tests need a live database, so they run in the compose gate:
       # a throwaway Postgres and RustFS, with the api built from the production
       # Dockerfile. Building both api-test and worker-test also verifies their
       # Dockerfiles build.
-      - name: Build test images
+      - name: 🐳 Build test images
         run: docker compose -f docker-compose.test.yml build
 
       # `run` starts api-test's dependencies (Postgres healthy, the RustFS bucket
       # init completed), runs the suite, and exits with its code. It does not use
       # --abort-on-container-exit, which would tear the stack down the moment the
       # one-shot rustfs-test-init exits, before api-test starts.
-      - name: Run the compose test gate
+      - name: 🧪 Run the compose test gate
         run: docker compose -f docker-compose.test.yml run --rm api-test
 
-      - name: Tear down
+      - name: 🗑️ Tear down
         if: always()
         run: docker compose -f docker-compose.test.yml down -v
