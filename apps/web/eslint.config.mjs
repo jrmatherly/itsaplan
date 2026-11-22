@@ -37,4 +37,18 @@ export default [
       // ru and uk have `few` and `many` where English has `one`).
     },
   })),
+  {
+    files: ['src/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector:
+            "MemberExpression[object.object.name='process'][object.property.name='env'][property.name=/^NEXT_PUBLIC_/], MemberExpression[object.object.name='process'][object.property.name='env'][property.value=/^NEXT_PUBLIC_/]",
+          message:
+            'next build inlines NEXT_PUBLIC_* and the image then serves one instance. Read the value through utils/runtimeEnv.',
+        },
+      ],
+    },
+  },
 ];
