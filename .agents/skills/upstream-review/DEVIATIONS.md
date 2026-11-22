@@ -77,7 +77,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | `packages/auth/AGENTS.md`: switch to `sameSite: "none"` when frontend and backend are on different domains | keep `lax`: subdomains share the cookie and another registrable domain is not supported | KEEP. |
 | Root `AGENTS.md`: "Never add `image:` to `docker-compose.coolify.yml`" | "to a service that has `build:`" | KEEP. Three services in that file have `image:` and no `build:`. |
 
-## Environment variables that reach the services
+## Environment variables that reach the services (PR 10)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
@@ -90,7 +90,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | `.gitignore` | adds `.remember/`, `.codegraph/`, `/private/` | ADAPT. Keep both sides. |
 | no `.serena/` | `.serena/project.yml`, `.serena/.gitignore` | KEEP (fork-only). |
 
-## Plane import
+## Plane import (PR 10)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
