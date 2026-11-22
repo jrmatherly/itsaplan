@@ -1,8 +1,9 @@
 # Commits and releases
 
-Subject: Conventional Commit, `type(scope): summary`. PRs are squash-merged, so the PR title
-becomes the commit subject on `main` (`pr-title.yml` checks it). release-please reads the
-subjects to pick the next version and write `CHANGELOG.md`.
+Subject: Conventional Commit, `type(scope): summary`. A squash-merged PR puts its title on `main`
+as the commit subject (`pr-title.yml` checks it). A PR landed as a merge commit puts each of its
+commit subjects on `main`. release-please reads the subjects to pick the next version and write
+`CHANGELOG.md`.
 
 Pick the type by what the change gives the user, not by how much code it touches:
 
@@ -27,3 +28,20 @@ Release config traps:
 - A package a release publishes to GHCR for the first time is private. Set each new one to public
   in its package settings: the four `itsaplan-*` images and `charts/itsaplan`. Until then
   `docker compose pull` and `helm install` fail for a user who is not signed in to the registry.
+
+## Rules on `main`
+
+`main` has a repository ruleset named `main`. It is a GitHub setting, not a file. A change reaches
+`main` only through a pull request whose five checks passed: `Format, lint, typecheck`,
+`Build apps`, `Test suite`, `Analyze` and `Validate conventional title`. No approving review is
+required. A squash merge and a merge commit are allowed. A rebase merge, a force push and a
+deletion are refused.
+
+The release PR is opened by the workflow token, so its checks wait in an approval-required state
+and report nothing. Open the PR and choose **Approve workflows to run**. Each push release-please
+makes to that PR needs a new approval, so approve after its last push. The PR cannot merge until
+the checks pass.
+
+A repository admin can bypass the rules on a pull request (`gh pr merge --admin`). To turn the
+ruleset off: `gh api -X PUT repos/{owner}/{repo}/rulesets/<id> -f enforcement=disabled`.
+`gh api repos/{owner}/{repo}/rulesets` lists the id, and `gh` fills in `{owner}` and `{repo}`.
