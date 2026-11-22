@@ -48,20 +48,20 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | The worker sends telemetry unless `TELEMETRY_DISABLED` is set to a value other than `0` | The worker sends nothing unless `TELEMETRY_DISABLED=0`: `apps/worker/src/telemetry.ts`, `apps/worker/src/telemetry-schedule.ts` | KEEP the switch logic. ADAPT any upstream change to what is sent. Pinned by `apps/worker/src/__tests__/integration/telemetry-switch.test.ts` and `apps/worker/src/__tests__/unit/telemetry-schedule.test.ts`. |
 | Compose files and `.env.example` describe opt-out | describe opt-in and default it off; the chart has no `worker.env.TELEMETRY_DISABLED` | KEEP in the five compose files, `.env.example`, `charts/itsaplan/values.yaml`, the telemetry rows of the values table in `charts/itsaplan/README.md`, `TELEMETRY.md`, and "the telemetry switch" in `docs/coolify.md` and `docs/self-hosting.md`. `TELEMETRY.md` and the worker's log line say the collector is run by the upstream project: KEEP. |
 
-## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`)
+## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`; PR 11)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
 | Actions referenced by tag (`actions/checkout@v7`) | Every action pinned to a commit SHA with the tag as a comment; every step has a name | ADAPT in every file under `.github/workflows/`. Take upstream's job or step change, then pin and name it. Renovate keeps the pins current. |
 | The chart job uses the runner image's Helm | `publish-chart.yml` installs a pinned Helm 4 (`HELM_VERSION`) | KEEP. `docs/helm.md` and `charts/itsaplan/README.md` state Helm 4: KEEP. |
 | no `renovate.json` | `renovate.json`, scoped to the action pins and `HELM_VERSION` | KEEP (fork-only file). npm packages, base images, runner images and Bun are out of its scope on purpose. |
-| Bun 1.4.4 | 1.4.5 in `package.json`, the four Dockerfiles, `ci.yml` and `docs/development.md` | ADOPT upstream's next Bun bump when it is newer, in all seven places. Remove this row when upstream passes 1.4.5. |
+| Bun 1.4.4 | 1.4.5 in `package.json`, the four Dockerfiles, `ci.yml` and `docs/development.md` | ADOPT upstream's next Bun bump when it is newer, in all seven places. Remove this row when upstream reaches 1.4.5. |
 | `release-please-config.json` updates `Chart.yaml` | also updates the version block in `docs/helm.md` | ADAPT. |
 | `docs/dev/releasing.md` has no note on registry visibility | a bullet says each new GHCR package starts private and is set to public by hand | KEEP the bullet. |
 | Version tokens and `CHANGELOG.md` follow upstream's releases | follow the fork's own release-please runs | KEEP ours in `package.json` `version`, `.release-please-manifest.json`, `charts/itsaplan/Chart.yaml` `version` and `appVersion`, the `docs/helm.md` version block and `CHANGELOG.md`. An upstream `chore: release main` commit is ADOPT for everything else it touches. |
 | Tags `vX.Y.Z` name upstream's release commits | The fork cuts its own `vX.Y.Z` tags from its first release. From then on the same number names a different commit in each repository. | Never fetch upstream's tags (the driver sets `remote.upstream.tagOpt --no-tags`). Never dispatch the publish workflows for `v1.12.0`: that tag's chart names upstream's images. |
 
-## Agent rules and their checks (PR 1, `f41815c7`; PR 7, `1de9700a`)
+## Agent rules and their checks (PR 1, `f41815c7`; PR 7, `1de9700a`; PR 11)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
@@ -77,9 +77,9 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | `apps/worker/AGENTS.md`: leases and attempts come from the job settings | adds that imports read only their poll interval there | KEEP the added sentence. |
 | `packages/auth/AGENTS.md`: switch to `sameSite: "none"` when frontend and backend are on different domains | keep `lax`: subdomains share the cookie and another registrable domain is not supported | KEEP. |
 | Root `AGENTS.md`: "Never add `image:` to `docker-compose.coolify.yml`" | "to a service that has `build:`" | KEEP. Three services in that file have `image:` and no `build:`. |
-| The cross-feature import rule is prose in `apps/web/AGENTS.md`, and the code has 15 exceptions to it | a `no-restricted-imports` rule in `apps/web/eslint.config.mjs` with an allowlist of those pairs; the `apps/web/AGENTS.md` bullet points at it | KEEP the rule. An upstream file that adds a pair fails the fork's lint: extend the allowlist in the merge PR. |
+| The cross-feature import rule is prose in `apps/web/AGENTS.md`, and the code has 15 exceptions to it | a `no-restricted-imports` rule in `apps/web/eslint.config.mjs` with an allowlist of those pairs; the `apps/web/AGENTS.md` bullet points at it | KEEP the rule. An upstream file that adds a pair fails the fork's lint: extend the allowlist in the merge PR. The rule sees static `@/` imports only. |
 
-## Environment variables that reach the services (PR 10)
+## Environment variables that reach the services (PR 10; PR 11)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
@@ -99,7 +99,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | --- | --- | --- |
 | `apps/worker/src/plane-adapter.ts` maps `blocking` and `blocked_by` both to `blocks` from the issue being read, and expects id strings in the relation lists | reads `blocking` only and accepts an id or a `{ project_id, issue_id }` entry | KEEP `listIssueRelations` and `RELATION_KIND_MAP`. Pinned by `apps/worker/src/__tests__/unit/plane-adapter.test.ts`. The relation passages of `docs/dev/plane-import-source-notes.md`, `docs/dev/plane-import.md` and `docs/importing-from-plane.md` follow it: KEEP. |
 
-## Docs corrected against the code (PR 8, `920a9cfb`)
+## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11)
 
 Each row is a statement upstream's doc gets wrong and the code proves otherwise. All are ADAPT:
 take upstream's new content, keep our corrected fact. When upstream's hunk also changes the code

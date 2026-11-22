@@ -133,11 +133,12 @@ bun run db:migrate:test   # only when the window added migrations; needs the tes
 bun run test              # needs the test Postgres; see docs/development.md
 ```
 
-Say in the decision log which of these ran and which did not.
+`no-restricted-imports` fails on a file the merge brought in when upstream added an import from
+one web feature to another. Add the importing feature and the imported one to
+`allowedFeatureImports` in `apps/web/eslint.config.mjs` in the merge PR, and name both in the PR
+body. After a merge with conflicts the pre-commit hook reports it first.
 
-- When `bun run lint` fails on `no-restricted-imports` in a file the merge brought in, add the pair
-  to `allowedFeatureImports` in `apps/web/eslint.config.mjs` in the merge PR and name the pair in
-  the PR body.
+Say in the decision log which of these ran and which did not.
 
 ## Decision log template
 
