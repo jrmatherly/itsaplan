@@ -1,6 +1,6 @@
 # Local development
 
-Requirements: [Bun](https://bun.sh) 1.4.4, the version `packageManager` pins, Docker, Git.
+Requirements: [Bun](https://bun.sh) 1.4.5, the version `packageManager` pins, Docker, Git.
 
 ## Setup
 
