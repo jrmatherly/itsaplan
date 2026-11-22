@@ -3,7 +3,8 @@
 Standalone Bun process (own Dockerfile). `start.ts` runs three poll loops: `worker.ts` (webhook and
 notification delivery, webhook cleanup, telemetry), `agent-worker.ts` (cron schedules) and
 `import-worker.ts` (source imports). Intervals, batch sizes, leases and attempts come from the job
-settings in `@repo/db`, read on every pass. The import pipeline: `docs/dev/import-worker.md`.
+settings in `@repo/db`, read on every pass. Imports read only their poll interval there: their
+lease, attempt limit and batch size are constants. The import pipeline: `docs/dev/import-worker.md`.
 
 ## Invariants
 

@@ -53,7 +53,7 @@
 
 - **DTOs, not rows.** `timestamptz` → `iso()` string; `numeric` → `num()`; `date` is already
   `'YYYY-MM-DD'`.
-- **jsonb** passes through as JS objects. Never `JSON.stringify`; validate only as `t.Any()`.
+- **jsonb** passes through as JS objects. Never `JSON.stringify`.
 - **Sequence numbers** ("MKT-42") are issued under a row lock on `project` inside the transaction
   of `createIssue` and of `moveIssue`. Keep the lock. A moved issue's old number goes to
   `issue_key_alias`, and the counter never goes back.
@@ -103,8 +103,8 @@ Enforced through macros in the route options.
 - An invite is checked against its sender when made and again when accepted.
 - An agent is never a project owner. An action on an agent that reaches every project it works in
   takes `assertFullAgentAccess`. There is no instance-level agent and no non-human flag on `user`.
-- A `project_member` row with `source: 'scim'` is refused for edit or removal (409), because the
-  next sync would undo the change.
+- A `project_member` row with `source: 'scim'` is refused for a role change or removal (409),
+  because the next sync would undo the change.
 - A `team_member` row is refused for removal or leaving only while its `source` is `'scim'` and its
   role is `member`. Its rank can be changed, and the sync then leaves the row alone.
 - `GET /attachments/:publicId/raw` is public. Keep `X-Content-Type-Options: nosniff`, forced

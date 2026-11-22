@@ -25,6 +25,7 @@ a wrong line. So these files contain only what an agent would get wrong without 
 | A rule for one topic only                                 | that doc, plus one routing row           |
 | Steps for a rare procedure                                | `docs/dev/<topic>.md`                    |
 | A workflow an agent runs by name                          | `.agents/skills/`                        |
+| A deliberate difference from upstream                     | a row in the `upstream-review` skill     |
 | Why one line of code looks wrong                          | a comment on that line                   |
 | An extension point for the Pro build                      | `SEAMS.md` in the private Pro repository |
 | A fix, a feature, what changed                            | the commit message                       |
@@ -70,8 +71,8 @@ Do not update when:
 ```markdown
 <!-- Good -->
 
-- Never add `image:` to `docker-compose.coolify.yml`: with both `image:` and `build:` Coolify still
-  builds and stops making rollback images.
+- Never add `image:` to a service that has `build:` in `docker-compose.coolify.yml`: with both,
+  Coolify still builds and stops making rollback images.
 
 <!-- Bad: describes the design and states no rule -->
 
