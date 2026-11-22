@@ -1,0 +1,46 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", "helpers:pinGitHubActionDigests", ":semanticCommits"],
+  "description": "Scope: what the workflows pin. npm packages, the Dockerfile base images and the compose service images arrive with upstream merges, so Renovate leaves them alone. The Bun version is set in package.json, four Dockerfiles and ci.yml: raise all six by hand in one change.",
+  "enabledManagers": ["github-actions", "custom.regex"],
+  "forkProcessing": "enabled",
+  "timezone": "America/New_York",
+  "minimumReleaseAge": "7 days",
+  "vulnerabilityAlerts": {
+    "enabled": false
+  },
+  "labels": ["dependencies"],
+  "schedule": ["before 7am on monday"],
+  "prHourlyLimit": 3,
+  "prConcurrentLimit": 5,
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "The Helm version publish-chart.yml installs",
+      "managerFilePatterns": ["/^\\.github/workflows/publish-chart\\.yml$/"],
+      "matchStrings": ["HELM_VERSION: (?<currentValue>v\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "helm/helm",
+      "datasourceTemplate": "github-releases"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Workflow actions: one PR, each pinned to a commit with its tag in a comment",
+      "matchManagers": ["github-actions"],
+      "groupName": "GitHub Actions",
+      "semanticCommitType": "ci",
+      "automerge": false
+    },
+    {
+      "description": "publish-chart.yml was checked under Helm 4 only. A Helm 5 needs its breaking changes read first.",
+      "matchDepNames": ["helm/helm"],
+      "semanticCommitType": "ci",
+      "allowedVersions": "<5"
+    },
+    {
+      "description": "Runner images: one job names ubuntu-24.04 and the image matrix names it twice more where Renovate cannot see it. Move them together by hand after a trial run.",
+      "matchDatasources": ["github-runners"],
+      "enabled": false
+    }
+  ]
+}
