@@ -27,3 +27,19 @@ Release config traps:
 - A package a release publishes to GHCR for the first time is private. Set each new one to public
   in its package settings: the four `itsaplan-*` images and `charts/itsaplan`. Until then
   `docker compose pull` and `helm install` fail for a user who is not signed in to the registry.
+
+## Rules on `main`
+
+`main` has a repository ruleset named `main`. It is a GitHub setting, not a file. A change reaches
+`main` only through a pull request whose five checks passed: `Format, lint, typecheck`,
+`Build apps`, `Test suite`, `Analyze` and `Validate conventional title`. No approving review is
+required. Squash and merge commits are allowed, a force push and a deletion are refused.
+
+The release PR is opened by the workflow token, so its checks wait in an approval-required state
+and report nothing. Open the PR and choose **Approve workflows to run**. Each push release-please
+makes to that PR needs a new approval, so approve after its last push. The PR cannot merge until
+the checks pass.
+
+A repository admin can bypass the rules on a pull request (`gh pr merge --admin`). To turn the
+ruleset off: `gh api -X PUT repos/<owner>/<repo>/rulesets/<id> -f enforcement=disabled`.
+`gh api repos/<owner>/<repo>/rulesets` lists the id.
