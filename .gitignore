@@ -47,5 +47,5 @@ coverage
 
 .remember/
 .codegraph/
-private/
+/private/
 
