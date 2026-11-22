@@ -204,7 +204,7 @@ god mode, under **License**.
 | `api.env.WEB_PUSH_SUBJECT`            | Web Push contact, `mailto:` or `https:` (api and worker)  | (unset, push off)                |
 | `api.env.PASSKEY_RP_ID`               | Passkey RP ID. Changing it makes passkeys unusable        | (unset, first `APP_URL` host)    |
 | `api.env.PASSKEY_RP_NAME`             | Name a passkey prompt shows                               | (unset, `It's a Plan`)           |
-| `api.env.EMAIL_FROM`                  | From address when god mode sets none (api and worker)     | (unset)                          |
+| `api.env.EMAIL_FROM`                  | Fallback From address (api and worker)                    | (unset)                          |
 | `api.env.S3_BUCKET`                   | S3 bucket name                                            | `""`                             |
 | `api.env.S3_REGION`                   | S3 region                                                 | `us-east-1`                      |
 | `api.env.S3_FORCE_PATH_STYLE`         | S3 path-style access                                      | `"true"`                         |

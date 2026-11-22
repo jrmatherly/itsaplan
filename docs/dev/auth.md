@@ -43,7 +43,9 @@ Sessions are deleted on sign-out, so they are no record of when someone last use
 
 Registration mode, which sign-in methods are offered, the mail provider, the OAuth credentials
 and the SCIM token are stored in the database, so god mode can change them without a restart.
-The mail From address falls back to env (`EMAIL_FROM`, then `NOTIFICATIONS_EMAIL_FROM`).
+The mail From address falls back to env: `EMAIL_FROM`, or `NOTIFICATIONS_EMAIL_FROM` when
+`EMAIL_FROM` is unset. An empty `EMAIL_FROM`, which the compose files pass, does not count as
+unset.
 
 - `app_setting` key `auth` → `{ registration, requireEmailVerification, magicLink,
   emailPassword, trustProviderEmails, personalWorkspaces, inviteTtlDays, inviteSearch,

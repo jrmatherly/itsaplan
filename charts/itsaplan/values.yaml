@@ -57,7 +57,7 @@ api:
     # APP_URL hosts share passkeys: a change makes the registered passkeys unusable.
     # PASSKEY_RP_ID: ""
     # PASSKEY_RP_NAME: "It's a Plan"
-    # From address when god mode sets none, read by the api and the worker. Resend needs one.
+    # Fallback From address, read by the api and the worker. Resend needs a From address.
     # EMAIL_FROM: "It's a Plan <notifications@example.com>"
     S3_BUCKET: ""
     S3_REGION: "us-east-1"

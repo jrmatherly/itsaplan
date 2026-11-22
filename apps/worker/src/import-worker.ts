@@ -532,7 +532,7 @@ async function createComments(
 // moment it ran, so a sub-issue processed before its parent existed was left
 // with no parent — by Link, every issue in the job has been created.
 
-async function runLink(job: ClaimedImportJob, reader: SourceReader): Promise<void> {
+export async function runLink(job: ClaimedImportJob, reader: SourceReader): Promise<void> {
   const cursor = job.cursor as Partial<RecordCursor>;
   const afterId = cursor.lastRecordId ?? 0;
   const pending = await listCreatedImportRecords(job.id, 'issue', afterId, ISSUES_PER_TICK);

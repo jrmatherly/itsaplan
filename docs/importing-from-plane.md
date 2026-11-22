@@ -43,9 +43,10 @@ of them affect data you may not notice is missing until later.
 - **Comments** — body (converted to Markdown) and reply threading.
 - **Labels, workflow states, and cycles** — created if they do not already exist by that
   name. A cycle without both a start and an end date is not imported.
-- **Issue relations** — "blocks", "relates to", and "duplicates" only. Plane does not say
-  which of two duplicates is the original, so that direction is not kept. A relation to a
-  work item in another Plane project is not imported.
+- **Issue relations** — "blocks", "relates to", and "duplicates" only. "Blocked by" is
+  imported as the other work item's "blocks". Plane does not say which of two duplicates is
+  the original, so that direction is not kept. A relation to a work item in another Plane
+  project is not imported.
 - **Cross-references inside text, when both sides were imported.** A description or
   comment that says "see ROOMS-524" is rewritten to point at this project's own
   identifier for that issue, once it has been imported too. A mention of an issue
@@ -70,9 +71,8 @@ of them affect data you may not notice is missing until later.
 - **Work item types** (Epic and any custom type) — every imported item becomes a plain
   issue, with no record of what type it was in Plane.
 - **Time logs, reactions, watchers, and edit/activity history.**
-- **Five of Plane's eight relation kinds** — the scheduling-dependency ones (starts
-  before/after, finishes before/after) have no equivalent here and are dropped. "Blocked
-  by" is read from the other side: the blocking work item's "blocks" relation is imported.
+- **Four of Plane's eight relation kinds** — the scheduling-dependency ones (starts
+  before/after, finishes before/after) have no equivalent here and are dropped.
 
 ## Reviewing the mapping before you import
 
