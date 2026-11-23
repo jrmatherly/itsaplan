@@ -39,10 +39,10 @@ function isLocalHostname(host: string): boolean {
 // name and an IP literal are not resolved by vet, so they have no pin.
 //
 // Read per call rather than at module load so a test can set it around one case.
-function allowedHost(host: string): { http: boolean } | null {
-  const configured = process.env.SSRF_ALLOWED_HOSTS;
-  if (!configured) return null;
-  const entries = configured.split(',').map((entry) => entry.trim().toLowerCase());
+function allowedHost(host: string, callerHosts?: string): { http: boolean } | null {
+  const entries = [process.env.SSRF_ALLOWED_HOSTS, callerHosts]
+    .flatMap((list) => (list ? list.split(',') : []))
+    .map((entry) => entry.trim().toLowerCase());
   const http = entries.includes(`http://${host}`);
   return http || entries.includes(host) ? { http } : null;
 }
@@ -93,6 +93,8 @@ interface Pin {
 interface UrlPolicy {
   // Public content never uses development or configured private-host exceptions.
   publicOnly?: boolean;
+  // More hosts to trust for this caller only, in the syntax of SSRF_ALLOWED_HOSTS.
+  allowedHosts?: string;
   signal?: AbortSignal;
 }
 
@@ -131,7 +133,7 @@ async function vet(raw: string, policy: UrlPolicy = {}): Promise<{ url: URL; pin
   const devRelaxed =
     !policy.publicOnly && process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test';
   const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '');
-  const named = policy.publicOnly ? null : allowedHost(host);
+  const named = policy.publicOnly ? null : allowedHost(host, policy.allowedHosts);
   const allowed = named !== null;
   if (
     url.protocol !== 'https:' &&
@@ -183,8 +185,8 @@ async function vet(raw: string, policy: UrlPolicy = {}): Promise<{ url: URL; pin
 // Validates a user/agent-supplied URL for a server-side fetch: http(s) only, and it
 // must not resolve to a local/private address. Returns the parsed URL. http is
 // allowed in local development, under the public-only policy, or to a host named as
-// http://host in SSRF_ALLOWED_HOSTS. Throws UrlNotAllowedError when the URL or its
-// resolved addresses are refused.
+// http://host in SSRF_ALLOWED_HOSTS or policy.allowedHosts. Throws UrlNotAllowedError
+// when the URL or its resolved addresses are refused.
 export async function assertPublicHttpUrl(raw: string, policy?: UrlPolicy): Promise<URL> {
   return (await vet(raw, policy)).url;
 }

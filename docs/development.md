@@ -61,8 +61,12 @@ parallel workers on copies of it, named `<name>_1` … `<name>_5`.
 bun run test
 ```
 
-The same gate CI runs — the suite against a throwaway Postgres, in a container built from
-the production image:
+`bun run test:standalone` runs the suites that need no database: web and the packages
+other than `packages/db`. CI runs the same suites in the quality job, the web suite with
+`--retry=2`.
+
+The same gate CI runs for the api, bot, worker and db suites — against a throwaway Postgres,
+in a container built from the production image:
 
 ```bash
 docker compose -f docker-compose.test.yml build

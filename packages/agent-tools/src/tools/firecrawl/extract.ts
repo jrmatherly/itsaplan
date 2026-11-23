@@ -7,7 +7,7 @@ import { firecrawlPost, selfHostedBase } from './client';
 const TIMEOUT_MS = 90_000;
 
 const NO_MODEL_HINT =
-  'A Firecrawl server with no model provider (OPENAI_API_KEY, OPENAI_BASE_URL, MODEL_NAME) fails extraction this way; the server log has the cause.';
+  'A Firecrawl server with no model provider (OPENAI_API_KEY, OPENAI_BASE_URL, MODEL_NAME), or whose model endpoint failed, fails extraction this way; the server log has the cause.';
 
 // Extracts structured data from pages through the Firecrawl API: a prompt says what to
 // pull out, an optional JSON schema fixes the shape of the result. Each URL is one
@@ -17,7 +17,7 @@ export const firecrawlExtract: CustomToolEntry = {
   key: 'firecrawl_extract',
   label: 'Firecrawl Extract',
   description:
-    'Extract structured data from web pages (via the Firecrawl API). Give the page URLs and a prompt describing what to pull out; pass a JSON schema to fix the output shape. Returns one result per page, with the data or the error for that page. It reads only the pages given: to cover a site, find its pages with Firecrawl Map first.',
+    'Extract structured data from web pages (via the Firecrawl API). Give the page URLs and a prompt describing what to pull out; pass a JSON schema to fix the output shape. When you know the fields you want, pass a schema that names them: a prompt alone can return a wrong value. Returns one result per page, with the data or the error for that page. It reads only the pages given: to cover a site, find its pages with Firecrawl Map first.',
   inputSchema: z.object({
     urls: z
       .array(
@@ -62,7 +62,8 @@ export const firecrawlExtract: CustomToolEntry = {
           return { url, data: res.data.json ?? null, ...(warning ? { warning } : {}) };
         } catch (err) {
           const error = err instanceof Error ? err.message : String(err);
-          // A self-hosted server without a model answers 500 UNKNOWN_ERROR and names no cause.
+          // A self-hosted server without a model, or whose model call failed, answers 500
+          // UNKNOWN_ERROR and names no cause.
           const noModel =
             selfHostedBase(credential) !== '' &&
             error.includes('failed (500)') &&

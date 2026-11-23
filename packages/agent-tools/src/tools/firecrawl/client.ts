@@ -1,4 +1,5 @@
 import { pinnedFetch, ResponseTooLargeError, UrlNotAllowedError } from '@repo/net';
+import { ToolConfigError } from '../../errors';
 import { jsonOrThrow } from '../../http';
 import type { ToolConfig } from '../../types';
 import { sleep } from '../time';
@@ -15,12 +16,21 @@ const TERMINAL = new Set(['completed', 'failed', 'cancelled']);
 // pinnedFetch holds the whole response in memory, and its size depends on the scraped page.
 const MAX_SELF_HOSTED_MB = 20;
 
+const BAD_ADDRESS =
+  'The Firecrawl Instance URL must be an address such as https://firecrawl.example.com, without a user name, a query or a fragment.';
+
 // The address of a self-hosted server, without the /v2 path. Empty for the cloud.
+// A query, a fragment or a user name is refused, not dropped: the address the
+// credential shows is then the address the requests go to.
 export function selfHostedBase(credential: ToolConfig): string {
-  return String(credential.baseUrl ?? '')
-    .trim()
-    .replace(/\/+$/, '')
-    .replace(/\/v2$/, '');
+  const raw = String(credential.baseUrl ?? '').trim();
+  if (!raw) return '';
+  const url = URL.canParse(raw) ? new URL(raw) : null;
+  // `host:3002` parses with `host:` as its scheme.
+  if (!url || /[?#]/.test(raw) || !/^https?:$/.test(url.protocol) || url.username || url.password) {
+    throw new ToolConfigError(BAD_ADDRESS);
+  }
+  return url.origin + url.pathname.replace(/\/+$/, '').replace(/\/v2$/, '');
 }
 
 // A self-hosted server's address comes from the credential, so that call goes through the
@@ -47,12 +57,14 @@ export async function firecrawlFetch(
       headers,
       timeoutMs: 120_000,
       maxBytes: MAX_SELF_HOSTED_MB * 1024 * 1024,
+      // Trusted for this client only, so the server need not be in SSRF_ALLOWED_HOSTS.
+      allowedHosts: process.env.FIRECRAWL_ALLOWED_HOSTS,
     });
   } catch (err) {
     // Rethrown as UrlNotAllowedError: the api's credential check answers "unknown" for that class.
     if (err instanceof UrlNotAllowedError) {
       throw new UrlNotAllowedError(
-        `The Firecrawl address is not allowed (${err.message}). A self-hosted server on a private network has to be named in SSRF_ALLOWED_HOSTS of this It's a Plan server. A server without https is named there as http://hostname, without the port.`,
+        `The Firecrawl address is not allowed (${err.message}). A self-hosted server on a private network has to be named in FIRECRAWL_ALLOWED_HOSTS of this It's a Plan server. A server without https is named there as http://hostname, without the port.`,
       );
     }
     if (err instanceof ResponseTooLargeError) {

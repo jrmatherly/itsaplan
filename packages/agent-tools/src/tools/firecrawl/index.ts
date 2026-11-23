@@ -19,7 +19,7 @@ export const firecrawl: Integration = {
       type: 'url',
       required: false,
       placeholder: 'https://firecrawl.example.com',
-      help: 'Leave empty for the Firecrawl cloud. For a self-hosted server, its address without the /v2 path. A server on a private address also needs its hostname in SSRF_ALLOWED_HOSTS of this server. A server without https is written there as http://hostname, without the port.',
+      help: 'Leave empty for the Firecrawl cloud. For a self-hosted server, its address without the /v2 path. A server on a private address also needs its hostname in FIRECRAWL_ALLOWED_HOSTS of this server. A server without https is written there as http://hostname, without the port.',
     },
     {
       key: 'apiKey',

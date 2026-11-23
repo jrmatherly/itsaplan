@@ -227,6 +227,7 @@ to Pro only on a Pro release at or above the version it runs.
 | `api.env.SKIP_PRE_MIGRATION_BACKUP`   | `"1"` migrates without the pre-migration dump             | (unset)                          |
 | `api.env.BACKUP_RETENTION_DAYS`       | Days the pre-migration dumps are kept                     | (unset, 30)                      |
 | `api.env.SSRF_ALLOWED_HOSTS`          | Private hosts a server-side fetch may reach (api, worker) | (unset)                          |
+| `api.env.FIRECRAWL_ALLOWED_HOSTS`     | Private hosts only the Firecrawl tools may reach (api)    | (unset)                          |
 | `api.backups.persistence.enabled`     | Keep the pre-migration dump on a volume                   | `false`                          |
 | `api.backups.persistence.size`        | Backup volume size                                        | `10Gi`                           |
 | `api.backups.persistence.storageClass` | Backup volume storage class                              | `""`                             |

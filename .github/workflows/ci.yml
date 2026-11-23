@@ -62,8 +62,13 @@ jobs:
       - name: 🧪 Script tests
         run: bun test scripts/
 
-      - name: 🧪 Mailer tests
-        run: bun test packages/mailer/
+      # The package suites that need no database. The database suites run in the test job.
+      - name: 🧪 Package tests
+        run: bun run test:standalone --filter='!web'
+
+      # Some web tests depend on timing and fail some runs on a loaded runner.
+      - name: 🧪 Web tests
+        run: bun run --cwd apps/web test --retry=2
 
   build:
     name: Build apps

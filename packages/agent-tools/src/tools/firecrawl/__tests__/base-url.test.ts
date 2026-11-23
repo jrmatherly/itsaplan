@@ -1,5 +1,6 @@
 import { describe, it, expect, mock, beforeEach, afterAll } from 'bun:test';
 import { ResponseTooLargeError, UrlNotAllowedError } from '@repo/net';
+import { ToolConfigError } from '../../../errors';
 
 type Init = {
   method?: string;
@@ -7,6 +8,7 @@ type Init = {
   headers?: Record<string, string>;
   timeoutMs?: number;
   maxBytes?: number;
+  allowedHosts?: string;
   signal?: AbortSignal;
 };
 
@@ -72,6 +74,27 @@ describe('firecrawl instance URL', () => {
     expect(init.headers!.Authorization).toBe('Bearer any');
     expect(init.timeoutMs).toBe(120_000);
     expect(init.maxBytes).toBe(20 * 1024 * 1024);
+    expect(cloudFetch).not.toHaveBeenCalled();
+  });
+
+  it('refuses an instance URL with a query, a fragment, a user name or a scheme other than http and https', async () => {
+    const bad = [
+      'https://firecrawl.example.com/admin?x=',
+      'https://firecrawl.example.com/admin?',
+      'https://firecrawl.example.com/admin#',
+      'https://user:pw@firecrawl.example.com',
+      'firecrawl.example.com',
+      'firecrawl.example.com:3002',
+      'ftp://firecrawl.example.com',
+    ];
+    for (const baseUrl of bad) {
+      const credential = { apiKey: 'fc-1', baseUrl };
+      await expect(firecrawlSearch.execute(credential, { query: 'q' })).rejects.toThrow(
+        'Instance URL',
+      );
+      await expect(verifyFirecrawl(credential, noSignal)).rejects.toBeInstanceOf(ToolConfigError);
+    }
+    expect(pinnedFetch).not.toHaveBeenCalled();
     expect(cloudFetch).not.toHaveBeenCalled();
   });
 
@@ -169,8 +192,25 @@ describe('firecrawl instance URL', () => {
       throw new UrlNotAllowedError('url must use https');
     });
     await expect(firecrawlSearch.execute(selfHosted, { query: 'q' })).rejects.toThrow(
-      /url must use https.*SSRF_ALLOWED_HOSTS.*http:\/\/hostname/,
+      /url must use https.*FIRECRAWL_ALLOWED_HOSTS.*http:\/\/hostname/,
     );
+  });
+
+  it('passes FIRECRAWL_ALLOWED_HOSTS to the SSRF guard, read per call', async () => {
+    const saved = process.env.FIRECRAWL_ALLOWED_HOSTS;
+    try {
+      process.env.FIRECRAWL_ALLOWED_HOSTS = 'http://firecrawl.internal';
+      await firecrawlSearch.execute(selfHosted, { query: 'q' });
+      delete process.env.FIRECRAWL_ALLOWED_HOSTS;
+      await firecrawlSearch.execute(selfHosted, { query: 'q' });
+    } finally {
+      if (saved === undefined) delete process.env.FIRECRAWL_ALLOWED_HOSTS;
+      else process.env.FIRECRAWL_ALLOWED_HOSTS = saved;
+    }
+    expect(pinnedFetch.mock.calls.map(([, init]) => init!.allowedHosts)).toEqual([
+      'http://firecrawl.internal',
+      undefined,
+    ]);
   });
 
   it('tells the agent when the answer is over the size limit', async () => {

@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'bun:test';
+import { describe, it, expect, afterEach, beforeEach } from 'bun:test';
 import { createServer, type IncomingHttpHeaders } from 'node:http';
 import { assertPublicHttpUrl, pinnedFetch, UrlNotAllowedError } from '../index';
 
@@ -124,6 +124,52 @@ describe('SSRF_ALLOWED_HOSTS', () => {
     await expect(assertPublicHttpUrl('https://localtest.me/')).rejects.toBeInstanceOf(
       UrlNotAllowedError,
     );
+  });
+});
+
+describe('policy.allowedHosts', () => {
+  const saved = process.env.SSRF_ALLOWED_HOSTS;
+  beforeEach(() => {
+    delete process.env.SSRF_ALLOWED_HOSTS;
+  });
+  afterEach(() => {
+    if (saved === undefined) delete process.env.SSRF_ALLOWED_HOSTS;
+    else process.env.SSRF_ALLOWED_HOSTS = saved;
+  });
+
+  it('reaches a host named with http:// over plain http for that caller only', async () => {
+    const server = createServer((_req, res) => res.end('ok'));
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const { port } = server.address() as { port: number };
+    try {
+      const url = `http://127.0.0.1:${port}/`;
+      await expect(pinnedFetch(url)).rejects.toBeInstanceOf(UrlNotAllowedError);
+      const res = await pinnedFetch(url, { allowedHosts: 'other.example, http://127.0.0.1' });
+      expect(await res.text()).toBe('ok');
+      await expect(pinnedFetch(url)).rejects.toBeInstanceOf(UrlNotAllowedError);
+    } finally {
+      server.close();
+    }
+  });
+
+  it('keeps a bare entry https only', async () => {
+    const policy = { allowedHosts: '127.0.0.1' };
+    expect((await assertPublicHttpUrl('https://127.0.0.1/', policy)).hostname).toBe('127.0.0.1');
+    await expect(assertPublicHttpUrl('http://127.0.0.1/', policy)).rejects.toBeInstanceOf(
+      UrlNotAllowedError,
+    );
+  });
+
+  it('adds to SSRF_ALLOWED_HOSTS, which keeps its own hosts', async () => {
+    process.env.SSRF_ALLOWED_HOSTS = '127.0.0.1';
+    const url = await assertPublicHttpUrl('https://127.0.0.1/', { allowedHosts: 'other.example' });
+    expect(url.hostname).toBe('127.0.0.1');
+  });
+
+  it('is ignored under the public-only policy', async () => {
+    await expect(
+      assertPublicHttpUrl('https://127.0.0.1/', { publicOnly: true, allowedHosts: '127.0.0.1' }),
+    ).rejects.toBeInstanceOf(UrlNotAllowedError);
   });
 });
 
