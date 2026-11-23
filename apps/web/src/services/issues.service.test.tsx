@@ -134,6 +134,8 @@ it('sends the confirmed effect when applying a saved issue action', async () => 
   await act(async () => {
     await update({ id: 3, actionId: 9, patch });
   });
+  // Let the invalidations the mutation queued run while the window still exists.
+  await act(async () => new Promise((resolve) => setTimeout(resolve, 20)));
   assert.ok(request);
   assert.equal(request.method, 'POST');
   assert.equal(new URL(request.url).pathname, '/issues/3/actions/9');

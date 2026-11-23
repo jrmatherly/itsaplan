@@ -79,7 +79,8 @@ describe('sw.js', () => {
       }),
     );
 
-    assert.deepEqual(shown, [
+    // A strict comparison refuses the objects the worker built in its own context.
+    assert.deepEqual(structuredClone(shown), [
       {
         title: 'MKT-7 Fix login',
         options: {
