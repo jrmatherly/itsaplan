@@ -49,7 +49,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | The worker sends telemetry unless `TELEMETRY_DISABLED` is set to a value other than `0` | The worker sends nothing unless `TELEMETRY_DISABLED=0`: `apps/worker/src/telemetry.ts`, `apps/worker/src/telemetry-schedule.ts` | KEEP the switch logic. ADAPT any upstream change to what is sent. Pinned by `apps/worker/src/__tests__/integration/telemetry-switch.test.ts` and `apps/worker/src/__tests__/unit/telemetry-schedule.test.ts`. |
 | Compose files and `.env.example` describe opt-out | describe opt-in and default it off; the chart has no `worker.env.TELEMETRY_DISABLED` | KEEP in the five compose files, `.env.example`, `charts/itsaplan/values.yaml`, the telemetry rows of the values table in `charts/itsaplan/README.md`, `TELEMETRY.md`, and "the telemetry switch" in `docs/coolify.md` and `docs/self-hosting.md`. `TELEMETRY.md` and the worker's log line say the collector is run by the upstream project: KEEP. |
 
-## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`; PR 11; PR 13; PR 15; PR 16)
+## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`; PR 11; PR 13; PR 15; PR 16; PR 21)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
@@ -61,7 +61,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | The chart job uses the runner image's Helm | `publish-chart.yml` installs a pinned Helm 4 (`HELM_VERSION`) | KEEP. `docs/helm.md` and `charts/itsaplan/README.md` state Helm 4: KEEP. |
 | no `renovate.json` | `renovate.json`, scoped to the action pins and `HELM_VERSION` | KEEP (fork-only file). npm packages, base images, runner images and Bun are out of its scope on purpose. |
 | Bun 1.4.4 | 1.4.5 in `package.json`, the four Dockerfiles, `ci.yml` and `docs/development.md` | ADOPT upstream's next Bun bump when it is newer, in all seven places. Remove this row when upstream reaches 1.4.5. |
-| `docs/dev/releasing.md` has no section on branch rules | a section "Rules on `main`": the fork's ruleset (a GitHub setting, not a file) requires a pull request and five checks, and the release PR needs its workflow runs approved | KEEP the section. Upstream has its own ruleset, which a fork does not inherit. |
+| `docs/dev/releasing.md` has no section on branch rules | a section "Rules on `main`": the fork's ruleset (a GitHub setting, not a file) requires a pull request, five checks and code scanning results from CodeQL, and the release PR needs its workflow runs approved | KEEP the section. Upstream has its own ruleset, which a fork does not inherit. |
 | `docs/dev/releasing.md` has no steps for the release PR | a section "Before merging the release PR": an Updating note, upstream's pull request links, entries from merge commits | KEEP the section. Upstream's release carries no commits from another repository. |
 | `release-please-config.json` updates `Chart.yaml` | also updates the version block in `docs/helm.md` | ADAPT. |
 | `docs/dev/releasing.md` has no note on registry visibility | a bullet says each new GHCR package starts private and is set to public by hand | KEEP the bullet. |
@@ -119,7 +119,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | --- | --- | --- |
 | `storeAttachments` in `apps/worker/src/import-worker.ts` logs a rejected attachment's source id and message as they are | both lose their line breaks first | KEEP ours. It closes CodeQL alert `js/log-injection`. |
 
-## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11)
+## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11; PR 21)
 
 Each row is a statement upstream's doc gets wrong and the code proves otherwise. All are ADAPT:
 take upstream's new content, keep our corrected fact. When upstream's hunk also changes the code
@@ -137,6 +137,7 @@ the fact rests on, check the fact against the new code before keeping either sid
 | `access-model.md` omits private Docs pages and Docs share links; `revision-engine.md` lists five scopes, says nothing in the application writes a counter and shows a `project_member`-only query; `scim.md` ends mid-sentence | the `documentVisibleTo` check and `/share/document/*`; the `documents` and `runnerQueue` scopes, `appendRunEvents`, what `readRevs` joins, the lock order of `packages/db/AGENTS.md`; the finished sentence | `docs/dev/access-model.md`, `docs/dev/revision-engine.md`, `docs/dev/scim.md`. |
 | Contributor docs say four packages, web imports no package, no package builds, Bun 1.3+, `bun run dev` starts api and web, three generated secrets, `.env.test` for the api suite only | the ten packages, `@repo/editor` in web, `packages/runner` builds, Bun 1.4.5, four apps, two secrets, the four suites that read `.env.test` | `CONTRIBUTING.md`, `docs/development.md`. A Bun bump updates the version here. |
 | `DESIGN.md` gives the dark border as `white / 10%`; `SECURITY.md` says "before its first stable release"; `TELEMETRY.md` gives no Helm note for `TELEMETRY_DEBUG` | `12%`; fixes ship in the next release; the Helm value `worker.env.TELEMETRY_DEBUG` | `DESIGN.md`, `SECURITY.md`, `TELEMETRY.md`. |
+| `docs/dev/auth.md` (Google sign-in) does not mention the warning better-auth logs while no Google client ID is stored | a paragraph says the api logs `Social provider google is missing clientId or clientSecret` once per process and that it is expected | `docs/dev/auth.md`. Check the paragraph against `packages/auth/src/index.ts` when upstream changes how the provider is mounted. |
 
 ## Deleted paths
 
