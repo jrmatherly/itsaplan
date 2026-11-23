@@ -49,11 +49,15 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | The worker sends telemetry unless `TELEMETRY_DISABLED` is set to a value other than `0` | The worker sends nothing unless `TELEMETRY_DISABLED=0`: `apps/worker/src/telemetry.ts`, `apps/worker/src/telemetry-schedule.ts` | KEEP the switch logic. ADAPT any upstream change to what is sent. Pinned by `apps/worker/src/__tests__/integration/telemetry-switch.test.ts` and `apps/worker/src/__tests__/unit/telemetry-schedule.test.ts`. |
 | Compose files and `.env.example` describe opt-out | describe opt-in and default it off; the chart has no `worker.env.TELEMETRY_DISABLED` | KEEP in the five compose files, `.env.example`, `charts/itsaplan/values.yaml`, the telemetry rows of the values table in `charts/itsaplan/README.md`, `TELEMETRY.md`, and "the telemetry switch" in `docs/coolify.md` and `docs/self-hosting.md`. `TELEMETRY.md` and the worker's log line say the collector is run by the upstream project: KEEP. |
 
-## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`; PR 11; PR 13; PR 15)
+## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`; PR 11; PR 13; PR 15; PR 16)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
 | Actions referenced by tag (`actions/checkout@v7`) | Every action pinned to a commit SHA with the tag as a comment; every step has a name | ADAPT in every file under `.github/workflows/`. Take upstream's job or step change, then pin and name it. Renovate keeps the pins current. |
+| A checkout keeps the workflow token in `.git/config` | `persist-credentials: false` on every checkout but the one in `release.yml` that pushes the `release` branch | ADAPT in every file under `.github/workflows/`. A checkout upstream adds gets the line unless a later step pushes. |
+| `publish-chart.yml` expands `secrets.GITHUB_TOKEN` and `github.actor` inside the login script | the login step reads both from `env` | KEEP ours. |
+| CodeQL scans `javascript-typescript` | also scans `actions`, in the same `init` step | KEEP ours. The job stays one job named `Analyze`: the ruleset on `main` requires that name, so do not take a language matrix. |
+| `docs/dev/releasing.md` has no section on tag and action settings | a section "Other repository settings": the tag and `release` branch rulesets, immutable releases, required SHA pinning | KEEP the section. |
 | The chart job uses the runner image's Helm | `publish-chart.yml` installs a pinned Helm 4 (`HELM_VERSION`) | KEEP. `docs/helm.md` and `charts/itsaplan/README.md` state Helm 4: KEEP. |
 | no `renovate.json` | `renovate.json`, scoped to the action pins and `HELM_VERSION` | KEEP (fork-only file). npm packages, base images, runner images and Bun are out of its scope on purpose. |
 | Bun 1.4.4 | 1.4.5 in `package.json`, the four Dockerfiles, `ci.yml` and `docs/development.md` | ADOPT upstream's next Bun bump when it is newer, in all seven places. Remove this row when upstream reaches 1.4.5. |

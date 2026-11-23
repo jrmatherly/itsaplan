@@ -61,6 +61,26 @@ and report nothing. Open the PR and choose **Approve workflows to run**. Each pu
 makes to that PR needs a new approval, so approve after its last push. The PR cannot merge until
 the checks pass.
 
-A repository admin can bypass the rules on a pull request (`gh pr merge --admin`). To turn the
+A repository admin can bypass the rules on a pull request (`gh pr merge --admin`). A deny rule in
+`.claude/settings.json` refuses that command to Claude Code, so a person runs it. To turn the
 ruleset off: `gh api -X PUT repos/{owner}/{repo}/rulesets/<id> -f enforcement=disabled`.
 `gh api repos/{owner}/{repo}/rulesets` lists the id, and `gh` fills in `{owner}` and `{repo}`.
+
+## Other repository settings
+
+These are GitHub settings too, not files.
+
+- The ruleset `release tags` covers `refs/tags/v*`. A release tag cannot be deleted, moved or
+  force-pushed, and nobody can bypass it. Creating a tag is allowed, which is what release-please
+  does.
+- The ruleset `release branch` refuses a deletion and a force push of `release`. The release
+  workflow's fast-forward push passes.
+- Immutable releases are on. The tag and the assets of a release published after 1.13.0 are
+  locked, and its title and notes stay editable. A deleted release's tag name cannot be used
+  again, so a wrong release is corrected by the next version. A step that uploads a release asset
+  after release-please publishes would be refused: the images and the chart go to GHCR, not to
+  the release.
+- Actions must be pinned to a full commit SHA. A workflow that references an action by tag does
+  not run. A reusable workflow in this repository (`./.github/workflows/...`) needs no pin.
+- A merged pull request's branch is deleted. release-please creates its branch again on the
+  next push to `main`.

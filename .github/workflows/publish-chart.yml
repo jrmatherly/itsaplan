@@ -45,6 +45,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag }}
+          persist-credentials: false
 
       # Pinned: the runner image ships Helm 3 on Ubuntu 24.04 and Helm 4 on 26.04, so
       # an unpinned run changes major version when ubuntu-latest moves.
@@ -83,9 +84,12 @@ jobs:
         run: helm package "$CHART_DIR" --destination dist
 
       - name: 🔑 Log in to the registry
+        env:
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_USER: ${{ github.actor }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" \
-            | helm registry login "$REGISTRY" --username "${{ github.actor }}" --password-stdin
+          echo "$REGISTRY_TOKEN" \
+            | helm registry login "$REGISTRY" --username "$REGISTRY_USER" --password-stdin
 
       - name: 🚀 Push
         id: push
