@@ -41,7 +41,7 @@ const titles = (res: Awaited<ReturnType<typeof search>>) =>
 
 describe('cross-project issue search', () => {
   beforeEach(resetDb);
-  afterEach(() => setWorkspaceRoleGrant('admin', readOnlyPermissions()));
+  afterEach(() => setWorkspaceRoleGrant('admin', readOnlyPermissions));
 
   it('matches issues in every project of the caller, each with its project', async () => {
     const { api } = await setup();
