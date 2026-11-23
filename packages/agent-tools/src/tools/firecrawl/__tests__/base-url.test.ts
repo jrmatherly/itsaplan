@@ -92,6 +92,7 @@ describe('firecrawl instance URL', () => {
     expect(firecrawl.credentialSchema.find((f) => f.key === 'apiKey')!.required).toBe(false);
     await firecrawlSearch.execute({ baseUrl: selfHosted.baseUrl }, { query: 'q' });
     await firecrawlSearch.execute({ baseUrl: selfHosted.baseUrl, apiKey: '  ' }, { query: 'q' });
+    expect(pinnedFetch).toHaveBeenCalledTimes(2);
     for (const [, init] of pinnedFetch.mock.calls) {
       expect(init!.headers).toEqual({ 'Content-Type': 'application/json' });
     }
@@ -101,7 +102,9 @@ describe('firecrawl instance URL', () => {
     pinnedFetch
       .mockImplementationOnce(async () => Response.json({ data: { json: { title: 'A' } } }))
       .mockImplementationOnce(async () => Response.json({ error: 'timed out' }, { status: 408 }))
-      .mockImplementationOnce(async () => Response.json({ data: {}, warning: 'no result' }));
+      .mockImplementationOnce(async () =>
+        Response.json({ data: { json: null, warning: 'no result' } }),
+      );
     const urls = ['https://a.example', 'https://b.example', 'https://c.example'];
     const out = (await firecrawlExtract.execute(selfHosted, {
       urls,
@@ -111,6 +114,7 @@ describe('firecrawl instance URL', () => {
     expect(out.results[0]).toEqual({ url: urls[0], data: { title: 'A' } });
     expect(out.results[1]!.url).toBe(urls[1]);
     expect(out.results[1]!.error).toContain('408');
+    expect(out.results[1]!.error).not.toContain('model provider');
     expect(out.results[2]).toEqual({ url: urls[2], data: null, warning: 'no result' });
     for (const [url, init] of pinnedFetch.mock.calls) {
       expect(url).toBe('https://firecrawl.example.com/v2/scrape');
@@ -124,22 +128,40 @@ describe('firecrawl instance URL', () => {
     expect(body.timeout).toBeLessThan(120_000);
   });
 
-  it('fails the extract when no page worked, names a missing model, and refuses a wildcard URL', async () => {
-    pinnedFetch.mockImplementation(async () => Response.json({ error: 'no' }, { status: 401 }));
-    await expect(
-      firecrawlExtract.execute(selfHosted, { urls: ['https://a.example'], prompt: 'p' }),
-    ).rejects.toThrow('401');
-    pinnedFetch.mockImplementation(async () =>
-      Response.json({ code: 'UNKNOWN_ERROR' }, { status: 500 }),
+  it('fails the extract when no page worked, with each cause once', async () => {
+    pinnedFetch
+      .mockImplementationOnce(async () => Response.json({ error: 'no' }, { status: 401 }))
+      .mockImplementationOnce(async () => Response.json({ error: 'no' }, { status: 401 }))
+      .mockImplementationOnce(async () => Response.json({ success: false, error: 'dns' }));
+    const urls = ['https://a.example', 'https://b.example', 'https://c.example'];
+    const failure = firecrawlExtract.execute(selfHosted, { urls, prompt: 'p' });
+    await expect(failure).rejects.toThrow(/^Firecrawl extract failed \(401\)[^;]*; dns$/);
+  });
+
+  it('names a missing model only for the 500 a self-hosted server gives without one', async () => {
+    const run = (
+      send: typeof pinnedFetch | typeof cloudFetch,
+      credential: object,
+      code: string,
+    ) => {
+      send.mockImplementationOnce(async () => Response.json({ code }, { status: 500 }));
+      return firecrawlExtract.execute(credential, { urls: ['https://a.example'], prompt: 'p' });
+    };
+    await expect(run(pinnedFetch, selfHosted, 'UNKNOWN_ERROR')).rejects.toThrow('model provider');
+    await expect(run(pinnedFetch, selfHosted, 'SCRAPE_ALL_ENGINES_FAILED')).rejects.not.toThrow(
+      'model provider',
     );
-    await expect(
-      firecrawlExtract.execute(selfHosted, { urls: ['https://a.example'], prompt: 'p' }),
-    ).rejects.toThrow(/500.*model provider/);
-    pinnedFetch.mockImplementation(async () => Response.json({ data: { web: [] } }));
-    expect(
-      firecrawlExtract.inputSchema.safeParse({ urls: ['https://a.example/*'], prompt: 'p' })
-        .success,
-    ).toBe(false);
+    await expect(run(cloudFetch, cloud, 'UNKNOWN_ERROR')).rejects.not.toThrow('model provider');
+    expect(cloudFetch.mock.calls[0]![0]).toBe('https://api.firecrawl.dev/v2/scrape');
+  });
+
+  it('takes at most ten page URLs and no wildcard', () => {
+    const parse = (urls: string[]) =>
+      firecrawlExtract.inputSchema.safeParse({ urls, prompt: 'p' }).success;
+    const page = (n: number) => `https://a.example/${n}`;
+    expect(parse(Array.from({ length: 10 }, (_, n) => page(n)))).toBe(true);
+    expect(parse(Array.from({ length: 11 }, (_, n) => page(n)))).toBe(false);
+    expect(parse(['https://a.example/*'])).toBe(false);
   });
 
   it('gives the guard reason and the remedy when the address is refused', async () => {
@@ -184,6 +206,9 @@ describe('firecrawl credential check', () => {
     expect(await verifyFirecrawl({}, noSignal)).toBe('rejected');
     expect(await verifyFirecrawl({ apiKey: ' ' }, noSignal)).toBe('rejected');
     expect(cloudFetch).not.toHaveBeenCalled();
+    await verifyFirecrawl(cloud, noSignal);
+    expect(cloudFetch.mock.calls[0]![0]).toBe('https://api.firecrawl.dev/v2/team/credit-usage');
+    cloudFetch.mockClear();
     expect(await answers(cloudFetch, cloud)).toEqual([
       'valid',
       'rejected',

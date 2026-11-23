@@ -35,7 +35,7 @@ export async function firecrawlFetch(
     signal?: AbortSignal;
   } = {},
 ): Promise<Response> {
-  // A self-hosted server without authentication takes no key.
+  // A self-hosted server without authentication needs no key.
   const key = String(credential.apiKey ?? '').trim();
   const headers = { ...init.headers, ...(key ? { Authorization: `Bearer ${key}` } : {}) };
   const base = selfHostedBase(credential);

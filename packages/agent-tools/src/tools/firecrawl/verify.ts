@@ -9,7 +9,7 @@ export async function verifyFirecrawl(
   signal: AbortSignal,
 ): Promise<CredentialCheck> {
   const selfHosted = selfHostedBase(credential) !== '';
-  // The cloud serves scrape and search without a key, on a free tier with its own limits.
+  // Without a key the cloud serves only scrape and search, on a free tier.
   if (!selfHosted && !String(credential.apiKey ?? '').trim()) return 'rejected';
   const res = await firecrawlFetch(
     credential,

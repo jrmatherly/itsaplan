@@ -7,7 +7,7 @@ import { firecrawlPost, selfHostedBase } from './client';
 const TIMEOUT_MS = 90_000;
 
 const NO_MODEL_HINT =
-  'Extraction needs a model provider on the Firecrawl server (OPENAI_API_KEY, OPENAI_BASE_URL, MODEL_NAME); its log has the cause.';
+  'A Firecrawl server with no model provider (OPENAI_API_KEY, OPENAI_BASE_URL, MODEL_NAME) fails extraction this way; the server log has the cause.';
 
 // Extracts structured data from pages through the Firecrawl API: a prompt says what to
 // pull out, an optional JSON schema fixes the shape of the result. Each URL is one
@@ -17,7 +17,7 @@ export const firecrawlExtract: CustomToolEntry = {
   key: 'firecrawl_extract',
   label: 'Firecrawl Extract',
   description:
-    'Extract structured data from web pages (via the Firecrawl API). Give the page URLs and a prompt describing what to pull out; pass a JSON schema to fix the output shape. Returns one result per page. It reads only the pages given: to cover a site, find its pages with Firecrawl Map first.',
+    'Extract structured data from web pages (via the Firecrawl API). Give the page URLs and a prompt describing what to pull out; pass a JSON schema to fix the output shape. Returns one result per page, with the data or the error for that page. It reads only the pages given: to cover a site, find its pages with Firecrawl Map first.',
   inputSchema: z.object({
     urls: z
       .array(
@@ -26,7 +26,7 @@ export const firecrawlExtract: CustomToolEntry = {
           .url()
           .refine(
             (url) => !url.endsWith('/*'),
-            'Give page URLs. Find the pages of a site with Firecrawl Map.',
+            'A URL cannot end in /*. Give page URLs, and find the pages of a site with Firecrawl Map.',
           ),
       )
       .min(1)
@@ -50,26 +50,30 @@ export const firecrawlExtract: CustomToolEntry = {
           const res = (await firecrawlPost(
             credential,
             'scrape',
-            // A scrape reads only the main content unless told; extraction needs the whole page.
+            // A scrape reads only the main content by default.
             { url, formats: [format], onlyMainContent: false, timeout: TIMEOUT_MS },
             'Firecrawl extract',
-          )) as { data?: { json?: unknown }; warning?: string };
-          return {
-            url,
-            data: res.data?.json ?? null,
-            ...(res.warning ? { warning: res.warning } : {}),
-          };
+          )) as { data?: { json?: unknown; warning?: string }; error?: string };
+          const warning = res.data?.warning;
+          // A body with neither is not an extraction, whatever its status.
+          if (!res.data || (!('json' in res.data) && !warning)) {
+            throw new Error(res.error ?? 'Firecrawl returned no extraction result');
+          }
+          return { url, data: res.data.json ?? null, ...(warning ? { warning } : {}) };
         } catch (err) {
           const error = err instanceof Error ? err.message : String(err);
-          // A self-hosted server without a model answers 500 and names no cause.
-          const noModel = selfHostedBase(credential) !== '' && error.includes('failed (500)');
+          // A self-hosted server without a model answers 500 UNKNOWN_ERROR and names no cause.
+          const noModel =
+            selfHostedBase(credential) !== '' &&
+            error.includes('failed (500)') &&
+            error.includes('UNKNOWN_ERROR');
           return { url, error: noModel ? `${error} ${NO_MODEL_HINT}` : error };
         }
       }),
     );
-    // Nothing worked, so the cause is the server or the credential, not a page.
-    const failed = results.filter((r) => 'error' in r);
-    if (failed.length === results.length) throw new Error(String(failed[0]!.error));
+    // No page worked: fail the call, so the agent gets a tool error and not a result.
+    const errors = results.flatMap((r) => ('error' in r ? [r.error] : []));
+    if (errors.length === results.length) throw new Error([...new Set(errors)].join('; '));
     return { results };
   },
 };
