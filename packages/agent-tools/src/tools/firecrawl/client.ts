@@ -15,12 +15,22 @@ const TERMINAL = new Set(['completed', 'failed', 'cancelled']);
 // pinnedFetch holds the whole response in memory, and its size depends on the scraped page.
 const MAX_SELF_HOSTED_MB = 20;
 
+const BAD_ADDRESS =
+  'The Firecrawl Instance URL must be an address such as https://firecrawl.example.com, without a user name, a query or a fragment.';
+
 // The address of a self-hosted server, without the /v2 path. Empty for the cloud.
+// A query or a fragment would cut off the path each tool appends, so the request
+// would go to a path the credential chose.
 export function selfHostedBase(credential: ToolConfig): string {
-  return String(credential.baseUrl ?? '')
-    .trim()
-    .replace(/\/+$/, '')
-    .replace(/\/v2$/, '');
+  const raw = String(credential.baseUrl ?? '').trim();
+  if (!raw) return '';
+  if (/[?#]/.test(raw) || !URL.canParse(raw)) throw new Error(BAD_ADDRESS);
+  const url = new URL(raw);
+  // `host:3002` parses with `host:` as its scheme.
+  if (!/^https?:$/.test(url.protocol) || url.username || url.password) {
+    throw new Error(BAD_ADDRESS);
+  }
+  return url.origin + url.pathname.replace(/\/+$/, '').replace(/\/v2$/, '');
 }
 
 // A self-hosted server's address comes from the credential, so that call goes through the

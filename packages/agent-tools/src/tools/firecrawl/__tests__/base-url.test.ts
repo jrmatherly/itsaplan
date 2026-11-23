@@ -76,6 +76,26 @@ describe('firecrawl instance URL', () => {
     expect(cloudFetch).not.toHaveBeenCalled();
   });
 
+  it('refuses an instance URL with a query, a fragment, a user name or no scheme', async () => {
+    const bad = [
+      'https://firecrawl.example.com/admin?x=',
+      'https://firecrawl.example.com/admin?',
+      'https://firecrawl.example.com/admin#',
+      'https://user:pw@firecrawl.example.com',
+      'firecrawl.example.com',
+      'firecrawl.example.com:3002',
+      'ftp://firecrawl.example.com',
+    ];
+    for (const baseUrl of bad) {
+      await expect(firecrawlSearch.execute({ baseUrl }, { query: 'q' })).rejects.toThrow(
+        'Instance URL',
+      );
+      expect(await verifyFirecrawl({ baseUrl }, noSignal)).toBe('rejected');
+    }
+    expect(pinnedFetch).not.toHaveBeenCalled();
+    expect(cloudFetch).not.toHaveBeenCalled();
+  });
+
   it('polls a crawl job on the self-hosted server', async () => {
     pinnedFetch
       .mockImplementationOnce(async () => Response.json({ id: 'j1' }))
