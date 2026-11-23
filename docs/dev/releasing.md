@@ -47,6 +47,10 @@ body, and the app shows them under **What's new**.
   entry repeats commits the notes already list.
 - An upstream commit whose change the fork leaves out still gets an entry. Delete it. The
   deviations table names each one in the Notes column of its row.
+- An upstream commit dated before the fork's previous release commit gets no entry: in 1.15.0
+  six of seven merged upstream commits were missing. Compare the notes with
+  `git log --format='%h %cI %s' <previous upstream tip>..<merged upstream tip>` and add each
+  missing commit to its section, in the form of the entries beside it.
 - Make the same edits in `CHANGELOG.md` on the branch `release-please--branches--main`, in one
   commit.
 - Approve the workflow runs (see "Rules on `main`"), then merge.
