@@ -80,3 +80,10 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          # next/image writes its cache here, which a read-only root filesystem would refuse.
+          volumeMounts:
+            - name: next-cache
+              mountPath: /app/apps/web/.next/cache
+      volumes:
+        - name: next-cache
+          emptyDir: {}

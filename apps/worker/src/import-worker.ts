@@ -786,8 +786,8 @@ async function storeAttachments(
     } catch (error) {
       if (!(error instanceof AttachmentRejectedError)) throw error;
       console.error(
-        `[import ${job.id}] attachment ${attachment.sourceId} rejected:`,
-        error.message,
+        `[import ${job.id}] attachment ${attachment.sourceId.replace(/\n|\r/g, '')} rejected:`,
+        error.message.replace(/\n|\r/g, ''),
       );
     }
   }

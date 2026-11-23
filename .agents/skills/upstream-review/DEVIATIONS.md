@@ -93,6 +93,12 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | `.env.example` documents `PASSKEY_RP_ID`, `PASSKEY_RP_NAME` and `EMAIL_FROM`, no compose file or chart key passes them, and `packages/auth/src/index.ts` reads the two passkey ones with `??` | the five compose files pass all three to the api and `EMAIL_FROM` to the worker; the chart has `api.env.PASSKEY_RP_ID`, `api.env.PASSKEY_RP_NAME` and `api.env.EMAIL_FROM`; the two passkey reads use `\|\|` | ADAPT in the five compose files, `charts/itsaplan/templates/configmap.yaml`, `charts/itsaplan/values.yaml` and the values table in `charts/itsaplan/README.md`. KEEP the `\|\|` reads: compose passes an unset variable as an empty string, and `??` would make it the relying-party ID. `.env.example`, `docs/dev/auth.md` (Passkey) and `docs/self-hosting.md` (Mail, Updating) describe ours: ADAPT. |
 | The chart has no key for `SSRF_ALLOWED_HOSTS`, `BACKUP_RETENTION_DAYS` or `TELEMETRY_DEBUG` | `api.env.SSRF_ALLOWED_HOSTS`, `api.env.BACKUP_RETENTION_DAYS` and `worker.env.TELEMETRY_DEBUG` | ADAPT in `charts/itsaplan/templates/configmap.yaml`, `charts/itsaplan/values.yaml` and the values table in `charts/itsaplan/README.md`. |
 
+## Chart (PR 18)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| `charts/itsaplan/templates/deployment-web.yaml` has no volume | an emptyDir `next-cache` at `/app/apps/web/.next/cache` | KEEP ours. Drop it if upstream adds a cache volume or a volume value for the web. |
+
 ## Local tooling
 
 | Upstream | Ours | Notes |
@@ -106,6 +112,12 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | --- | --- | --- |
 | `apps/worker/src/plane-adapter.ts` maps `blocking` and `blocked_by` both to `blocks` from the issue being read, and expects id strings in the relation lists | reads `blocking` only and accepts an id or a `{ project_id, issue_id }` entry | KEEP `listIssueRelations` and `RELATION_KIND_MAP`. Pinned by `apps/worker/src/__tests__/unit/plane-adapter.test.ts`. The relation passages of `docs/dev/plane-import-source-notes.md`, `docs/dev/plane-import.md` and `docs/importing-from-plane.md` follow it: KEEP. |
 | `mapWorkItem` reads `cycle_id` or `cycle` from the work item, which Plane's response does not carry, so every imported issue has no cycle | `listCycleIssues` in `apps/worker/src/plane-adapter.ts` reads one page of a cycle's work items; `apps/worker/src/reader.ts` declares it as an optional `SourceReader` method; `runLink` in `apps/worker/src/import-worker.ts` reads one page per tick before its issue loop and calls `setIssueCycleIfUnset` in `apps/worker/src/import-store.ts` | KEEP all four. When upstream edits `runLink`, keep the cycle stage and its `LinkCursor` fields ahead of the issue loop, and keep `cyclesDone: true` in the cursor the loop saves. Pinned by the `listCycleIssues` cases in `apps/worker/src/__tests__/unit/plane-adapter.test.ts`, the cycle case of `runLink` in `apps/worker/src/__tests__/integration/import-rewrite.test.ts` and the cycle case of `runCreate` in `apps/worker/src/__tests__/integration/import-create.test.ts`. The cycle lines of `docs/importing-from-plane.md`, `docs/dev/plane-import.md` and `docs/dev/plane-import-source-notes.md` follow it: KEEP. |
+
+## Import worker (PR 18)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| `storeAttachments` in `apps/worker/src/import-worker.ts` logs a rejected attachment's source id and message as they are | both lose their line breaks first | KEEP ours. It closes CodeQL alert `js/log-injection`. |
 
 ## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11)
 

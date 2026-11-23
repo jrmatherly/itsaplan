@@ -41,6 +41,8 @@ flags and store secrets externally (Sealed Secrets, External Secrets Operator, e
 | TLS Certificate   | Certificate (cert-manager)  | `certificate.enabled`                  |
 | ServiceAccount    | ServiceAccount              | `serviceAccount.create`                |
 
+The web Deployment mounts an emptyDir at `/app/apps/web/.next/cache` for the image cache, so the web container can run with `securityContext.readOnlyRootFilesystem: true`.
+
 ## Using an external database
 
 Disable the built-in PostgreSQL and provide a connection string:
