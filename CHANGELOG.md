@@ -1,5 +1,82 @@
 # Changelog
 
+## [1.13.0](https://github.com/jrmatherly/itsaplan/compare/v1.12.0...v1.13.0) (2026-11-23)
+
+### Updating
+
+- **Check `PASSKEY_RP_ID` before you update.** The compose files and the Helm chart now pass `PASSKEY_RP_ID`, `PASSKEY_RP_NAME` and `EMAIL_FROM` to the services. Releases up to 1.12.0 ignored them. If `.env` has a `PASSKEY_RP_ID` that is not the host of the first `APP_URL`, remove the line or correct it: another value makes every registered passkey unusable. Check that `EMAIL_FROM` is the sender you want.
+- **Back up the database.** This release applies nine migrations, `0187` to `0195`.
+- **Images and chart.** This is the first release this repository publishes: `ghcr.io/jrmatherly/itsaplan-{api,worker,bot,web}` and `oci://ghcr.io/jrmatherly/charts/itsaplan`.
+- **Plane imports.** Relations import in the right direction and issues keep their cycle. An import that finished on an earlier release is not repaired.
+- **Pro edition.** Upstream builds the Pro images under its own versions, and its newest is 1.12.0. Do not move an instance that runs this release to Pro until upstream publishes a Pro release at or above 1.13.0: an older Pro image runs older code on a database this release has migrated. With Docker Compose, do not set `VERSION=1.13.0` for the Pro stack.
+
+
+
+### Features
+
+* add a Docs home with pinned pages, top-level cards, favorites and recent updates ([#968](https://github.com/croffasia/itsaplan/pull/968)) ([79e88c4](https://github.com/jrmatherly/itsaplan/commit/79e88c48dff8d3ccd1130880ad3404c45fcb7cd9))
+* **agent-tools:** add Baserow table and row tools for AI agents ([#961](https://github.com/croffasia/itsaplan/pull/961)) ([9ab0b52](https://github.com/jrmatherly/itsaplan/commit/9ab0b522e3a21afbd665e52022d6bdabec2b39f6))
+* **agent-tools:** add GitLab tools for issues and merge requests ([#975](https://github.com/croffasia/itsaplan/pull/975)) ([f801784](https://github.com/jrmatherly/itsaplan/commit/f8017847c52d590f77e77ed3579b6eccbf4ceae2))
+* **agent-tools:** add pull request review and merge tools to GitHub and Gitea ([#977](https://github.com/croffasia/itsaplan/pull/977)) ([33d50b1](https://github.com/jrmatherly/itsaplan/commit/33d50b1ff5f4b976ccb75c291b83d56835cb39f0))
+* allow marking initiatives as favorites in the left panel ([#927](https://github.com/croffasia/itsaplan/pull/927)) ([#965](https://github.com/croffasia/itsaplan/pull/965)) ([f670a46](https://github.com/jrmatherly/itsaplan/commit/f670a46e77769e1141a1f3fad397440e8abd9316))
+* **api:** keep the filed title and description on the created entry ([#979](https://github.com/croffasia/itsaplan/pull/979)) ([24f91b6](https://github.com/jrmatherly/itsaplan/commit/24f91b663918a8c2a8684178d8e5cb6a366364ab))
+* **api:** let agents list the repositories connected to a project ([#976](https://github.com/croffasia/itsaplan/pull/976)) ([6aa43c2](https://github.com/jrmatherly/itsaplan/commit/6aa43c21d7b11f6abc7189dc8973b5b21ab78e40))
+* leave deactivated accounts out of assignee pickers ([#958](https://github.com/croffasia/itsaplan/pull/958)) ([#964](https://github.com/croffasia/itsaplan/pull/964)) ([fd48c8b](https://github.com/jrmatherly/itsaplan/commit/fd48c8b6615a6c141eb03cb670b1abb61e0c1130))
+* list integrations of other editions in the tool catalog, locked ([#980](https://github.com/croffasia/itsaplan/pull/980)) ([cc39627](https://github.com/jrmatherly/itsaplan/commit/cc39627612ae20df9050188491be0a823e8fde21))
+* record who stopped an agent run and show it on the run page ([#971](https://github.com/croffasia/itsaplan/pull/971)) ([3c0875e](https://github.com/jrmatherly/itsaplan/commit/3c0875ea1130ef0b269e6568b36fdd356833d714))
+* send notifications to Slack and add Slack tools for agents ([#973](https://github.com/croffasia/itsaplan/pull/973)) ([edffdaa](https://github.com/jrmatherly/itsaplan/commit/edffdaae0fefc63773eae396fb4b09d06d94f1e4))
+* share a private Docs page with chosen members ([#962](https://github.com/croffasia/itsaplan/pull/962)) ([dc71b78](https://github.com/jrmatherly/itsaplan/commit/dc71b78726dd3349884100ac692c3f115a7593d7))
+* stop agent runs from the run page, the API and MCP ([#967](https://github.com/croffasia/itsaplan/pull/967)) ([8b1ea5b](https://github.com/jrmatherly/itsaplan/commit/8b1ea5bbc1004a80e0c5764ce3f42036285e13ca))
+
+
+### Improvements
+
+* **api:** record the initiator of every agent run ([#959](https://github.com/croffasia/itsaplan/pull/959)) ([a84ffab](https://github.com/jrmatherly/itsaplan/commit/a84ffab0fd3cd81811009dd411ad16ce343a0527))
+* **api:** sort issue lists by board position, dates or priority ([#956](https://github.com/croffasia/itsaplan/pull/956)) ([66ace97](https://github.com/jrmatherly/itsaplan/commit/66ace974ad8747670a0865c06c3b959e496ef46e))
+* distribute from the fork and make telemetry opt-in ([#4](https://github.com/jrmatherly/itsaplan/issues/4)) ([5945ce2](https://github.com/jrmatherly/itsaplan/commit/5945ce203601515e6a875c5cbde4507673caa85f))
+* link agent runs into chains and gate their steps ([#960](https://github.com/croffasia/itsaplan/pull/960)) ([1b1824e](https://github.com/jrmatherly/itsaplan/commit/1b1824ed59a15586075ab8d4b66702ee2987ca16))
+* **web:** move a Docs page from a menu, without dragging ([#970](https://github.com/croffasia/itsaplan/pull/970)) ([d913129](https://github.com/jrmatherly/itsaplan/commit/d913129c20291db7774f4dc52b7abf91de030caf))
+
+
+### Bug Fixes
+
+* correct the From address docs and test the import Link phase ([cdfd5df](https://github.com/jrmatherly/itsaplan/commit/cdfd5df71fe725b803e063b9d5037d43a95e9059))
+* pass PASSKEY_RP_ID, PASSKEY_RP_NAME and EMAIL_FROM to the containers ([fa12bc5](https://github.com/jrmatherly/itsaplan/commit/fa12bc5063fc51ffaee8492b4066a27036161a7a))
+* pass SSRF_ALLOWED_HOSTS, BACKUP_RETENTION_DAYS and TELEMETRY_DEBUG through Helm ([58f8252](https://github.com/jrmatherly/itsaplan/commit/58f82521671742c72641607e7526ab66bfcddc80))
+* pin the Pro image tag in the chart's Pro values ([#15](https://github.com/jrmatherly/itsaplan/issues/15)) ([c307b6c](https://github.com/jrmatherly/itsaplan/commit/c307b6c16780ecfd816bce25f429801091cabc28))
+* **web:** say where MCP access is set in the runner help ([2418ded](https://github.com/jrmatherly/itsaplan/commit/2418dedb24fa2d168bd76a2e33e24014c3739068))
+* **worker:** import Plane relations in the right direction ([98441e9](https://github.com/jrmatherly/itsaplan/commit/98441e97211ebd7cfaa48ad66dcfb72e316cd9b8))
+* **worker:** keep an issue's cycle in a Plane import ([#14](https://github.com/jrmatherly/itsaplan/issues/14)) ([dd4477f](https://github.com/jrmatherly/itsaplan/commit/dd4477f0c38ccd7d0c53ea1d09c2b6d3007c972b))
+
+
+### Documentation
+
+* apply the review of the Helm keys and the import rule ([cbfb429](https://github.com/jrmatherly/itsaplan/commit/cbfb4292a0b989fed40460b4a7b1bae18061ca75))
+* correct the docs against the code ([#8](https://github.com/jrmatherly/itsaplan/issues/8)) ([920a9cf](https://github.com/jrmatherly/itsaplan/commit/920a9cfb9747e8ab81612109b8f0dd6298ac6370))
+* correct the fork's Helm instructions and README claims ([#6](https://github.com/jrmatherly/itsaplan/issues/6)) ([e03a41e](https://github.com/jrmatherly/itsaplan/commit/e03a41ef46f1754d792b0237f20a30b49a8b97aa))
+* **runner:** link the runner README to this repository's docs ([15810c2](https://github.com/jrmatherly/itsaplan/commit/15810c274012d59060b397c013a61169a4af4417))
+* say how a release PR gets its checks ([#13](https://github.com/jrmatherly/itsaplan/issues/13)) ([20caf23](https://github.com/jrmatherly/itsaplan/commit/20caf23db2709911072ff72d071be2dc005b0f5a))
+
+
+### Build
+
+* raise Bun to 1.4.5 ([4be3db8](https://github.com/jrmatherly/itsaplan/commit/4be3db85731e6f0d878b486ea0a5500ba8eee988))
+
+
+### Tests
+
+* check AGENTS.md rules with tests and lint ([#1](https://github.com/jrmatherly/itsaplan/issues/1)) ([f41815c](https://github.com/jrmatherly/itsaplan/commit/f41815c7d79ba4ffde0b0215377f381feaf81f84))
+
+
+### Chores
+
+* add Claude Code deny rules for the no-exception rules ([#7](https://github.com/jrmatherly/itsaplan/issues/7)) ([1de9700](https://github.com/jrmatherly/itsaplan/commit/1de9700a270938bccfe0d711289afa19f3e0a8aa))
+* add the upstream-review skill and correct the agent rules ([#9](https://github.com/jrmatherly/itsaplan/issues/9)) ([82a2167](https://github.com/jrmatherly/itsaplan/commit/82a2167ee08a85cf990b5da376b50eb28adafd31))
+* name the pull request in the deviations tracker and the review log ([fc8f1ac](https://github.com/jrmatherly/itsaplan/commit/fc8f1acde4d04593e19843d1037a05a9aed096bc))
+* record the upstream review of 24f91b66 and cc396276 ([9ad460a](https://github.com/jrmatherly/itsaplan/commit/9ad460a9f1cbd5fb76a222f62a4c3ddefa5472ac))
+* **web:** allow next dev on extra hosts from DEV_ALLOWED_ORIGINS ([#974](https://github.com/croffasia/itsaplan/pull/974)) ([cd2e162](https://github.com/jrmatherly/itsaplan/commit/cd2e16214e1d427b02924a685e633a19b38426d9))
+* **web:** fail lint on a new cross-feature import ([cae0f69](https://github.com/jrmatherly/itsaplan/commit/cae0f696ec6dabb590adbac1c09525e906f55300))
+
 ## [1.12.0](https://github.com/croffasia/itsaplan/compare/v1.11.0...v1.12.0) (2026-11-19)
 
 
