@@ -4,9 +4,9 @@
   "upstreamBranch": "main",
   "forkPointSha": "3c0875ea1130ef0b269e6568b36fdd356833d714",
   "forkPointDate": "2026-11-21",
-  "lastReviewedSha": "cc39627612ae20df9050188491be0a823e8fde21",
-  "lastReviewedShaShort": "cc396276",
-  "lastReviewedDate": "2026-11-22",
+  "lastReviewedSha": "7401ebe07f8634942cab6356d4788a2c4ecf278c",
+  "lastReviewedShaShort": "7401ebe0",
+  "lastReviewedDate": "2026-11-23",
   "note": "forkPointSha is the upstream commit the fork was created from and never moves. lastReviewedSha is the last upstream commit reviewed; advance it with .agents/skills/upstream-review/scripts/upstream-review.sh --advance <tip-sha>. The driver computes the merge-base itself.",
-  "lastAdvancedAt": "2026-11-22T21:23:27Z"
+  "lastAdvancedAt": "2026-11-23T19:59:57Z"
 }

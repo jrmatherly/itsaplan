@@ -11,7 +11,6 @@ import { Providers } from '@/components/providers';
 import RuntimeEnvScript from '@/components/runtime-env-script';
 import Onboarding from '@/features/onboarding/Onboarding';
 import OnboardingReplay from '@/features/onboarding/OnboardingReplay';
-import OnboardingShowcase from '@/features/onboarding/OnboardingShowcase';
 import WhatsNew from '@/features/whats-new/WhatsNew';
 import { localeDirection, type Locale } from '@/i18n/locales';
 import { APP_NAME } from '@/utils/app';
@@ -25,7 +24,6 @@ const STARTUP_SCREENS = startupScreens([
   { id: 'start', Component: StartupFirstProject },
   { id: 'whats-new', Component: WhatsNew },
   { id: 'tour', Component: Onboarding },
-  { id: 'showcase', Component: OnboardingShowcase },
 ]);
 
 export async function generateMetadata(): Promise<Metadata> {

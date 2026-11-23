@@ -84,7 +84,7 @@ actions: the keys in `ai_agent.tools` plus the always-on actions (`alwaysOnKeys`
 agent has no such list, so its key is checked against the role alone.
 
 An extension of the api adds actions to the catalog with `setExtraActions`
-(`agents/core/runtime/tools/catalog.ts`): routes tagged `mcpTool()`, opt-in or always on, in a group
+(`modules/agents/core/runtime/tools/catalog.ts`): routes tagged `mcpTool()`, opt-in or always on, in a group
 of the core's or one of its own, each with the route tools it needs. A `locked` action stays listed
 and on the agents that have it, and no agent gets it. The web app names a group in
 `teams.agents.actionGroup.<group>` and takes its icon from `agentActionGroupIcons` of `@/cloud`.
