@@ -31,15 +31,12 @@ function isLocalHostname(host: string): boolean {
 // an escape hatch, connecting an instance to a Gitea, Forgejo, or GitLab on the same
 // network cannot be expressed at all.
 //
-// Empty by default, so nothing is exempt unless it is named. Matching is on the exact
-// hostname — no wildcards, no CIDR ranges, no suffix matching — so naming one host
-// trusts one host. Everything else still applies to it: a bare hostname needs https,
-// and the resolved address is pinned, so a name on this list cannot be used to mount
-// a DNS-rebinding attack either.
-//
-// An entry written as http://host also permits plain http to that host, for a service
-// that has no TLS, such as one reached by its in-cluster address. What is sent to it
-// then crosses the network unencrypted, so it is a separate, explicit form.
+// Empty by default. Matching is on the exact hostname: no wildcards, CIDR ranges,
+// suffixes, ports or paths. A bare hostname is trusted over https only. An entry
+// written as http://host also permits plain http, for a service that has no TLS.
+// The separate form makes unencrypted traffic an explicit choice.
+// A listed name that vet resolves is pinned to that address. localhost, a .local
+// name and an IP literal are not resolved by vet, so they have no pin.
 //
 // Read per call rather than at module load so a test can set it around one case.
 function allowedHost(host: string): { http: boolean } | null {
@@ -186,8 +183,8 @@ async function vet(raw: string, policy: UrlPolicy = {}): Promise<{ url: URL; pin
 // Validates a user/agent-supplied URL for a server-side fetch: http(s) only, and it
 // must not resolve to a local/private address. Returns the parsed URL. http is
 // allowed in local development, under the public-only policy, or to a host named as
-// http://host in SSRF_ALLOWED_HOSTS. Throws
-// UrlNotAllowedError when the URL or its resolved addresses are refused.
+// http://host in SSRF_ALLOWED_HOSTS. Throws UrlNotAllowedError when the URL or its
+// resolved addresses are refused.
 export async function assertPublicHttpUrl(raw: string, policy?: UrlPolicy): Promise<URL> {
   return (await vet(raw, policy)).url;
 }

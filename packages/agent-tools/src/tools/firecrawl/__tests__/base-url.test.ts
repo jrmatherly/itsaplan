@@ -90,7 +90,7 @@ describe('firecrawl instance URL', () => {
       throw new UrlNotAllowedError('url must use https');
     });
     await expect(firecrawlSearch.execute(selfHosted, { query: 'q' })).rejects.toThrow(
-      /url must use https.*SSRF_ALLOWED_HOSTS.*http:\/\/host/,
+      /url must use https.*SSRF_ALLOWED_HOSTS.*http:\/\/hostname/,
     );
   });
 

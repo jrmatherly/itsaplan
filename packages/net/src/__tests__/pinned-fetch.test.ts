@@ -84,7 +84,7 @@ describe('SSRF_ALLOWED_HOSTS', () => {
     );
   });
 
-  it('keeps a bare entry https only beside an http:// entry, and matches no port', async () => {
+  it('keeps a bare entry https only beside an http:// entry, and ignores an entry with a port', async () => {
     process.env.SSRF_ALLOWED_HOSTS = 'localtest.me,http://127.0.0.1';
     await expect(assertPublicHttpUrl('http://localtest.me/')).rejects.toBeInstanceOf(
       UrlNotAllowedError,
@@ -93,6 +93,23 @@ describe('SSRF_ALLOWED_HOSTS', () => {
     await expect(assertPublicHttpUrl('http://localtest.me:3002/')).rejects.toBeInstanceOf(
       UrlNotAllowedError,
     );
+  });
+
+  it('sends a request over plain http to a host named with http://', async () => {
+    const server = createServer((req, res) => res.end(req.headers.host));
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const { port } = server.address() as { port: number };
+    try {
+      process.env.SSRF_ALLOWED_HOSTS = '127.0.0.1';
+      await expect(pinnedFetch(`http://127.0.0.1:${port}/`)).rejects.toBeInstanceOf(
+        UrlNotAllowedError,
+      );
+      process.env.SSRF_ALLOWED_HOSTS = 'http://127.0.0.1';
+      const res = await pinnedFetch(`http://127.0.0.1:${port}/`);
+      expect(await res.text()).toBe(`127.0.0.1:${port}`);
+    } finally {
+      server.close();
+    }
   });
 
   it('ignores the list in a public-only fetch', async () => {

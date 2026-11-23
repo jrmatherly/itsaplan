@@ -130,7 +130,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
-| `vet` in `packages/net/src/index.ts` requires https for every host in `SSRF_ALLOWED_HOSTS` | an entry written as `http://host` also permits plain http to that host; a bare hostname is https only, as upstream. `isAllowedHost` is `allowedHost` and returns whether the entry has the `http://` form | KEEP ours. The in-cluster Firecrawl address has no TLS. Pinned by `packages/net/src/__tests__/pinned-fetch.test.ts`. ADAPT the `SSRF_ALLOWED_HOSTS` comment in `.env.example` and the HTTPS sentence in `docs/agent-endpoint.md` and `packages/runner/README.md`: keep the `http://host` sentences. |
+| `isAllowedHost` in `packages/net/src/index.ts` returns a boolean, and `vet` requires https for every host in `SSRF_ALLOWED_HOSTS` | `allowedHost` returns `null` for a host that is not listed and `{ http }` for one that is; `http` is true when the entry is written as `http://host`, and `vet` then also permits plain http to that host. A bare hostname is https only | KEEP ours. The in-cluster Firecrawl address has no TLS. Pinned by `packages/net/src/__tests__/pinned-fetch.test.ts`. ADAPT the `SSRF_ALLOWED_HOSTS` comment in `.env.example`: keep the bare-hostname sentence, the `http://host` paragraph and the example line. ADAPT the HTTPS sentence in `docs/agent-endpoint.md` and `packages/runner/README.md`: keep "unless its entry is written as `http://host`". |
 
 ## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11; PR 21)
 
