@@ -57,7 +57,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | A checkout keeps the workflow token in `.git/config` | `persist-credentials: false` on every checkout but the one in `release.yml` that pushes the `release` branch | ADAPT in every file under `.github/workflows/`. A checkout upstream adds gets the line unless a later step pushes. |
 | `publish-chart.yml` expands `secrets.GITHUB_TOKEN` and `github.actor` inside the login script | the login step reads both from `env` | KEEP ours. |
 | CodeQL scans `javascript-typescript` | also scans `actions`, in the same `init` step | KEEP ours. The job stays one job named `Analyze`: the ruleset on `main` requires that name, so do not take a language matrix. |
-| `docs/dev/releasing.md` has no section on tag and action settings | a section "Other repository settings": the tag and `release` branch rulesets, immutable releases, required SHA pinning | KEEP the section. |
+| `docs/dev/releasing.md` has no section on tag and action settings | a section "Other repository settings": the tag and `release` branch rulesets, immutable releases, required SHA pinning, branch deletion on merge | KEEP the section. |
 | The chart job uses the runner image's Helm | `publish-chart.yml` installs a pinned Helm 4 (`HELM_VERSION`) | KEEP. `docs/helm.md` and `charts/itsaplan/README.md` state Helm 4: KEEP. |
 | no `renovate.json` | `renovate.json`, scoped to the action pins and `HELM_VERSION` | KEEP (fork-only file). npm packages, base images, runner images and Bun are out of its scope on purpose. |
 | Bun 1.4.4 | 1.4.5 in `package.json`, the four Dockerfiles, `ci.yml` and `docs/development.md` | ADOPT upstream's next Bun bump when it is newer, in all seven places. Remove this row when upstream reaches 1.4.5. |

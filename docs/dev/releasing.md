@@ -45,7 +45,8 @@ body, and the app shows them under **What's new**.
   `https://github.com/croffasia/itsaplan/pull/NNN`.
 - A pull request landed as a merge commit adds an entry for its own title. Delete it when the
   entry repeats commits the notes already list.
-- Make the same edits in `CHANGELOG.md` on the release branch, in one commit.
+- Make the same edits in `CHANGELOG.md` on the branch `release-please--branches--main`, in one
+  commit.
 - Approve the workflow runs (see "Rules on `main`"), then merge.
 
 ## Rules on `main`
