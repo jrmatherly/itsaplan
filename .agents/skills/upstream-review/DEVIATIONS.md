@@ -119,6 +119,13 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | --- | --- | --- |
 | `storeAttachments` in `apps/worker/src/import-worker.ts` logs a rejected attachment's source id and message as they are | both lose their line breaks first | KEEP ours. It closes CodeQL alert `js/log-injection`. |
 
+## Firecrawl integration (PR 22)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| The Firecrawl integration calls `https://api.firecrawl.dev/v2` only; its credential has one field, `apiKey` | the credential has an optional `baseUrl` ("Instance URL"); with it, every call goes to `<baseUrl>/v2` through `pinnedFetch` with a 120 s idle timeout and a 20 MB response limit. `firecrawlPost` and `pollJob` take the credential, not the API key. `verifyFirecrawl` answers `valid` only to a JSON 2xx, and with a `baseUrl` answers `unknown` to a JSON 500 | KEEP ours in `packages/agent-tools/src/tools/firecrawl/`. Change a new upstream Firecrawl tool to pass `credential` where it passes `String(credential.apiKey)`. Pinned by `packages/agent-tools/src/tools/firecrawl/__tests__/base-url.test.ts`. |
+| The `SSRF_ALLOWED_HOSTS` comment in `.env.example` names a self-hosted repository host as its case | one more sentence names a self-hosted Firecrawl server | ADAPT: take upstream's paragraph, keep the Firecrawl sentence. |
+
 ## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11; PR 21)
 
 Each row is a statement upstream's doc gets wrong and the code proves otherwise. All are ADAPT:

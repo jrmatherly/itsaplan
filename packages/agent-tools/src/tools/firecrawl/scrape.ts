@@ -18,7 +18,7 @@ export const firecrawlScrape: CustomToolEntry = {
   }),
   execute: async (credential, input) => {
     const data = (await firecrawlPost(
-      String(credential.apiKey),
+      credential,
       'scrape',
       {
         url: String(input.url),

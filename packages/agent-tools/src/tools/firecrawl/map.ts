@@ -20,7 +20,7 @@ export const firecrawlMap: CustomToolEntry = {
   }),
   execute: async (credential, input) => {
     const data = (await firecrawlPost(
-      String(credential.apiKey),
+      credential,
       'map',
       {
         url: String(input.url),
