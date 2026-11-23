@@ -2,17 +2,33 @@
 
 ## [1.15.0](https://github.com/jrmatherly/itsaplan/compare/v1.14.0...v1.15.0) (2026-11-23)
 
+### Updating
+
+- **Self-hosted Firecrawl.** `FIRECRAWL_ALLOWED_HOSTS` names the private hosts that only the Firecrawl tools and the Firecrawl credential check may reach, in the syntax of `SSRF_ALLOWED_HOSTS`. A host named in `SSRF_ALLOWED_HOSTS` keeps working. To stop that host from being a permitted webhook target and attachment source, move its entry to `FIRECRAWL_ALLOWED_HOSTS` on the api. With the Helm chart the key is `api.env.FIRECRAWL_ALLOWED_HOSTS`. A chart older than this release ignores it, so change the chart version and the key in the same step.
+- **Firecrawl Instance URL.** An Instance URL with a query, a fragment, a user name or a scheme other than http and https is refused, and the credential form says why. Edit a credential that has one.
+- **Database migration.** Migration `0196` adds one column to `user_preference`. It needs no action.
+
+
 
 ### Features
 
-* let only the Firecrawl client reach hosts in FIRECRAWL_ALLOWED_HOSTS ([6892a86](https://github.com/jrmatherly/itsaplan/commit/6892a867afdae4800adb23665e9537c4f6bee17f))
+* add Italian (it) interface language ([#981](https://github.com/croffasia/itsaplan/pull/981)) ([5627134](https://github.com/jrmatherly/itsaplan/commit/56271340a1d47a5a1a129a92ec527a69bfce1997))
+* let an extension add actions and groups to an internal agent's catalog ([#982](https://github.com/croffasia/itsaplan/pull/982)) ([ebbaa77](https://github.com/jrmatherly/itsaplan/commit/ebbaa77b1acde58be47236c64104b7f6a90194cc))
 * let only the Firecrawl client reach hosts in FIRECRAWL_ALLOWED_HOSTS ([d9a181a](https://github.com/jrmatherly/itsaplan/commit/d9a181a3049041399aa097b8d04e1e836bc05b9c))
+
+
+### Improvements
+
+* **agent-tools:** name a failed model endpoint in the Firecrawl Extract hint, and advise a JSON schema in its description ([d9a181a](https://github.com/jrmatherly/itsaplan/commit/d9a181a3049041399aa097b8d04e1e836bc05b9c))
+* **web:** list languages by their own names, without flags ([#984](https://github.com/croffasia/itsaplan/pull/984)) ([8ab7b9d](https://github.com/jrmatherly/itsaplan/commit/8ab7b9d8c3e58a3f2dee67e2d794e052a8e445b6))
 
 
 ### Bug Fixes
 
 * **agent-tools:** refuse a Firecrawl Instance URL with a query, a fragment or a user name ([96aec6d](https://github.com/jrmatherly/itsaplan/commit/96aec6d0dd2afd5d40c52ad1f32f6ff73fde9dea))
-* **api:** process Gitea PR pushes and redeliveries of failed git webhooks ([#988](https://github.com/jrmatherly/itsaplan/issues/988)) ([7401ebe](https://github.com/jrmatherly/itsaplan/commit/7401ebe07f8634942cab6356d4788a2c4ecf278c))
+* **api:** process Gitea PR pushes and redeliveries of failed git webhooks ([#988](https://github.com/croffasia/itsaplan/pull/988)) ([7401ebe](https://github.com/jrmatherly/itsaplan/commit/7401ebe07f8634942cab6356d4788a2c4ecf278c))
+* **web:** open an extended issue share link without a sign-in ([#983](https://github.com/croffasia/itsaplan/pull/983)) ([7076437](https://github.com/jrmatherly/itsaplan/commit/7076437198cc43befee515af1b74e74e246f51e0))
+* **worker:** strip line breaks from the rejected attachment log line ([#987](https://github.com/croffasia/itsaplan/pull/987)) ([304b2d2](https://github.com/jrmatherly/itsaplan/commit/304b2d2867af787fbf046d545a6aae0d401c2af8))
 * name the reason when a Firecrawl Instance URL is refused ([31591ac](https://github.com/jrmatherly/itsaplan/commit/31591ac3b0065d116eed106833170c1a95cbf77c))
 
 
@@ -24,7 +40,6 @@
 ### Chores
 
 * adapt upstream 7401ebe0 to the fork ([69cbcc9](https://github.com/jrmatherly/itsaplan/commit/69cbcc9487a7f5278ed3558da0ba010fc3cd4bab))
-* merge upstream 7401ebe0 ([5ac54dc](https://github.com/jrmatherly/itsaplan/commit/5ac54dcf1433a9b96dad0c390bb89fe0b00eba28))
 * say how the release notes treat an upstream change the fork leaves out ([68f0d22](https://github.com/jrmatherly/itsaplan/commit/68f0d22e86c39039428fa80ec52ec66739e157b8))
 * track the design hook's shared ignores ([#29](https://github.com/jrmatherly/itsaplan/issues/29)) ([8c90f4b](https://github.com/jrmatherly/itsaplan/commit/8c90f4b9c10d5ed665ac1cc7cc24efb45baf0802))
 
