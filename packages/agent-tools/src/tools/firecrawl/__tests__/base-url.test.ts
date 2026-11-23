@@ -141,7 +141,7 @@ describe('firecrawl instance URL', () => {
   it('names a missing model only for the 500 a self-hosted server gives without one', async () => {
     const run = (
       send: typeof pinnedFetch | typeof cloudFetch,
-      credential: object,
+      credential: Record<string, string>,
       code: string,
     ) => {
       send.mockImplementationOnce(async () => Response.json({ code }, { status: 500 }));
