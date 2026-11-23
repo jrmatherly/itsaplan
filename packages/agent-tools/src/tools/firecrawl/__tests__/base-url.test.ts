@@ -3,6 +3,7 @@ import { ResponseTooLargeError, UrlNotAllowedError } from '@repo/net';
 
 type Init = {
   method?: string;
+  body?: string;
   headers?: Record<string, string>;
   timeoutMs?: number;
   maxBytes?: number;
@@ -25,6 +26,8 @@ afterAll(() => {
 
 const { firecrawlSearch } = await import('../search');
 const { firecrawlCrawl } = await import('../crawl');
+const { firecrawlExtract } = await import('../extract');
+const { firecrawl } = await import('../index');
 const { verifyFirecrawl } = await import('../verify');
 
 const cloud = { apiKey: 'fc-1' };
@@ -85,6 +88,82 @@ describe('firecrawl instance URL', () => {
     expect(cloudFetch).not.toHaveBeenCalled();
   });
 
+  it('sends no key to a self-hosted server when the credential has none', async () => {
+    expect(firecrawl.credentialSchema.find((f) => f.key === 'apiKey')!.required).toBe(false);
+    await firecrawlSearch.execute({ baseUrl: selfHosted.baseUrl }, { query: 'q' });
+    await firecrawlSearch.execute({ baseUrl: selfHosted.baseUrl, apiKey: '  ' }, { query: 'q' });
+    expect(pinnedFetch).toHaveBeenCalledTimes(2);
+    for (const [, init] of pinnedFetch.mock.calls) {
+      expect(init!.headers).toEqual({ 'Content-Type': 'application/json' });
+    }
+  });
+
+  it('extracts from each page with its own scrape, and keeps the pages that worked', async () => {
+    pinnedFetch
+      .mockImplementationOnce(async () => Response.json({ data: { json: { title: 'A' } } }))
+      .mockImplementationOnce(async () => Response.json({ error: 'timed out' }, { status: 408 }))
+      .mockImplementationOnce(async () =>
+        Response.json({ data: { json: null, warning: 'no result' } }),
+      );
+    const urls = ['https://a.example', 'https://b.example', 'https://c.example'];
+    const out = (await firecrawlExtract.execute(selfHosted, {
+      urls,
+      prompt: 'The title',
+      schema: { type: 'object' },
+    })) as { results: Array<Record<string, unknown>> };
+    expect(out.results[0]).toEqual({ url: urls[0], data: { title: 'A' } });
+    expect(out.results[1]!.url).toBe(urls[1]);
+    expect(out.results[1]!.error).toContain('408');
+    expect(out.results[1]!.error).not.toContain('model provider');
+    expect(out.results[2]).toEqual({ url: urls[2], data: null, warning: 'no result' });
+    for (const [url, init] of pinnedFetch.mock.calls) {
+      expect(url).toBe('https://firecrawl.example.com/v2/scrape');
+      expect(JSON.parse(init!.body!).formats).toEqual([
+        { type: 'json', prompt: 'The title', schema: { type: 'object' } },
+      ]);
+    }
+    expect(pinnedFetch.mock.calls.map(([, init]) => JSON.parse(init!.body!).url)).toEqual(urls);
+    const body = JSON.parse(pinnedFetch.mock.calls[0]![1]!.body!);
+    expect(body.onlyMainContent).toBe(false);
+    expect(body.timeout).toBeLessThan(120_000);
+  });
+
+  it('fails the extract when no page worked, with each cause once', async () => {
+    pinnedFetch
+      .mockImplementationOnce(async () => Response.json({ error: 'no' }, { status: 401 }))
+      .mockImplementationOnce(async () => Response.json({ error: 'no' }, { status: 401 }))
+      .mockImplementationOnce(async () => Response.json({ success: false, error: 'dns' }));
+    const urls = ['https://a.example', 'https://b.example', 'https://c.example'];
+    const failure = firecrawlExtract.execute(selfHosted, { urls, prompt: 'p' });
+    await expect(failure).rejects.toThrow(/^Firecrawl extract failed \(401\)[^;]*; dns$/);
+  });
+
+  it('names a missing model only for the 500 a self-hosted server gives without one', async () => {
+    const run = (
+      send: typeof pinnedFetch | typeof cloudFetch,
+      credential: Record<string, string>,
+      code: string,
+    ) => {
+      send.mockImplementationOnce(async () => Response.json({ code }, { status: 500 }));
+      return firecrawlExtract.execute(credential, { urls: ['https://a.example'], prompt: 'p' });
+    };
+    await expect(run(pinnedFetch, selfHosted, 'UNKNOWN_ERROR')).rejects.toThrow('model provider');
+    await expect(run(pinnedFetch, selfHosted, 'SCRAPE_ALL_ENGINES_FAILED')).rejects.not.toThrow(
+      'model provider',
+    );
+    await expect(run(cloudFetch, cloud, 'UNKNOWN_ERROR')).rejects.not.toThrow('model provider');
+    expect(cloudFetch.mock.calls[0]![0]).toBe('https://api.firecrawl.dev/v2/scrape');
+  });
+
+  it('takes at most ten page URLs and no wildcard', () => {
+    const parse = (urls: string[]) =>
+      firecrawlExtract.inputSchema.safeParse({ urls, prompt: 'p' }).success;
+    const page = (n: number) => `https://a.example/${n}`;
+    expect(parse(Array.from({ length: 10 }, (_, n) => page(n)))).toBe(true);
+    expect(parse(Array.from({ length: 11 }, (_, n) => page(n)))).toBe(false);
+    expect(parse(['https://a.example/*'])).toBe(false);
+  });
+
   it('gives the guard reason and the remedy when the address is refused', async () => {
     pinnedFetch.mockImplementationOnce(async () => {
       throw new UrlNotAllowedError('url must use https');
@@ -124,6 +203,12 @@ describe('firecrawl credential check', () => {
     );
 
   it('answers for the cloud', async () => {
+    expect(await verifyFirecrawl({}, noSignal)).toBe('rejected');
+    expect(await verifyFirecrawl({ apiKey: ' ' }, noSignal)).toBe('rejected');
+    expect(cloudFetch).not.toHaveBeenCalled();
+    await verifyFirecrawl(cloud, noSignal);
+    expect(cloudFetch.mock.calls[0]![0]).toBe('https://api.firecrawl.dev/v2/team/credit-usage');
+    cloudFetch.mockClear();
     expect(await answers(cloudFetch, cloud)).toEqual([
       'valid',
       'rejected',
@@ -134,7 +219,11 @@ describe('firecrawl credential check', () => {
     ]);
   });
 
-  it('reports a self-hosted server without billing as not checkable', async () => {
+  it('answers for a self-hosted server from its queue status', async () => {
+    expect(await verifyFirecrawl({ baseUrl: selfHosted.baseUrl }, noSignal)).toBe('valid');
+    expect(pinnedFetch.mock.calls[0]![0]).toBe(
+      'https://firecrawl.example.com/v2/team/queue-status',
+    );
     expect(await answers(pinnedFetch, selfHosted)).toEqual([
       'valid',
       'rejected',

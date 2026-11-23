@@ -1,16 +1,25 @@
 import type { CredentialCheck, ToolConfig } from '../../types';
 import { firecrawlFetch, selfHostedBase } from './client';
 
-// Reading the team's remaining credits spends none of them. A self-hosted server that
-// runs without billing answers the request with a JSON 500, so it cannot be checked.
+// Asks for something that checks the key, if the server has one, and spends nothing.
+// The cloud is asked for the team's remaining credits. A self-hosted server without
+// billing answers that with an error, so it is asked for the team's queue.
 export async function verifyFirecrawl(
   credential: ToolConfig,
   signal: AbortSignal,
 ): Promise<CredentialCheck> {
-  const res = await firecrawlFetch(credential, 'team/credit-usage', { signal });
+  const selfHosted = selfHostedBase(credential) !== '';
+  // Without a key the cloud serves only scrape and search, on a free tier.
+  if (!selfHosted && !String(credential.apiKey ?? '').trim()) return 'rejected';
+  const res = await firecrawlFetch(
+    credential,
+    selfHosted ? 'team/queue-status' : 'team/credit-usage',
+    { signal },
+  );
   // An address that is not a Firecrawl API can answer any path with a page.
   if (!res.headers.get('content-type')?.includes('json')) return 'unavailable';
   if (res.ok) return 'valid';
   if (res.status === 401) return 'rejected';
-  return res.status === 500 && selfHostedBase(credential) ? 'unknown' : 'unavailable';
+  // A self-hosted version that fails this request can still serve the tools.
+  return res.status === 500 && selfHosted ? 'unknown' : 'unavailable';
 }

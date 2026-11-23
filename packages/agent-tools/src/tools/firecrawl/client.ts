@@ -4,9 +4,9 @@ import type { ToolConfig } from '../../types';
 import { sleep } from '../time';
 
 // Shared client for the Firecrawl API, the cloud service or a self-hosted server. Every
-// tool authenticates with the credential's API key as a bearer token and posts a JSON
-// body. The crawl and extract endpoints are asynchronous: the POST returns a job id,
-// which is then polled with pollJob until the job reaches a terminal status.
+// tool sends the credential's API key, when it has one, as a bearer token and posts a
+// JSON body. The crawl endpoint is asynchronous: the POST returns a job id, which is
+// then polled with pollJob until the job reaches a terminal status.
 
 export const FIRECRAWL_BASE = 'https://api.firecrawl.dev/v2';
 
@@ -35,7 +35,9 @@ export async function firecrawlFetch(
     signal?: AbortSignal;
   } = {},
 ): Promise<Response> {
-  const headers = { ...init.headers, Authorization: `Bearer ${String(credential.apiKey ?? '')}` };
+  // A self-hosted server without authentication needs no key.
+  const key = String(credential.apiKey ?? '').trim();
+  const headers = { ...init.headers, ...(key ? { Authorization: `Bearer ${key}` } : {}) };
   const base = selfHostedBase(credential);
   if (!base) return fetch(`${FIRECRAWL_BASE}/${path}`, { ...init, headers });
   try {
