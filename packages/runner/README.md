@@ -236,7 +236,8 @@ reverse proxy in front of the port:
   `ts.net` address.
 
 On a private network without a tunnel, add the runner's host to `SSRF_ALLOWED_HOSTS` on
-the instance. That host must also use HTTPS. When `NODE_ENV` on the instance is not
+the instance. That host must also use HTTPS, unless its entry is written as
+`http://host`. When `NODE_ENV` on the instance is not
 `production` or `test`, the instance also accepts `http://` and private addresses, for
 example `http://localhost:4000`.
 

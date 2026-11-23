@@ -10,7 +10,7 @@ import { request as httpsRequest } from 'node:https';
 // address is caught too.
 //
 // SSRF_ALLOWED_HOSTS names the hosts an operator has decided to trust anyway — see
-// isAllowedHost below. It is empty by default.
+// allowedHost below. It is empty by default.
 
 export class UrlNotAllowedError extends Error {}
 
@@ -33,19 +33,21 @@ function isLocalHostname(host: string): boolean {
 //
 // Empty by default, so nothing is exempt unless it is named. Matching is on the exact
 // hostname — no wildcards, no CIDR ranges, no suffix matching — so naming one host
-// trusts one host. Everything else still applies to it: https is still required, and
-// the resolved address is still pinned, so a name on this list cannot be used to
-// mount a DNS-rebinding attack either.
+// trusts one host. Everything else still applies to it: a bare hostname needs https,
+// and the resolved address is pinned, so a name on this list cannot be used to mount
+// a DNS-rebinding attack either.
+//
+// An entry written as http://host also permits plain http to that host, for a service
+// that has no TLS, such as one reached by its in-cluster address. What is sent to it
+// then crosses the network unencrypted, so it is a separate, explicit form.
 //
 // Read per call rather than at module load so a test can set it around one case.
-function isAllowedHost(host: string): boolean {
+function allowedHost(host: string): { http: boolean } | null {
   const configured = process.env.SSRF_ALLOWED_HOSTS;
-  if (!configured) return false;
-  return configured
-    .split(',')
-    .map((entry) => entry.trim().toLowerCase())
-    .filter(Boolean)
-    .includes(host);
+  if (!configured) return null;
+  const entries = configured.split(',').map((entry) => entry.trim().toLowerCase());
+  const http = entries.includes(`http://${host}`);
+  return http || entries.includes(host) ? { http } : null;
 }
 
 // IPv4-mapped and IPv4-compatible IPv6 addresses (`::ffff:127.0.0.1`, `::ffff:7f00:1`,
@@ -131,9 +133,12 @@ async function vet(raw: string, policy: UrlPolicy = {}): Promise<{ url: URL; pin
 
   const devRelaxed =
     !policy.publicOnly && process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test';
+  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  const named = policy.publicOnly ? null : allowedHost(host);
+  const allowed = named !== null;
   if (
     url.protocol !== 'https:' &&
-    !((devRelaxed || policy.publicOnly) && url.protocol === 'http:')
+    !((devRelaxed || policy.publicOnly || named?.http) && url.protocol === 'http:')
   ) {
     throw new UrlNotAllowedError('url must use https');
   }
@@ -141,8 +146,6 @@ async function vet(raw: string, policy: UrlPolicy = {}): Promise<{ url: URL; pin
     throw new UrlNotAllowedError('url must not include credentials');
   }
 
-  const host = url.hostname.toLowerCase().replace(/^\[|\]$/g, '');
-  const allowed = !policy.publicOnly && isAllowedHost(host);
   const blockedIp = policy.publicOnly ? isNonPublicIp : isPrivateIp;
   if (isLocalHostname(host) || (isIP(host) && blockedIp(host))) {
     if (!devRelaxed && !allowed) {
@@ -182,7 +185,8 @@ async function vet(raw: string, policy: UrlPolicy = {}): Promise<{ url: URL; pin
 
 // Validates a user/agent-supplied URL for a server-side fetch: http(s) only, and it
 // must not resolve to a local/private address. Returns the parsed URL. http is
-// allowed in local development or under the public-only policy. Throws
+// allowed in local development, under the public-only policy, or to a host named as
+// http://host in SSRF_ALLOWED_HOSTS. Throws
 // UrlNotAllowedError when the URL or its resolved addresses are refused.
 export async function assertPublicHttpUrl(raw: string, policy?: UrlPolicy): Promise<URL> {
   return (await vet(raw, policy)).url;

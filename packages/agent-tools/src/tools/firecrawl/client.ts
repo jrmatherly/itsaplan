@@ -50,7 +50,7 @@ export async function firecrawlFetch(
     // Rethrown as UrlNotAllowedError: the api's credential check answers "unknown" for that class.
     if (err instanceof UrlNotAllowedError) {
       throw new UrlNotAllowedError(
-        `The Firecrawl address is not allowed (${err.message}). A self-hosted server needs an https address, and one on a private network has to be named in SSRF_ALLOWED_HOSTS of this It's a Plan server.`,
+        `The Firecrawl address is not allowed (${err.message}). A self-hosted server on a private network has to be named in SSRF_ALLOWED_HOSTS of this It's a Plan server, as http://host, without the port, when it has no https address.`,
       );
     }
     if (err instanceof ResponseTooLargeError) {

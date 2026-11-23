@@ -85,12 +85,12 @@ describe('firecrawl instance URL', () => {
     expect(cloudFetch).not.toHaveBeenCalled();
   });
 
-  it('gives the guard reason and both remedies when the address is refused', async () => {
+  it('gives the guard reason and the remedy when the address is refused', async () => {
     pinnedFetch.mockImplementationOnce(async () => {
       throw new UrlNotAllowedError('url must use https');
     });
     await expect(firecrawlSearch.execute(selfHosted, { query: 'q' })).rejects.toThrow(
-      /url must use https.*https address.*SSRF_ALLOWED_HOSTS/,
+      /url must use https.*SSRF_ALLOWED_HOSTS.*http:\/\/host/,
     );
   });
 
