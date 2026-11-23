@@ -85,3 +85,4 @@ These are GitHub settings too, not files.
   not run. A reusable workflow in this repository (`./.github/workflows/...`) needs no pin.
 - A merged pull request's branch is deleted. release-please creates its branch again on the
   next push to `main`.
+
