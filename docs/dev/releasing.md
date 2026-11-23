@@ -58,9 +58,8 @@ required. A squash merge and a merge commit are allowed. A rebase merge, a force
 deletion are refused.
 
 The ruleset also requires code scanning results from CodeQL. A pull request cannot merge while
-its analysis reports a security alert at high or above or a quality alert at error, or while the
-analysis has not finished. Only alerts the pull request adds count. Dismissed and fixed alerts on
-`main` do not block it.
+its analysis reports a new security alert at high or above or a new quality alert at error, or
+while the analysis has not finished. Dismissed alerts on `main` do not block it.
 
 The release PR is opened by the workflow token, so its checks wait in an approval-required state
 and report nothing. Open the PR and choose **Approve workflows to run**. Each push release-please

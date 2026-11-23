@@ -223,9 +223,9 @@ object by reference and reads `clientId` / `clientSecret` off it on every call. 
 `refreshGoogleOptions()` in `hooks.before` reloads it on `/sign-in/social`, `/link-social` and
 `/callback/google`, and refuses the request when the credentials are missing or the toggle is off.
 
-While no Google credentials are stored, the api logs `Social provider google is missing clientId
-or clientSecret` once per process, when better-auth builds the provider list. The provider is
-mounted with empty credentials, so the warning is expected.
+While no Google client ID is stored, the api logs `Social provider google is missing clientId or
+clientSecret` once per process, when better-auth builds the provider list. The provider is always
+mounted, so the warning is expected. A failed read of the credentials at that moment logs it too.
 
 By default a provider address that has an account but no link to that identity signs into the
 account only when the provider reports the address verified and the account's email is confirmed.
