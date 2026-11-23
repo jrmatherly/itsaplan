@@ -80,3 +80,10 @@ spec:
           resources:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          volumeMounts:
+            - name: next-cache
+              mountPath: /app/apps/web/.next/cache
+      # next/image writes its cache here. A read-only root filesystem has no other writable path.
+      volumes:
+        - name: next-cache
+          emptyDir: {}

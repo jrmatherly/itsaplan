@@ -93,6 +93,12 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | `.env.example` documents `PASSKEY_RP_ID`, `PASSKEY_RP_NAME` and `EMAIL_FROM`, no compose file or chart key passes them, and `packages/auth/src/index.ts` reads the two passkey ones with `??` | the five compose files pass all three to the api and `EMAIL_FROM` to the worker; the chart has `api.env.PASSKEY_RP_ID`, `api.env.PASSKEY_RP_NAME` and `api.env.EMAIL_FROM`; the two passkey reads use `\|\|` | ADAPT in the five compose files, `charts/itsaplan/templates/configmap.yaml`, `charts/itsaplan/values.yaml` and the values table in `charts/itsaplan/README.md`. KEEP the `\|\|` reads: compose passes an unset variable as an empty string, and `??` would make it the relying-party ID. `.env.example`, `docs/dev/auth.md` (Passkey) and `docs/self-hosting.md` (Mail, Updating) describe ours: ADAPT. |
 | The chart has no key for `SSRF_ALLOWED_HOSTS`, `BACKUP_RETENTION_DAYS` or `TELEMETRY_DEBUG` | `api.env.SSRF_ALLOWED_HOSTS`, `api.env.BACKUP_RETENTION_DAYS` and `worker.env.TELEMETRY_DEBUG` | ADAPT in `charts/itsaplan/templates/configmap.yaml`, `charts/itsaplan/values.yaml` and the values table in `charts/itsaplan/README.md`. |
 
+## Chart (PR 18)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| `charts/itsaplan/templates/deployment-web.yaml` has no volume | an emptyDir `next-cache` at `/app/apps/web/.next/cache` | KEEP ours. Drop it if upstream adds a cache volume or a volume value for the web. |
+
 ## Local tooling
 
 | Upstream | Ours | Notes |
