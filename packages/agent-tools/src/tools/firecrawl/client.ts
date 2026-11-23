@@ -1,4 +1,4 @@
-import { pinnedFetch, UrlNotAllowedError } from '@repo/net';
+import { pinnedFetch, ResponseTooLargeError, UrlNotAllowedError } from '@repo/net';
 import { jsonOrThrow } from '../../http';
 import type { ToolConfig } from '../../types';
 import { sleep } from '../time';
@@ -11,6 +11,9 @@ import { sleep } from '../time';
 export const FIRECRAWL_BASE = 'https://api.firecrawl.dev/v2';
 
 const TERMINAL = new Set(['completed', 'failed', 'cancelled']);
+
+// The api buffers a whole answer, and a scraped page decides its size.
+const MAX_SELF_HOSTED_MB = 20;
 
 // A self-hosted server's address is the credential's, so that call goes through the SSRF
 // guard. The cloud address is fixed.
@@ -32,12 +35,22 @@ export async function firecrawlFetch(
   if (!base) return fetch(`${FIRECRAWL_BASE}/${path}`, { ...init, headers });
   try {
     // An idle limit, long enough for a scrape that renders a slow page.
-    return await pinnedFetch(`${base}/v2/${path}`, { ...init, headers, timeoutMs: 120_000 });
+    return await pinnedFetch(`${base}/v2/${path}`, {
+      ...init,
+      headers,
+      timeoutMs: 120_000,
+      maxBytes: MAX_SELF_HOSTED_MB * 1024 * 1024,
+    });
   } catch (err) {
     // The same class, so the credential check still reports an address it cannot reach.
     if (err instanceof UrlNotAllowedError) {
       throw new UrlNotAllowedError(
         `The Firecrawl address is not allowed (${err.message}). A self-hosted server needs an https address, and one on a private network has to be named in SSRF_ALLOWED_HOSTS on the instance.`,
+      );
+    }
+    if (err instanceof ResponseTooLargeError) {
+      throw new Error(
+        `The Firecrawl answer is larger than ${MAX_SELF_HOSTED_MB} MB. Ask for fewer pages or less content.`,
       );
     }
     throw err;

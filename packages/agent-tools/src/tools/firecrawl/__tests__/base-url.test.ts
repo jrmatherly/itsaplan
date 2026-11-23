@@ -2,8 +2,10 @@ import { describe, it, expect, mock, beforeEach, afterAll } from 'bun:test';
 import { ResponseTooLargeError, UrlNotAllowedError } from '@repo/net';
 
 const pinnedFetch = mock(
-  async (_url: string, _init?: { headers?: Record<string, string>; timeoutMs?: number }) =>
-    Response.json({ data: { web: [] } }),
+  async (
+    _url: string,
+    _init?: { headers?: Record<string, string>; timeoutMs?: number; maxBytes?: number },
+  ) => Response.json({ data: { web: [] } }),
 );
 mock.module('@repo/net', () => ({ pinnedFetch, ResponseTooLargeError, UrlNotAllowedError }));
 
@@ -44,6 +46,7 @@ describe('firecrawl instance URL', () => {
     expect(pinnedFetch.mock.calls[0]![0]).toBe('https://firecrawl.example.com/v2/search');
     expect(pinnedFetch.mock.calls[0]![1]!.headers!.Authorization).toBe('Bearer any');
     expect(pinnedFetch.mock.calls[0]![1]!.timeoutMs).toBe(120_000);
+    expect(pinnedFetch.mock.calls[0]![1]!.maxBytes).toBe(20 * 1024 * 1024);
     expect(cloudFetch).not.toHaveBeenCalled();
   });
 
@@ -54,6 +57,13 @@ describe('firecrawl instance URL', () => {
     await expect(
       firecrawlSearch.execute({ apiKey: 'any', baseUrl: 'https://10.0.0.5' }, { query: 'q' }),
     ).rejects.toThrow('SSRF_ALLOWED_HOSTS');
+  });
+
+  it('tells the agent when the answer is over the size limit', async () => {
+    pinnedFetch.mockImplementationOnce(async () => {
+      throw new ResponseTooLargeError('response exceeds the byte limit');
+    });
+    await expect(firecrawlSearch.execute(selfHosted, { query: 'q' })).rejects.toThrow('20 MB');
   });
 
   it('reports a self-hosted server without billing as not checkable', async () => {
