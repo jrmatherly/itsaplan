@@ -45,6 +45,8 @@ body, and the app shows them under **What's new**.
   `https://github.com/croffasia/itsaplan/pull/NNN`.
 - A pull request landed as a merge commit adds an entry for its own title. Delete it when the
   entry repeats commits the notes already list.
+- An upstream commit whose change the fork leaves out still gets an entry. Delete it. The
+  deviations table names each one in the Notes column of its row.
 - Make the same edits in `CHANGELOG.md` on the branch `release-please--branches--main`, in one
   commit.
 - Approve the workflow runs (see "Rules on `main`"), then merge.
