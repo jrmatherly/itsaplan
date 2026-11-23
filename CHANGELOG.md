@@ -5,7 +5,6 @@
 
 ### Bug Fixes
 
-* close a log injection and give the chart's web a cache volume ([38cbc30](https://github.com/jrmatherly/itsaplan/commit/38cbc30c8677d64261057ab7266af4031264ce99))
 * mount a cache volume for the web in the chart ([ca97d9e](https://github.com/jrmatherly/itsaplan/commit/ca97d9eb36a72bd078cb4f3b0b13c77a18300072))
 * **worker:** log a rejected import attachment on one line ([319a44f](https://github.com/jrmatherly/itsaplan/commit/319a44f5961b8681c1cafc3a5db958fe7a53ca40))
 
