@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.14.0](https://github.com/jrmatherly/itsaplan/compare/v1.13.1...v1.14.0) (2026-11-23)
+
+
+### Features
+
+* **agent-tools:** let the Firecrawl integration use a self-hosted server ([#22](https://github.com/jrmatherly/itsaplan/issues/22)) ([cad2d00](https://github.com/jrmatherly/itsaplan/commit/cad2d0092a69c7033dfba65c623182f271db87ec))
+* **net:** let an allow-listed host be reached over plain http ([#24](https://github.com/jrmatherly/itsaplan/issues/24)) ([dd63610](https://github.com/jrmatherly/itsaplan/commit/dd63610ae8a3cace21399c924680559309d4238b))
+
+
+### Improvements
+
+* **agent-tools:** make the Firecrawl tools fit a self-hosted server ([#25](https://github.com/jrmatherly/itsaplan/issues/25)) ([bd0d051](https://github.com/jrmatherly/itsaplan/commit/bd0d0518a5100e302b83c030894b7d40b79ec44a))
+
 ## [1.13.1](https://github.com/jrmatherly/itsaplan/compare/v1.13.0...v1.13.1) (2026-11-23)
 
 
