@@ -70,6 +70,55 @@ describe('SSRF_ALLOWED_HOSTS', () => {
     );
   });
 
+  it('admits plain http to a host named with http://, and to no other host', async () => {
+    process.env.SSRF_ALLOWED_HOSTS = 'http://localtest.me';
+    expect((await assertPublicHttpUrl('http://localtest.me:3002/v2')).hostname).toBe(
+      'localtest.me',
+    );
+    expect((await assertPublicHttpUrl('https://localtest.me/')).hostname).toBe('localtest.me');
+    await expect(assertPublicHttpUrl('http://sub.localtest.me/')).rejects.toBeInstanceOf(
+      UrlNotAllowedError,
+    );
+    await expect(assertPublicHttpUrl('http://example.com/')).rejects.toBeInstanceOf(
+      UrlNotAllowedError,
+    );
+  });
+
+  it('keeps a bare entry https only beside an http:// entry, and ignores an entry with a port', async () => {
+    process.env.SSRF_ALLOWED_HOSTS = 'localtest.me,http://127.0.0.1';
+    await expect(assertPublicHttpUrl('http://localtest.me/')).rejects.toBeInstanceOf(
+      UrlNotAllowedError,
+    );
+    process.env.SSRF_ALLOWED_HOSTS = 'http://localtest.me:3002';
+    await expect(assertPublicHttpUrl('http://localtest.me:3002/')).rejects.toBeInstanceOf(
+      UrlNotAllowedError,
+    );
+  });
+
+  it('sends a request over plain http to a host named with http://', async () => {
+    const server = createServer((req, res) => res.end(req.headers.host));
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const { port } = server.address() as { port: number };
+    try {
+      process.env.SSRF_ALLOWED_HOSTS = '127.0.0.1';
+      await expect(pinnedFetch(`http://127.0.0.1:${port}/`)).rejects.toBeInstanceOf(
+        UrlNotAllowedError,
+      );
+      process.env.SSRF_ALLOWED_HOSTS = 'http://127.0.0.1';
+      const res = await pinnedFetch(`http://127.0.0.1:${port}/`);
+      expect(await res.text()).toBe(`127.0.0.1:${port}`);
+    } finally {
+      server.close();
+    }
+  });
+
+  it('ignores the list in a public-only fetch', async () => {
+    process.env.SSRF_ALLOWED_HOSTS = 'http://localtest.me';
+    await expect(
+      assertPublicHttpUrl('http://localtest.me/', { publicOnly: true }),
+    ).rejects.toBeInstanceOf(UrlNotAllowedError);
+  });
+
   it('exempts nothing when unset', async () => {
     delete process.env.SSRF_ALLOWED_HOSTS;
     await expect(assertPublicHttpUrl('https://localtest.me/')).rejects.toBeInstanceOf(

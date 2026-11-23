@@ -126,6 +126,12 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | The Firecrawl integration calls `https://api.firecrawl.dev/v2` only; its credential has one field, `apiKey` | the credential has an optional `baseUrl` ("Instance URL"); with it, every call goes to `<baseUrl>/v2` through `pinnedFetch` with a 120 s idle timeout and a 20 MB response limit. `firecrawlPost` and `pollJob` take the credential, not the API key. `verifyFirecrawl` answers `valid` only to a JSON 2xx, and with a `baseUrl` answers `unknown` to a JSON 500 | KEEP ours in `packages/agent-tools/src/tools/firecrawl/`. Change a new upstream Firecrawl tool to pass `credential` where it passes `String(credential.apiKey)`. Pinned by `packages/agent-tools/src/tools/firecrawl/__tests__/base-url.test.ts`. |
 | The `SSRF_ALLOWED_HOSTS` comment in `.env.example` names a self-hosted repository host as its case | one more sentence names a self-hosted Firecrawl server | ADAPT: take upstream's paragraph, keep the Firecrawl sentence. |
 
+## SSRF guard (PR 24)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| `isAllowedHost` in `packages/net/src/index.ts` returns a boolean, and `vet` requires https for every host in `SSRF_ALLOWED_HOSTS` | `allowedHost` returns `null` for a host that is not listed and `{ http }` for one that is; `http` is true when the entry is written as `http://host`, and `vet` then also permits plain http to that host. A bare hostname is https only | KEEP ours. The in-cluster Firecrawl address has no TLS. Pinned by `packages/net/src/__tests__/pinned-fetch.test.ts`. ADAPT the `SSRF_ALLOWED_HOSTS` comment in `.env.example`: keep the bare-hostname sentence, the `http://host` paragraph and the example line. ADAPT the HTTPS sentence in `docs/agent-endpoint.md` and `packages/runner/README.md`: keep "unless its entry is written as `http://host`". |
+
 ## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11; PR 21)
 
 Each row is a statement upstream's doc gets wrong and the code proves otherwise. All are ADAPT:
