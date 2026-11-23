@@ -24,9 +24,8 @@ export const firecrawlCrawl: CustomToolEntry = {
       .describe('How long to wait for the crawl before returning what is ready.'),
   }),
   execute: async (credential, input) => {
-    const apiKey = String(credential.apiKey);
     const started = (await firecrawlPost(
-      apiKey,
+      credential,
       'crawl',
       {
         url: String(input.url),
@@ -37,7 +36,7 @@ export const firecrawlCrawl: CustomToolEntry = {
     )) as { id?: string };
     if (!started.id) throw new Error('Firecrawl crawl did not return a job id');
 
-    const job = await pollJob(`crawl/${started.id}`, apiKey, 'Firecrawl crawl status', {
+    const job = await pollJob(`crawl/${started.id}`, credential, 'Firecrawl crawl status', {
       maxWaitMs: Number(input.maxWaitSeconds ?? 60) * 1000,
     });
     const pages = (

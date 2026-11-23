@@ -35,9 +35,8 @@ export const firecrawlExtract: CustomToolEntry = {
       .describe('How long to wait for the extraction before returning its status.'),
   }),
   execute: async (credential, input) => {
-    const apiKey = String(credential.apiKey);
     const started = (await firecrawlPost(
-      apiKey,
+      credential,
       'extract',
       {
         urls: input.urls as string[],
@@ -49,7 +48,7 @@ export const firecrawlExtract: CustomToolEntry = {
     )) as { id?: string };
     if (!started.id) throw new Error('Firecrawl extract did not return a job id');
 
-    const job = await pollJob(`extract/${started.id}`, apiKey, 'Firecrawl extract status', {
+    const job = await pollJob(`extract/${started.id}`, credential, 'Firecrawl extract status', {
       maxWaitMs: Number(input.maxWaitSeconds ?? 60) * 1000,
     });
     return {

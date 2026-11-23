@@ -13,7 +13,22 @@ export const firecrawl: Integration = {
   label: 'Firecrawl',
   description: 'Scrapes, maps, crawls and searches websites and extracts data from pages.',
   credentialSchema: [
-    { key: 'apiKey', label: 'API key', type: 'secret', required: true, placeholder: 'fc-...' },
+    {
+      key: 'baseUrl',
+      label: 'Instance URL',
+      type: 'url',
+      required: false,
+      placeholder: 'https://firecrawl.example.com',
+      help: 'Leave empty for the Firecrawl cloud. For a self-hosted server, its https address without the /v2 path. A server on a private address also needs its hostname in SSRF_ALLOWED_HOSTS.',
+    },
+    {
+      key: 'apiKey',
+      label: 'API key',
+      type: 'secret',
+      required: true,
+      placeholder: 'fc-...',
+      help: 'A self-hosted server that runs without authentication accepts any value.',
+    },
   ],
   icon: firecrawlIcon,
   website: 'https://www.firecrawl.dev',
