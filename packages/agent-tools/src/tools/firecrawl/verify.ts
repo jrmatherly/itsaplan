@@ -8,13 +8,7 @@ export async function verifyFirecrawl(
   credential: ToolConfig,
   signal: AbortSignal,
 ): Promise<CredentialCheck> {
-  let selfHosted: boolean;
-  try {
-    selfHosted = selfHostedBase(credential) !== '';
-  } catch {
-    // An Instance URL the client refuses: rejected, so the credential is not saved.
-    return 'rejected';
-  }
+  const selfHosted = selfHostedBase(credential) !== '';
   // Without a key the cloud serves only scrape and search, on a free tier.
   if (!selfHosted && !String(credential.apiKey ?? '').trim()) return 'rejected';
   const res = await firecrawlFetch(

@@ -1,5 +1,6 @@
 import { describe, it, expect, mock, beforeEach, afterAll } from 'bun:test';
 import { ResponseTooLargeError, UrlNotAllowedError } from '@repo/net';
+import { ToolConfigError } from '../../../errors';
 
 type Init = {
   method?: string;
@@ -76,7 +77,7 @@ describe('firecrawl instance URL', () => {
     expect(cloudFetch).not.toHaveBeenCalled();
   });
 
-  it('refuses an instance URL with a query, a fragment, a user name or no scheme', async () => {
+  it('refuses an instance URL with a query, a fragment, a user name or a scheme other than http and https', async () => {
     const bad = [
       'https://firecrawl.example.com/admin?x=',
       'https://firecrawl.example.com/admin?',
@@ -87,10 +88,11 @@ describe('firecrawl instance URL', () => {
       'ftp://firecrawl.example.com',
     ];
     for (const baseUrl of bad) {
-      await expect(firecrawlSearch.execute({ baseUrl }, { query: 'q' })).rejects.toThrow(
+      const credential = { apiKey: 'fc-1', baseUrl };
+      await expect(firecrawlSearch.execute(credential, { query: 'q' })).rejects.toThrow(
         'Instance URL',
       );
-      expect(await verifyFirecrawl({ baseUrl }, noSignal)).toBe('rejected');
+      await expect(verifyFirecrawl(credential, noSignal)).rejects.toBeInstanceOf(ToolConfigError);
     }
     expect(pinnedFetch).not.toHaveBeenCalled();
     expect(cloudFetch).not.toHaveBeenCalled();

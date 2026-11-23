@@ -146,27 +146,29 @@ describe('policy.allowedHosts', () => {
       await expect(pinnedFetch(url)).rejects.toBeInstanceOf(UrlNotAllowedError);
       const res = await pinnedFetch(url, { allowedHosts: 'other.example, http://127.0.0.1' });
       expect(await res.text()).toBe('ok');
+      await expect(pinnedFetch(url)).rejects.toBeInstanceOf(UrlNotAllowedError);
     } finally {
       server.close();
     }
   });
 
   it('keeps a bare entry https only', async () => {
-    const policy = { allowedHosts: 'localtest.me' };
-    expect((await assertPublicHttpUrl('https://localtest.me/', policy)).hostname).toBe(
-      'localtest.me',
-    );
-    await expect(assertPublicHttpUrl('http://localtest.me/', policy)).rejects.toBeInstanceOf(
+    const policy = { allowedHosts: '127.0.0.1' };
+    expect((await assertPublicHttpUrl('https://127.0.0.1/', policy)).hostname).toBe('127.0.0.1');
+    await expect(assertPublicHttpUrl('http://127.0.0.1/', policy)).rejects.toBeInstanceOf(
       UrlNotAllowedError,
     );
   });
 
-  it('is ignored in a public-only fetch', async () => {
+  it('adds to SSRF_ALLOWED_HOSTS, which keeps its own hosts', async () => {
+    process.env.SSRF_ALLOWED_HOSTS = '127.0.0.1';
+    const url = await assertPublicHttpUrl('https://127.0.0.1/', { allowedHosts: 'other.example' });
+    expect(url.hostname).toBe('127.0.0.1');
+  });
+
+  it('is ignored under the public-only policy', async () => {
     await expect(
-      assertPublicHttpUrl('https://localtest.me/', {
-        publicOnly: true,
-        allowedHosts: 'localtest.me',
-      }),
+      assertPublicHttpUrl('https://127.0.0.1/', { publicOnly: true, allowedHosts: '127.0.0.1' }),
     ).rejects.toBeInstanceOf(UrlNotAllowedError);
   });
 });

@@ -1,4 +1,5 @@
 import { pinnedFetch, ResponseTooLargeError, UrlNotAllowedError } from '@repo/net';
+import { ToolConfigError } from '../../errors';
 import { jsonOrThrow } from '../../http';
 import type { ToolConfig } from '../../types';
 import { sleep } from '../time';
@@ -19,16 +20,15 @@ const BAD_ADDRESS =
   'The Firecrawl Instance URL must be an address such as https://firecrawl.example.com, without a user name, a query or a fragment.';
 
 // The address of a self-hosted server, without the /v2 path. Empty for the cloud.
-// A query or a fragment would cut off the path each tool appends, so the request
-// would go to a path the credential chose.
+// A query, a fragment or a user name is refused, not dropped: the address the
+// credential shows is then the address the requests go to.
 export function selfHostedBase(credential: ToolConfig): string {
   const raw = String(credential.baseUrl ?? '').trim();
   if (!raw) return '';
-  if (/[?#]/.test(raw) || !URL.canParse(raw)) throw new Error(BAD_ADDRESS);
-  const url = new URL(raw);
+  const url = URL.canParse(raw) ? new URL(raw) : null;
   // `host:3002` parses with `host:` as its scheme.
-  if (!/^https?:$/.test(url.protocol) || url.username || url.password) {
-    throw new Error(BAD_ADDRESS);
+  if (!url || /[?#]/.test(raw) || !/^https?:$/.test(url.protocol) || url.username || url.password) {
+    throw new ToolConfigError(BAD_ADDRESS);
   }
   return url.origin + url.pathname.replace(/\/+$/, '').replace(/\/v2$/, '');
 }

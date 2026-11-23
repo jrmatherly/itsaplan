@@ -1,5 +1,11 @@
-import { getIntegration, type CredentialCheck, type ToolConfig } from '@repo/agent-tools';
+import {
+  getIntegration,
+  ToolConfigError,
+  type CredentialCheck,
+  type ToolConfig,
+} from '@repo/agent-tools';
 import { pinnedFetch, UrlNotAllowedError } from '@repo/net';
+import { HttpError } from '#shared/lib';
 import { integrationKind } from './catalog';
 import { providerCheck, readAnswer } from './provider-check';
 
@@ -29,6 +35,8 @@ export async function askService(
     });
     return readAnswer(res, check.rejected ?? [401, 403]);
   } catch (err) {
+    // A credential its own integration refuses before any request: the person is told why.
+    if (err instanceof ToolConfigError) throw new HttpError(400, err.message);
     // An address the SSRF guard keeps the api from (a local LM Studio, a Gitea on a private
     // network) cannot be checked from here. Any other failure is a check with no answer.
     return err instanceof UrlNotAllowedError ? 'unknown' : 'unavailable';
