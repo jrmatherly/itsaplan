@@ -28,7 +28,7 @@ A new deviation gets a row in the same change that makes it. A removed path also
 | Conduct reports go to `conduct@itsaplan.dev` | go to the fork owner on GitHub, in `CODE_OF_CONDUCT.md` | KEEP. |
 | Contributor licence agreement | none | See "Deleted paths". `CONTRIBUTING.md` has no CLA section: KEEP. |
 | `packages/runner/README.md` links to upstream's `docs/runner.md` by absolute URL | a relative link to `docs/runner.md` | KEEP. The fork does not publish the package, so the README is read on GitHub and in clones. |
-| `charts/itsaplan/values-pro.yaml` sets no image tag, so the Pro images take the chart's `appVersion` | `tag: "1.12.0"` on each Pro image, upstream's Pro release | KEEP the tag: the chart's `appVersion` is the fork's version, which upstream does not publish a Pro image for. Raise it to upstream's Pro release when a merge brings one in. The repositories stay on upstream (next table). |
+| `charts/itsaplan/values-pro.yaml` sets no image tag, so the Pro images take the chart's `appVersion` | `tag: "1.12.0"` on each Pro image, upstream's Pro release. `docs/helm.md`, `charts/itsaplan/README.md` and `docs/self-hosting.md` say the Pro tag is upstream's and when an instance may move to Pro | KEEP the tag: the chart's `appVersion` is the fork's version, which upstream does not publish a Pro image for. Raise it to upstream's Pro release when a merge brings one in. The repositories stay on upstream (next table). |
 
 ## Deliberately left on upstream
 
@@ -36,7 +36,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 
 | Path or value | Why it stays |
 | --- | --- |
-| Pro images `ghcr.io/croffasia/itsaplan-pro-*` in `docker-compose.pro.yml` and `docker-compose.coolify-pro.yml` | The Pro build is upstream's product and the fork does not build it. |
+| Pro images `ghcr.io/croffasia/itsaplan-pro-*` in `docker-compose.pro.yml`, `docker-compose.coolify-pro.yml` and `charts/itsaplan/values-pro.yaml` | The Pro build is upstream's product and the fork does not build it. |
 | `packages/runner` npm name, repository and author metadata | The package is published to npm by upstream. |
 | Copyright lines and `LICENSE` files | They state who holds the copyright. |
 | `itsaplan.dev` links in `apps/web/src/utils/app.ts` and `apps/api/src/modules/project-templates/publish.ts` | They point at upstream's site and template gallery. |
@@ -49,7 +49,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | The worker sends telemetry unless `TELEMETRY_DISABLED` is set to a value other than `0` | The worker sends nothing unless `TELEMETRY_DISABLED=0`: `apps/worker/src/telemetry.ts`, `apps/worker/src/telemetry-schedule.ts` | KEEP the switch logic. ADAPT any upstream change to what is sent. Pinned by `apps/worker/src/__tests__/integration/telemetry-switch.test.ts` and `apps/worker/src/__tests__/unit/telemetry-schedule.test.ts`. |
 | Compose files and `.env.example` describe opt-out | describe opt-in and default it off; the chart has no `worker.env.TELEMETRY_DISABLED` | KEEP in the five compose files, `.env.example`, `charts/itsaplan/values.yaml`, the telemetry rows of the values table in `charts/itsaplan/README.md`, `TELEMETRY.md`, and "the telemetry switch" in `docs/coolify.md` and `docs/self-hosting.md`. `TELEMETRY.md` and the worker's log line say the collector is run by the upstream project: KEEP. |
 
-## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`; PR 11; PR 13)
+## CI, releases and dependency updates (PR 4, `5945ce20`; PR 6, `e03a41ef`; PR 11; PR 13; PR 15)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
@@ -58,6 +58,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | no `renovate.json` | `renovate.json`, scoped to the action pins and `HELM_VERSION` | KEEP (fork-only file). npm packages, base images, runner images and Bun are out of its scope on purpose. |
 | Bun 1.4.4 | 1.4.5 in `package.json`, the four Dockerfiles, `ci.yml` and `docs/development.md` | ADOPT upstream's next Bun bump when it is newer, in all seven places. Remove this row when upstream reaches 1.4.5. |
 | `docs/dev/releasing.md` has no section on branch rules | a section "Rules on `main`": the fork's ruleset (a GitHub setting, not a file) requires a pull request and five checks, and the release PR needs its workflow runs approved | KEEP the section. Upstream has its own ruleset, which a fork does not inherit. |
+| `docs/dev/releasing.md` has no steps for the release PR | a section "Before merging the release PR": an Updating note, upstream's pull request links, entries from merge commits | KEEP the section. Upstream's release carries no commits from another repository. |
 | `release-please-config.json` updates `Chart.yaml` | also updates the version block in `docs/helm.md` | ADAPT. |
 | `docs/dev/releasing.md` has no note on registry visibility | a bullet says each new GHCR package starts private and is set to public by hand | KEEP the bullet. |
 | Version tokens and `CHANGELOG.md` follow upstream's releases | follow the fork's own release-please runs | KEEP ours in `package.json` `version`, `.release-please-manifest.json`, `charts/itsaplan/Chart.yaml` `version` and `appVersion`, the `docs/helm.md` version block and `CHANGELOG.md`. An upstream `chore: release main` commit is ADOPT for everything else it touches. |

@@ -37,8 +37,10 @@ of the newest. The `migrate` service applies migrations before the api starts, a
 becomes the instance admin.
 
 For the Pro edition, start the stack with `docker compose -f docker-compose.pro.yml up -d`.
-It takes the same `.env` and runs the Pro images. Without a valid license they run as the core
-does; the license key is entered in god mode, under **License**. The project name and the
+It takes the same `.env` and runs the Pro images. Upstream builds those and versions them
+itself, so `VERSION` there names one of upstream's Pro releases: leave it unset, or set it to a
+Pro release at or above the version the instance runs. Without a valid license they run as the
+core does; the license key is entered in god mode, under **License**. The project name and the
 volumes are those of `docker-compose.yml`, so an existing instance moves to Pro on the same
 data. [Fast Deploy](https://itsaplan.dev/pro#fast-deploy) in your Pro account installs this
 stack with Caddy for HTTPS on a new server in your Hetzner, Vultr or DigitalOcean account.

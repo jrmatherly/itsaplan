@@ -160,6 +160,10 @@ helm install itsaplan charts/itsaplan -f charts/itsaplan/values-pro.yaml -f valu
 Without a valid license the Pro images run as the core does. The license key is entered in
 god mode, under **License**.
 
+Upstream builds the Pro images and versions them itself, so `values-pro.yaml` sets their tag.
+Change the four `image.tag` values there to the Pro release you run. Move an existing instance
+to Pro only on a Pro release at or above the version it runs.
+
 ## Values reference
 
 ### Global

@@ -39,9 +39,10 @@ body, and the app shows them under **What's new**.
 - Read the notes for a change an operator must act on before updating, such as a setting that
   takes effect for the first time or a migration that needs a backup. Put it in an "Updating"
   paragraph above the first section.
-- A commit that came from upstream ends in `(#NNN)`, upstream's pull request number.
-  release-please links it to this repository, where that number is missing or belongs to an
-  unrelated pull request. Change those links to `https://github.com/croffasia/itsaplan/pull/NNN`.
+- A commit that came from upstream ends in one or more `(#NNN)`, upstream's pull request
+  numbers. release-please links each to this repository, where that number is missing or belongs
+  to an unrelated pull request. Change each link to
+  `https://github.com/croffasia/itsaplan/pull/NNN`.
 - A pull request landed as a merge commit adds an entry for its own title. Delete it when the
   entry repeats commits the notes already list.
 - Make the same edits in `CHANGELOG.md` on the release branch, in one commit.
