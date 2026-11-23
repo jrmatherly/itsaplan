@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "gradient-text",
+        "value": "*",
+        "files": [
+          "apps/web/src/app/globals.css"
+        ],
+        "createdAt": "2026-11-23T20:00:43.949Z",
+        "reason": "Claude judged: the shadcn shimmer utility, a loading indicator on the agent-chat status marker, in a stylesheet identical to upstream/main (0 diff lines)"
+      }
+    ]
+  }
+}

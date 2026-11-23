@@ -107,6 +107,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | --- | --- | --- |
 | `.gitignore` | adds `.remember/`, `.codegraph/`, `/private/` | ADAPT. Keep both sides. |
 | no `.serena/` | `.serena/project.yml`, `.serena/.gitignore` | KEEP (fork-only). |
+| no `.impeccable/`; `.prettierignore` does not name it | `.impeccable/config.json`, the design hook's shared ignores, and a `.impeccable` line in `.prettierignore` | KEEP (fork-only file). ADAPT `.prettierignore`: keep both sides. The hook writes the file in its own layout, and its cache files are excluded per clone by `.git/info/exclude`. |
 
 ## Plane import (PR 10; PR 14)
 
