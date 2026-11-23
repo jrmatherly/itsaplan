@@ -2,11 +2,17 @@
 
 ## [1.16.0](https://github.com/jrmatherly/itsaplan/compare/v1.15.0...v1.16.0) (2026-11-23)
 
+### Updating
+
+- **Repository issue sync.** Issue sync is off for every connected repository until it is set to one-way or two-way in the repository's settings. A repository with it on needs a token that can also read and write issues: on GitHub, add Issues read and write to the fine-grained token; on Gitea and Forgejo, a token that can write issues. Linking pull requests needs no new permission.
+- **Database migration.** Migration `0197` adds two tables and three columns to `git_managed_repository`. It needs no action.
+
+
 
 ### Features
 
-* search initiatives from the command palette ([#989](https://github.com/jrmatherly/itsaplan/issues/989)) ([594979b](https://github.com/jrmatherly/itsaplan/commit/594979b8e430337ad46a0369946c199dc0fc5975))
-* sync repository issues to the board ([#990](https://github.com/jrmatherly/itsaplan/issues/990)) ([50e69a2](https://github.com/jrmatherly/itsaplan/commit/50e69a2e3fb841720fe7d050df630b1eef9772e1))
+* search initiatives from the command palette ([#989](https://github.com/croffasia/itsaplan/pull/989)) ([594979b](https://github.com/jrmatherly/itsaplan/commit/594979b8e430337ad46a0369946c199dc0fc5975))
+* sync repository issues to the board ([#990](https://github.com/croffasia/itsaplan/pull/990)) ([50e69a2](https://github.com/jrmatherly/itsaplan/commit/50e69a2e3fb841720fe7d050df630b1eef9772e1))
 
 
 ### Tests
@@ -17,7 +23,6 @@
 ### Chores
 
 * record the upstream 50e69a2e review ([0cf2dd6](https://github.com/jrmatherly/itsaplan/commit/0cf2dd62075607ff91bdda803be5534470d946a0))
-* sync upstream 50e69a2e ([1764106](https://github.com/jrmatherly/itsaplan/commit/1764106b2135c13b382b2dfc3081cb5be4f45103))
 
 ## [1.15.0](https://github.com/jrmatherly/itsaplan/compare/v1.14.0...v1.15.0) (2026-11-23)
 
