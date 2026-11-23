@@ -15,7 +15,7 @@ Hunk rules used in Notes:
 A new deviation gets a row in the same change that makes it. A removed path also gets a line under
 "Deleted paths". The footprint is `upstream-review.sh --diverged`.
 
-## Distribution and ownership (PR 4, `5945ce20`)
+## Distribution and ownership (PR 4, `5945ce20`; PR 15)
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
