@@ -12,11 +12,19 @@ export const FIRECRAWL_BASE = 'https://api.firecrawl.dev/v2';
 
 const TERMINAL = new Set(['completed', 'failed', 'cancelled']);
 
-// The api buffers a whole answer, and a scraped page decides its size.
+// pinnedFetch holds the whole response in memory, and its size depends on the scraped page.
 const MAX_SELF_HOSTED_MB = 20;
 
-// A self-hosted server's address is the credential's, so that call goes through the SSRF
-// guard. The cloud address is fixed.
+// The address of a self-hosted server, without the /v2 path. Empty for the cloud.
+export function selfHostedBase(credential: ToolConfig): string {
+  return String(credential.baseUrl ?? '')
+    .trim()
+    .replace(/\/+$/, '')
+    .replace(/\/v2$/, '');
+}
+
+// A self-hosted server's address comes from the credential, so that call goes through the
+// SSRF guard. The cloud address is a constant.
 export async function firecrawlFetch(
   credential: ToolConfig,
   path: string,
@@ -28,10 +36,7 @@ export async function firecrawlFetch(
   } = {},
 ): Promise<Response> {
   const headers = { ...init.headers, Authorization: `Bearer ${String(credential.apiKey ?? '')}` };
-  const base = String(credential.baseUrl ?? '')
-    .trim()
-    .replace(/\/+$/, '')
-    .replace(/\/v2$/, '');
+  const base = selfHostedBase(credential);
   if (!base) return fetch(`${FIRECRAWL_BASE}/${path}`, { ...init, headers });
   try {
     // An idle limit, long enough for a scrape that renders a slow page.
@@ -42,10 +47,10 @@ export async function firecrawlFetch(
       maxBytes: MAX_SELF_HOSTED_MB * 1024 * 1024,
     });
   } catch (err) {
-    // The same class, so the credential check still reports an address it cannot reach.
+    // Rethrown as UrlNotAllowedError: the api's credential check answers "unknown" for that class.
     if (err instanceof UrlNotAllowedError) {
       throw new UrlNotAllowedError(
-        `The Firecrawl address is not allowed (${err.message}). A self-hosted server needs an https address, and one on a private network has to be named in SSRF_ALLOWED_HOSTS on the instance.`,
+        `The Firecrawl address is not allowed (${err.message}). A self-hosted server needs an https address, and one on a private network has to be named in SSRF_ALLOWED_HOSTS of this It's a Plan server.`,
       );
     }
     if (err instanceof ResponseTooLargeError) {
@@ -77,9 +82,9 @@ export async function firecrawlPost(
 // the fields depend on the job type.
 export type JobStatus = { status?: string } & Record<string, unknown>;
 
-// Polls a job until it finishes or maxWaitMs elapses. Returns the last status body
-// either way, so a caller can report a still-processing job (with its id) rather than
-// block indefinitely.
+// Polls a job until it finishes or maxWaitMs has passed. The deadline is checked between
+// requests, not during one. Returns the last status body, so a caller can report a job
+// that is still processing, with its id.
 export async function pollJob(
   jobPath: string,
   credential: ToolConfig,

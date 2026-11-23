@@ -119,6 +119,13 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | --- | --- | --- |
 | `storeAttachments` in `apps/worker/src/import-worker.ts` logs a rejected attachment's source id and message as they are | both lose their line breaks first | KEEP ours. It closes CodeQL alert `js/log-injection`. |
 
+## Firecrawl integration (PR 22)
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| The Firecrawl integration calls `https://api.firecrawl.dev/v2` only; its credential has one field, `apiKey` | the credential has an optional `baseUrl` ("Instance URL"); with it, every call goes to `<baseUrl>/v2` through `pinnedFetch` with a 120 s idle timeout and a 20 MB response limit. `firecrawlPost` and `pollJob` take the credential, not the API key. `verifyFirecrawl` answers `valid` only to a JSON 2xx, and with a `baseUrl` answers `unknown` to a JSON 500 | KEEP ours in `packages/agent-tools/src/tools/firecrawl/`. Change a new upstream Firecrawl tool to pass `credential` where it passes `String(credential.apiKey)`. Pinned by `packages/agent-tools/src/tools/firecrawl/__tests__/base-url.test.ts`. |
+| The `SSRF_ALLOWED_HOSTS` comment in `.env.example` names a self-hosted repository host as its case | one more sentence names a self-hosted Firecrawl server | ADAPT: take upstream's paragraph, keep the Firecrawl sentence. |
+
 ## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11; PR 21)
 
 Each row is a statement upstream's doc gets wrong and the code proves otherwise. All are ADAPT:
@@ -138,7 +145,6 @@ the fact rests on, check the fact against the new code before keeping either sid
 | Contributor docs say four packages, web imports no package, no package builds, Bun 1.3+, `bun run dev` starts api and web, three generated secrets, `.env.test` for the api suite only | the ten packages, `@repo/editor` in web, `packages/runner` builds, Bun 1.4.5, four apps, two secrets, the four suites that read `.env.test` | `CONTRIBUTING.md`, `docs/development.md`. A Bun bump updates the version here. |
 | `DESIGN.md` gives the dark border as `white / 10%`; `SECURITY.md` says "before its first stable release"; `TELEMETRY.md` gives no Helm note for `TELEMETRY_DEBUG` | `12%`; fixes ship in the next release; the Helm value `worker.env.TELEMETRY_DEBUG` | `DESIGN.md`, `SECURITY.md`, `TELEMETRY.md`. |
 | `docs/dev/auth.md` (Google sign-in) does not mention the warning better-auth logs while no Google client ID is stored | a paragraph says the api logs `Social provider google is missing clientId or clientSecret` once per process and that it is expected | `docs/dev/auth.md`. Check the paragraph against `packages/auth/src/index.ts` when upstream changes how the provider is mounted. |
-| The Firecrawl integration calls `https://api.firecrawl.dev/v2` only; its credential has one field, `apiKey` | the credential has an optional `baseUrl` ("Instance URL"); with it, every call goes to `<baseUrl>/v2` through `pinnedFetch`. `firecrawlPost` and `pollJob` take the credential in place of the API key. With a `baseUrl`, `verifyFirecrawl` answers `unknown` to a JSON error that is not a 401 | `packages/agent-tools/src/tools/firecrawl/`. Keep ours. A new upstream Firecrawl tool passes `credential`, not `String(credential.apiKey)`. |
 
 ## Deleted paths
 
