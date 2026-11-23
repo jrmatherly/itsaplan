@@ -36,8 +36,12 @@ const grants = new Map<string, WorkspaceGrant | (() => Permissions)>([
 ]);
 
 // Sets what a workspace role grants, or with null that it grants nothing. A build that
-// adds roles of its own, or grants the core's differently, calls it at startup.
-export function setWorkspaceRoleGrant(role: string, grant: WorkspaceGrant | null): void {
+// adds roles of its own, or grants the core's differently, calls it at startup. A
+// function is called on every read, so its matrix holds resources added after the call.
+export function setWorkspaceRoleGrant(
+  role: string,
+  grant: WorkspaceGrant | (() => Permissions) | null,
+): void {
   if (grant) grants.set(role, grant);
   else grants.delete(role);
 }

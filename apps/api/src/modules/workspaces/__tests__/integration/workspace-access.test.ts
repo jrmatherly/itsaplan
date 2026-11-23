@@ -49,7 +49,7 @@ function createIssue(api: Api, columnId: number) {
 
 describe('workspace access', () => {
   beforeEach(resetDb);
-  afterEach(() => setWorkspaceRoleGrant('admin', readOnlyPermissions()));
+  afterEach(() => setWorkspaceRoleGrant('admin', readOnlyPermissions));
 
   it('lets the workspace owner delete a team, and not an admin', async () => {
     const { asOwner, asAdmin, teamId } = await setup();
