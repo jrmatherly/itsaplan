@@ -29,6 +29,25 @@ Release config traps:
   in its package settings: the four `itsaplan-*` images and `charts/itsaplan`. Until then
   `docker compose pull` and `helm install` fail for a user who is not signed in to the registry.
 
+## Before merging the release PR
+
+release-please writes the release notes into the release PR's body and into `CHANGELOG.md` on
+`release-please--branches--main`. It writes both again on every push to `main`, so make these
+edits last, with nothing else waiting to merge. The GitHub Release takes its notes from the PR
+body, and the app shows them under **What's new**.
+
+- Read the notes for a change an operator must act on before updating, such as a setting that
+  takes effect for the first time or a migration that needs a backup. Put it in an "Updating"
+  paragraph above the first section.
+- A commit that came from upstream ends in one or more `(#NNN)`, upstream's pull request
+  numbers. release-please links each to this repository, where that number is missing or belongs
+  to an unrelated pull request. Change each link to
+  `https://github.com/croffasia/itsaplan/pull/NNN`.
+- A pull request landed as a merge commit adds an entry for its own title. Delete it when the
+  entry repeats commits the notes already list.
+- Make the same edits in `CHANGELOG.md` on the release branch, in one commit.
+- Approve the workflow runs (see "Rules on `main`"), then merge.
+
 ## Rules on `main`
 
 `main` has a repository ruleset named `main`. It is a GitHub setting, not a file. A change reaches

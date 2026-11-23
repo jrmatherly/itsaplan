@@ -1,17 +1,23 @@
 # The Pro images. Without a valid license they run as the core does; the instance owner
 # enters the license key in god mode, under License.
 #   helm install itsaplan charts/itsaplan -f charts/itsaplan/values-pro.yaml -f values.yaml
+# Upstream publishes the Pro images under its own versions, so the tag is set here and does
+# not follow this chart's appVersion. Set it to the Pro release you run.
 pro: true
 
 api:
   image:
     repository: ghcr.io/croffasia/itsaplan-pro-api
+    tag: "1.12.0"
 web:
   image:
     repository: ghcr.io/croffasia/itsaplan-pro-web
+    tag: "1.12.0"
 worker:
   image:
     repository: ghcr.io/croffasia/itsaplan-pro-worker
+    tag: "1.12.0"
 bot:
   image:
     repository: ghcr.io/croffasia/itsaplan-pro-bot
+    tag: "1.12.0"
