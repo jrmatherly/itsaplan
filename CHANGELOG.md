@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.13.1](https://github.com/jrmatherly/itsaplan/compare/v1.13.0...v1.13.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* close a log injection and give the chart's web a cache volume ([38cbc30](https://github.com/jrmatherly/itsaplan/commit/38cbc30c8677d64261057ab7266af4031264ce99))
+* mount a cache volume for the web in the chart ([ca97d9e](https://github.com/jrmatherly/itsaplan/commit/ca97d9eb36a72bd078cb4f3b0b13c77a18300072))
+* **worker:** log a rejected import attachment on one line ([319a44f](https://github.com/jrmatherly/itsaplan/commit/319a44f5961b8681c1cafc3a5db958fe7a53ca40))
+
+
+### Documentation
+
+* describe the code scanning rule and the Google sign-in warning ([#21](https://github.com/jrmatherly/itsaplan/issues/21)) ([8d7cbe3](https://github.com/jrmatherly/itsaplan/commit/8d7cbe3f1a4ca5a0eb5a234f9f1013b83c1ef821))
+* say the web cache volume permits a read-only root filesystem ([635500b](https://github.com/jrmatherly/itsaplan/commit/635500be88e0980557eac5dd39170b97803c1470))
+
+
+### CI
+
+* harden the workflows and document the repository rules ([#16](https://github.com/jrmatherly/itsaplan/issues/16)) ([7865786](https://github.com/jrmatherly/itsaplan/commit/786578680062a82603d0730ca1240242c33710db))
+
 ## [1.13.0](https://github.com/jrmatherly/itsaplan/compare/v1.12.0...v1.13.0) (2026-11-23)
 
 ### Updating
