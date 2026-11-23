@@ -603,7 +603,7 @@
     "runnerHelpKey": "Copia l'API key dell'agente",
     "runnerHelpKeyHint": "Viene mostrata una sola volta: quando crei l'agente o rigeneri la key.",
     "runnerHelpMcp": "Verifica che MCP raggiunga il progetto",
-    "runnerHelpMcpHint": "Nelle impostazioni della squadra, apri MCP. Accesso MCP deve essere attivo e il progetto deve essere attivo in Progetti raggiungibili da MCP. Un proprietario o un manager della squadra modifica queste impostazioni.",
+    "runnerHelpMcpHint": "Nelle impostazioni della squadra, apri MCP. Accesso MCP deve essere attivo e il progetto deve essere attivo in Progetti raggiungibili da MCP. Un proprietario o un manager della squadra può modificare queste impostazioni.",
     "runnerHelpTool": "Installa l'agente di coding e accedi",
     "runnerHelpToolHint": "Fallo sul computer su cui avvierai il runner. Il runner non può accedere per te.",
     "runnerHelpRun": "Salva i file dove l'agente deve lavorare",
