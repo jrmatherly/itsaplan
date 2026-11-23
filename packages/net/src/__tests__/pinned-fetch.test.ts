@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'bun:test';
+import { describe, it, expect, afterEach, beforeEach } from 'bun:test';
 import { createServer, type IncomingHttpHeaders } from 'node:http';
 import { assertPublicHttpUrl, pinnedFetch, UrlNotAllowedError } from '../index';
 
@@ -124,6 +124,50 @@ describe('SSRF_ALLOWED_HOSTS', () => {
     await expect(assertPublicHttpUrl('https://localtest.me/')).rejects.toBeInstanceOf(
       UrlNotAllowedError,
     );
+  });
+});
+
+describe('policy.allowedHosts', () => {
+  const saved = process.env.SSRF_ALLOWED_HOSTS;
+  beforeEach(() => {
+    delete process.env.SSRF_ALLOWED_HOSTS;
+  });
+  afterEach(() => {
+    if (saved === undefined) delete process.env.SSRF_ALLOWED_HOSTS;
+    else process.env.SSRF_ALLOWED_HOSTS = saved;
+  });
+
+  it('reaches a host named with http:// over plain http for that caller only', async () => {
+    const server = createServer((_req, res) => res.end('ok'));
+    await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+    const { port } = server.address() as { port: number };
+    try {
+      const url = `http://127.0.0.1:${port}/`;
+      await expect(pinnedFetch(url)).rejects.toBeInstanceOf(UrlNotAllowedError);
+      const res = await pinnedFetch(url, { allowedHosts: 'other.example, http://127.0.0.1' });
+      expect(await res.text()).toBe('ok');
+    } finally {
+      server.close();
+    }
+  });
+
+  it('keeps a bare entry https only', async () => {
+    const policy = { allowedHosts: 'localtest.me' };
+    expect((await assertPublicHttpUrl('https://localtest.me/', policy)).hostname).toBe(
+      'localtest.me',
+    );
+    await expect(assertPublicHttpUrl('http://localtest.me/', policy)).rejects.toBeInstanceOf(
+      UrlNotAllowedError,
+    );
+  });
+
+  it('is ignored in a public-only fetch', async () => {
+    await expect(
+      assertPublicHttpUrl('https://localtest.me/', {
+        publicOnly: true,
+        allowedHosts: 'localtest.me',
+      }),
+    ).rejects.toBeInstanceOf(UrlNotAllowedError);
   });
 });
 

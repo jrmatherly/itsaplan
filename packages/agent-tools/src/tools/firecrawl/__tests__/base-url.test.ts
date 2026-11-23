@@ -7,6 +7,7 @@ type Init = {
   headers?: Record<string, string>;
   timeoutMs?: number;
   maxBytes?: number;
+  allowedHosts?: string;
   signal?: AbortSignal;
 };
 
@@ -169,8 +170,25 @@ describe('firecrawl instance URL', () => {
       throw new UrlNotAllowedError('url must use https');
     });
     await expect(firecrawlSearch.execute(selfHosted, { query: 'q' })).rejects.toThrow(
-      /url must use https.*SSRF_ALLOWED_HOSTS.*http:\/\/hostname/,
+      /url must use https.*FIRECRAWL_ALLOWED_HOSTS.*http:\/\/hostname/,
     );
+  });
+
+  it('passes FIRECRAWL_ALLOWED_HOSTS to the SSRF guard, read per call', async () => {
+    const saved = process.env.FIRECRAWL_ALLOWED_HOSTS;
+    try {
+      process.env.FIRECRAWL_ALLOWED_HOSTS = 'http://firecrawl.internal';
+      await firecrawlSearch.execute(selfHosted, { query: 'q' });
+      delete process.env.FIRECRAWL_ALLOWED_HOSTS;
+      await firecrawlSearch.execute(selfHosted, { query: 'q' });
+    } finally {
+      if (saved === undefined) delete process.env.FIRECRAWL_ALLOWED_HOSTS;
+      else process.env.FIRECRAWL_ALLOWED_HOSTS = saved;
+    }
+    expect(pinnedFetch.mock.calls.map(([, init]) => init!.allowedHosts)).toEqual([
+      'http://firecrawl.internal',
+      undefined,
+    ]);
   });
 
   it('tells the agent when the answer is over the size limit', async () => {

@@ -47,12 +47,14 @@ export async function firecrawlFetch(
       headers,
       timeoutMs: 120_000,
       maxBytes: MAX_SELF_HOSTED_MB * 1024 * 1024,
+      // Trusted for this client only, so the server need not be in SSRF_ALLOWED_HOSTS.
+      allowedHosts: process.env.FIRECRAWL_ALLOWED_HOSTS,
     });
   } catch (err) {
     // Rethrown as UrlNotAllowedError: the api's credential check answers "unknown" for that class.
     if (err instanceof UrlNotAllowedError) {
       throw new UrlNotAllowedError(
-        `The Firecrawl address is not allowed (${err.message}). A self-hosted server on a private network has to be named in SSRF_ALLOWED_HOSTS of this It's a Plan server. A server without https is named there as http://hostname, without the port.`,
+        `The Firecrawl address is not allowed (${err.message}). A self-hosted server on a private network has to be named in FIRECRAWL_ALLOWED_HOSTS of this It's a Plan server. A server without https is named there as http://hostname, without the port.`,
       );
     }
     if (err instanceof ResponseTooLargeError) {

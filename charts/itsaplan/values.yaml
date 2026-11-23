@@ -62,6 +62,8 @@ api:
     # Private hosts a server-side fetch may reach, comma-separated. A named host also becomes a
     # permitted webhook target: read the warning in .env.example. With --set, write the comma as \,
     # SSRF_ALLOWED_HOSTS: "git.internal.example.com"
+    # Self-hosted Firecrawl hosts only the Firecrawl tools may reach, in the same syntax.
+    # FIRECRAWL_ALLOWED_HOSTS: "http://firecrawl-api.firecrawl.svc.cluster.local"
     # Days the pre-migration dumps are kept. Unset keeps them 30 days.
     # BACKUP_RETENTION_DAYS: "30"
     S3_BUCKET: ""

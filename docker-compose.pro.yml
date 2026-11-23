@@ -144,6 +144,8 @@ services:
       # Hosts trusted even though they resolve privately. Also governs webhook URL
       # validation and attachment import.
       SSRF_ALLOWED_HOSTS: ${SSRF_ALLOWED_HOSTS:-}
+      # Self-hosted Firecrawl hosts only the Firecrawl tools may reach.
+      FIRECRAWL_ALLOWED_HOSTS: ${FIRECRAWL_ALLOWED_HOSTS:-}
       # Web Push. Push is off while any of the three is empty; `bun run web-push:keys`
       # prints a key pair. The worker needs the same values.
       WEB_PUSH_VAPID_PUBLIC_KEY: ${WEB_PUSH_VAPID_PUBLIC_KEY:-}

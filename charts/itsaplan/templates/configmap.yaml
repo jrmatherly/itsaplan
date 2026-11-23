@@ -47,6 +47,9 @@ data:
   {{- with .Values.api.env.SSRF_ALLOWED_HOSTS }}
   SSRF_ALLOWED_HOSTS: {{ . | quote }}
   {{- end }}
+  {{- with .Values.api.env.FIRECRAWL_ALLOWED_HOSTS }}
+  FIRECRAWL_ALLOWED_HOSTS: {{ . | quote }}
+  {{- end }}
   S3_BUCKET: {{ .Values.api.env.S3_BUCKET | quote }}
   S3_REGION: {{ .Values.api.env.S3_REGION | quote }}
   S3_ENDPOINT: {{ include "itsaplan.s3Endpoint" . | quote }}
