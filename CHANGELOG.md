@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.14.0](https://github.com/jrmatherly/itsaplan/compare/v1.13.1...v1.14.0) (2026-11-23)
+
+### Updating
+
+- **Firecrawl Extract agent tool.** It reads only the pages it is given, up to ten, and returns one result for each. A URL that ends in `/*` is refused, and the tool takes no web search or wait setting. Firecrawl removes its `/v2/extract` endpoint on 10 December 2026, on the cloud and on self-hosted servers from 2.11.721, and the tool now uses the request Firecrawl names in its place. An agent whose instructions ask Extract to cover a whole site finds the pages with Firecrawl Map first.
+- **Self-hosted Firecrawl.** A Firecrawl credential has an optional Instance URL and its API key is optional. A server on a private address is named in `SSRF_ALLOWED_HOSTS`, as `http://hostname` when it has no https address. Everything sent to an http URL on a host named that way crosses the network unencrypted, on every outbound path of the app, so name only a host you would send a webhook payload or an API key to in the clear.
+- **No database migration.**
+
+
+
+### Features
+
+* **agent-tools:** let the Firecrawl integration use a self-hosted server ([#22](https://github.com/jrmatherly/itsaplan/issues/22)) ([cad2d00](https://github.com/jrmatherly/itsaplan/commit/cad2d0092a69c7033dfba65c623182f271db87ec))
+* **net:** let an allow-listed host be reached over plain http ([#24](https://github.com/jrmatherly/itsaplan/issues/24)) ([dd63610](https://github.com/jrmatherly/itsaplan/commit/dd63610ae8a3cace21399c924680559309d4238b))
+
+
+### Improvements
+
+* **agent-tools:** make the Firecrawl tools fit a self-hosted server ([#25](https://github.com/jrmatherly/itsaplan/issues/25)) ([bd0d051](https://github.com/jrmatherly/itsaplan/commit/bd0d0518a5100e302b83c030894b7d40b79ec44a))
+
 ## [1.13.1](https://github.com/jrmatherly/itsaplan/compare/v1.13.0...v1.13.1) (2026-11-23)
 
 
