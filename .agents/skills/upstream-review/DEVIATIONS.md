@@ -144,6 +144,12 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | --- | --- | --- |
 | The descriptions of `copy_project` (`apps/api/src/modules/projects/index.ts`) and `create_project_template` (`apps/api/src/modules/project-templates/index.ts`) say `include` selects sections | they also say `include` replaces the default list, that `configuration` is not in the default, that a project copied or made from a template without it starts with auto-archive off, and what to send for the default list plus the configuration. The `create_project_template` description lists its own default | ADAPT: take upstream's wording, keep the `configuration` sentences. Drop the row if upstream adds `configuration` to `DEFAULT_INCLUDE` in `apps/api/src/modules/projects/copy.ts` or says the same. |
 
+## Failed reads
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| `apps/web/src/components/providers.tsx` builds the `QueryClient` with a `MutationCache` only; a failed read shows the page's loading state and no message | a `queryCache` option built by `failedReadCache` in the fork-owned `apps/web/src/lib/failedRead.ts`. `toastFailedRead` shows one toast (id `failed-read`) with the API's message, or the generic one for any other error, when a read fails with no data and a component waiting on it, did not opt out with `meta.suppressErrorToast`, is not in `QUIET_KEYS` and the error is not a 401, 403 or 404 | KEEP the `queryCache` option, its import and the comment sentence. Take upstream's other changes to the file. When upstream adds a read that shows its own error, add its key to `QUIET_KEYS` if no page's main read shares it. If upstream adds its own handling of failed reads, take upstream's and delete `failedRead.ts`, its test and this section. |
+
 ## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11; PR 21)
 
 Each row is a statement upstream's doc gets wrong and the code proves otherwise. All are ADAPT:
