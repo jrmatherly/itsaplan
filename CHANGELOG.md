@@ -1,5 +1,40 @@
 # Changelog
 
+## [1.18.0](https://github.com/jrmatherly/itsaplan/compare/v1.17.1...v1.18.0) (2026-11-24)
+
+### Updating
+
+- **Notification settings moved.** Each user now chooses notification events in Account › Notifications, as defaults for all projects and per project. The settings a user already saved for a project are kept. A project the user never set follows the defaults, which start with every event off. The Slack account routes moved from `/projects/:projectKey/slack/account` to `/slack/accounts`; a script that called the old routes needs the new ones.
+- **Database migrations.** Migration `0200` adds the table `user_notification_default`. It needs no action.
+
+
+
+### Features
+
+* manage notifications of all projects in one place, with defaults ([#997](https://github.com/croffasia/itsaplan/pull/997)) ([946efa1](https://github.com/jrmatherly/itsaplan/commit/946efa1052faba6d65223742b68054783f74ccd1))
+
+
+### Bug Fixes
+
+* **web:** follow the color theme on the notes canvas ([#1000](https://github.com/croffasia/itsaplan/pull/1000)) ([5f89b87](https://github.com/jrmatherly/itsaplan/commit/5f89b87ced9dfb6c7c4f5d075941bac569d712ac))
+* **web:** make item highlights visible in every color theme ([#1001](https://github.com/croffasia/itsaplan/pull/1001)) ([57f06d1](https://github.com/jrmatherly/itsaplan/commit/57f06d1494fcb683799a7b7e27649cb26d1e34b7))
+* **web:** open a link in read-only text once on Cmd or Ctrl click ([#999](https://github.com/croffasia/itsaplan/pull/999)) ([39b5da6](https://github.com/jrmatherly/itsaplan/commit/39b5da6e62ac40b904070e6e345b894b29d4dff8))
+
+
+### Documentation
+
+* say how to set the version when release-please misses an upstream feat ([#41](https://github.com/jrmatherly/itsaplan/issues/41)) ([6361630](https://github.com/jrmatherly/itsaplan/commit/63616306ba2e1fd49f1c91185337ff9d11093a20))
+
+
+### Tests
+
+* **api:** cover three notification preference cases upstream leaves out ([2ca2b7d](https://github.com/jrmatherly/itsaplan/commit/2ca2b7dc9c4001bfe350b4e45110df38113ac34d))
+
+
+### Chores
+
+* record the upstream 57f06d14 review ([c8bef74](https://github.com/jrmatherly/itsaplan/commit/c8bef74501edcc30380691d4cb30fe36fff797c8))
+
 ## [1.17.1](https://github.com/jrmatherly/itsaplan/compare/v1.17.0...v1.17.1) (2026-11-24)
 
 

@@ -41,10 +41,10 @@ version, and `appVersion` inside it is the image tag it deploys:
 <!-- x-release-please-start-version -->
 
 ```bash
-helm install itsaplan oci://ghcr.io/jrmatherly/charts/itsaplan --version 1.17.1 -f values.yaml
+helm install itsaplan oci://ghcr.io/jrmatherly/charts/itsaplan --version 1.18.0 -f values.yaml
 ```
 
-`helm show values oci://ghcr.io/jrmatherly/charts/itsaplan --version 1.17.1` prints the defaults to start a
+`helm show values oci://ghcr.io/jrmatherly/charts/itsaplan --version 1.18.0` prints the defaults to start a
 values file from. Only released versions are published, so pin `--version` where the deployment has to
 stay put: in the values file of a GitOps app spec, or in the install command.
 
