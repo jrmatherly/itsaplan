@@ -77,8 +77,8 @@ export interface IssueEvent extends IssueSnapshot {
   kind: 'issue';
   action: 'opened' | 'updated';
   repo: string;
-  // The fields this change touched. Only those are copied, so an edit made here to a
-  // field the repository did not change is kept.
+  // The fields the delivery names as changed. Only those are copied, and the title on a
+  // body edit while the sync set it last, so an edit made here is kept.
   changed: IssueField[];
 }
 

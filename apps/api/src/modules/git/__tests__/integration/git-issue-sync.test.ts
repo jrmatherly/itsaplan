@@ -418,6 +418,82 @@ describe('Repository issue sync', () => {
     expect(issue.columnId).toBe(s.columns[0]!.id);
   });
 
+  it('copies a new title that an edit of title and body leaves out of its changes', async () => {
+    const s = await setup(fake);
+    await repository(s).patch({ issueSync: 'two_way' });
+    await deliver(s, 'issues', issueEvent('opened', opened));
+    const [created] = await boardIssues(s.asOwner);
+
+    // GitHub delivery 2026-11-23, `gh issue edit --title --body`: changes names the body only.
+    await deliver(
+      s,
+      'issues',
+      issueEvent(
+        'edited',
+        { ...opened, title: 'Crash on launch', body: 'New steps' },
+        { changes: { body: { from: opened.body } } },
+      ),
+    );
+
+    const issue = (await s.asOwner.issues({ issueId: created!.id }).get()).data!;
+    expect(issue).toMatchObject({ title: 'Crash on launch', description: 'New steps' });
+  });
+
+  it('keeps a title set here through body edits until the repository renames the issue', async () => {
+    const s = await setup(fake);
+    await repository(s).patch({ issueSync: 'two_way' });
+    await deliver(s, 'issues', issueEvent('opened', opened));
+    const [created] = await boardIssues(s.asOwner);
+    const title = async () => (await s.asOwner.issues({ issueId: created!.id }).get()).data!.title;
+    const bodyEdit = (issue: FakeIssue, from: string) =>
+      deliver(s, 'issues', issueEvent('edited', issue, { changes: { body: { from } } }));
+    await s.asOwner.issues({ issueId: created!.id }).patch({ title: 'Renamed here' });
+
+    await bodyEdit({ ...opened, body: 'New steps' }, opened.body);
+    await bodyEdit({ ...opened, body: 'Newer steps' }, 'New steps');
+    expect(await title()).toBe('Renamed here');
+
+    const renamed = { ...opened, title: 'Renamed there', body: 'Newer steps' };
+    await deliver(
+      s,
+      'issues',
+      issueEvent('edited', renamed, { changes: { title: { from: opened.title } } }),
+    );
+    await bodyEdit({ ...renamed, title: 'Renamed there again', body: 'Last steps' }, renamed.body);
+    expect(await title()).toBe('Renamed there again');
+  });
+
+  it('keeps a title set here by a user who was deleted since', async () => {
+    const s = await setup(fake);
+    const member = await signUpTestUser();
+    const invite = await s.asOwner
+      .projects({ projectKey: 'MKT' })
+      .invites.post({ email: member.email, role: 'member' });
+    const asMember = authedApi(member.cookie);
+    await asMember.invites({ token: invite.data!.token }).accept.post();
+    await repository(s).patch({ issueSync: 'two_way' });
+    await deliver(s, 'issues', issueEvent('opened', opened));
+    const [created] = await boardIssues(s.asOwner);
+    const renamed = await asMember
+      .issues({ issueId: created!.id })
+      .patch({ title: 'Renamed here' });
+    expect(renamed.status).toBe(200);
+    expect((await s.asOwner.god.users({ userId: member.userId }).delete()).status).toBe(204);
+
+    await deliver(
+      s,
+      'issues',
+      issueEvent(
+        'edited',
+        { ...opened, body: 'New steps' },
+        { changes: { body: { from: opened.body } } },
+      ),
+    );
+
+    const issue = (await s.asOwner.issues({ issueId: created!.id }).get()).data!;
+    expect(issue).toMatchObject({ title: 'Renamed here', description: 'New steps' });
+  });
+
   it('closes and reopens the repository issue when the issue changes state here', async () => {
     const s = await setup(fake);
     const done = s.columns.find((c) => c.stateType === 'completed')!;
