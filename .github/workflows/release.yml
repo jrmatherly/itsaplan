@@ -15,13 +15,33 @@ jobs:
   release-please:
     name: Release PR and tag
     runs-on: ubuntu-latest
+    # The environment holds the release App's key and only `main` may use it.
+    # `deployment: false` reads its secrets without recording a deployment.
+    environment:
+      name: release
+      deployment: false
     permissions:
       contents: write
       pull-requests: write
     steps:
+      # A pull request opened with the workflow token gets its checks in an
+      # approval-required state. One opened with a GitHub App's installation
+      # token gets them started. The step is skipped while the variable is
+      # unset, and release-please then uses the workflow token.
+      - name: 🔑 Create the release App token
+        id: app-token
+        if: ${{ vars.RELEASE_APP_CLIENT_ID != '' }}
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
       - name: 🚀 Run release-please
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
+          token: ${{ steps.app-token.outputs.token || github.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
@@ -30,8 +50,8 @@ jobs:
   # fast-forward; the branch appears with the first published release.
   #
   # It lives in this workflow rather than one triggered by `release: published`,
-  # because that event is raised by GITHUB_TOKEN and GITHUB_TOKEN-triggered
-  # events do not start workflow runs.
+  # because an event raised with the workflow token starts no workflow run, and
+  # release-please uses that token while the release App is not set up.
   move-release-branch:
     name: Move the release branch
     needs: release-please
@@ -72,8 +92,8 @@ jobs:
           git push origin HEAD:refs/heads/release
 
   # Prebuilt images for self-hosters: `docker compose pull` instead of a build.
-  # Chained here for the same reason as the job above — a `release: published`
-  # event raised by GITHUB_TOKEN starts no workflow run.
+  # Chained here for the same reason as the job above: a `release: published`
+  # event raised with the workflow token starts no workflow run.
   publish-images:
     name: Publish images
     needs: move-release-branch
