@@ -123,8 +123,11 @@ export const projectRoutes = new Elysia({ name: 'projects', detail: { tags: ['Pr
           "Copy a project's configuration, without its issues, into a new project in the same " +
           'team. You become its owner. Only a team owner or manager can copy. By default copies ' +
           'states, issue types, labels, custom fields, issue templates, views, dashboards, ' +
-          'documents and actions. `include` selects sections. The sections they depend on are ' +
-          'always copied, for example the states a view uses.',
+          'documents and actions. `include` selects sections and replaces that default list: a ' +
+          'section it does not name is not copied. The sections they depend on are always ' +
+          'copied, for example the states a view uses. `configuration` (auto-archive and subtask ' +
+          'automation) is not in the default. Send `configuration: true`, or the new project ' +
+          'starts with auto-archive off.',
         ...mcpTool('copy_project'),
       },
     },
