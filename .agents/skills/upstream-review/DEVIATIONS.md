@@ -136,6 +136,12 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 | --- | --- | --- |
 | `applyIssueChange` in `apps/api/src/modules/git/issue-sync.ts` copies a repository issue's title only when the delivery's `changes` names it | it also copies the title on an edit that names the body, while `syncWroteTitle` finds that the sync wrote the title last: the newest `created` or `title` row in `issue_activity` has no user and carries a provider label as its name. The comment on `changed` in `IssueEvent` (`apps/api/src/modules/git/providers.ts`) says so | KEEP ours in both files. GitHub leaves the title out of `changes` when one edit changes title and body. Drop the row and the function when upstream stops reading `changes` for the title. Pinned by three tests in `apps/api/src/modules/git/__tests__/integration/git-issue-sync.test.ts`: "copies a new title that an edit of title and body leaves out of its changes", "keeps a title set here through body edits until the repository renames the issue" and "keeps a title set here by a user who was deleted since". |
 
+## MCP tool descriptions
+
+| Upstream | Ours | Notes |
+| --- | --- | --- |
+| The descriptions of `copy_project` (`apps/api/src/modules/projects/index.ts`) and `create_project_template` (`apps/api/src/modules/project-templates/index.ts`) say `include` selects sections | they also say `include` replaces the default list, that `configuration` is not in the default, that a project copied or made from a template without it starts with auto-archive off, and what to send for the default list plus the configuration. The `create_project_template` description lists its own default | ADAPT: take upstream's wording, keep the `configuration` sentences. Drop the row if upstream adds `configuration` to `DEFAULT_INCLUDE` in `apps/api/src/modules/projects/copy.ts` or says the same. |
+
 ## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11; PR 21)
 
 Each row is a statement upstream's doc gets wrong and the code proves otherwise. All are ADAPT:
