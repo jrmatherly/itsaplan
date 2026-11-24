@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { QueryClient, QueryObserver } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { ApiError } from '@/lib/api/core/client';
-import { OWN_ERROR_UI, failedReadCache } from './failedRead';
+import { failedReadCache, toastFailedRead } from './failedRead';
 
 function client() {
   const seen: unknown[] = [];
@@ -10,9 +11,19 @@ function client() {
     queryCache: failedReadCache((error) => seen.push(error)),
     defaultOptions: { queries: { retry: false } },
   });
-  const fail = (queryKey: unknown[], error: unknown, meta?: Record<string, unknown>) =>
-    qc.fetchQuery({ queryKey, meta, queryFn: () => Promise.reject(error) }).catch(() => {});
-  return { qc, seen, fail };
+  const settled = (queryKey: unknown[]) =>
+    qc
+      .getQueryCache()
+      .find({ queryKey })!
+      .promise?.catch(() => {});
+  // A read some component is waiting on.
+  const fail = async (queryKey: unknown[], error: unknown, meta?: Record<string, unknown>) => {
+    const options = { queryKey, meta, queryFn: () => Promise.reject(error) };
+    const stop = new QueryObserver(qc, options).subscribe(() => {});
+    await settled(queryKey);
+    stop();
+  };
+  return { qc, seen, fail, settled };
 }
 
 describe('failedReadCache', () => {
@@ -29,8 +40,14 @@ describe('failedReadCache', () => {
     assert.equal(seen.length, 1);
   });
 
+  it('notifies for a 400 on an ordinary read', async () => {
+    const { seen, fail } = client();
+    await fail(['board'], new ApiError(400, 'bad'));
+    assert.equal(seen.length, 1);
+  });
+
   it('notifies once however many components read the query', async () => {
-    const { qc, seen } = client();
+    const { qc, seen, settled } = client();
     const options = {
       queryKey: ['board'],
       queryFn: () => Promise.reject(new ApiError(500, 'down')),
@@ -38,23 +55,28 @@ describe('failedReadCache', () => {
     const stop = [new QueryObserver(qc, options), new QueryObserver(qc, options)].map((observer) =>
       observer.subscribe(() => {}),
     );
-    await qc
-      .getQueryCache()
-      .find({ queryKey: ['board'] })!
-      .promise?.catch(() => {});
+    await settled(['board']);
     stop.forEach((unsubscribe) => unsubscribe());
     assert.equal(seen.length, 1);
   });
 
   it('keeps quiet when the page still shows earlier data', async () => {
     const { qc, seen, fail } = client();
-    qc.setQueryData(['board'], []);
+    qc.setQueryData(['board'], null);
     await fail(['board'], new ApiError(500, 'down'));
     assert.deepEqual(seen, []);
   });
 
+  it('keeps quiet for a read no component is waiting on', async () => {
+    const { qc, seen } = client();
+    await qc
+      .fetchQuery({ queryKey: ['board'], queryFn: () => Promise.reject(new ApiError(500, 'down')) })
+      .catch(() => {});
+    assert.deepEqual(seen, []);
+  });
+
   for (const status of [401, 403, 404]) {
-    it(`keeps quiet for a ${status}, which the page handles`, async () => {
+    it(`keeps quiet for a ${status}, which is handled elsewhere`, async () => {
       const { seen, fail } = client();
       await fail(['board'], new ApiError(status, 'no'));
       assert.deepEqual(seen, []);
@@ -67,13 +89,33 @@ describe('failedReadCache', () => {
     assert.deepEqual(seen, []);
   });
 
-  it('keeps quiet for a read that shows its own error', async () => {
+  it('keeps quiet for a quiet key, matched on its first element only', async () => {
     const { seen, fail } = client();
-    assert.ok(OWN_ERROR_UI.includes('link-preview'));
     await fail(
       ['link-preview', 'user', 'https://example.com'],
       new ApiError(400, 'The link could not be resolved'),
     );
     assert.deepEqual(seen, []);
+    await fail(['board', 'link-preview'], new ApiError(500, 'down'));
+    assert.equal(seen.length, 1);
+  });
+});
+
+describe('toastFailedRead', () => {
+  const shown = () =>
+    toast
+      .getToasts()
+      .filter((item) => item.id === 'failed-read')
+      .map((item) => 'title' in item && item.title);
+
+  it('shows one toast for several failed reads', () => {
+    toastFailedRead(new ApiError(500, 'Database is down'), 'Something went wrong');
+    toastFailedRead(new ApiError(500, 'Search is down'), 'Something went wrong');
+    assert.deepEqual(shown(), ['Search is down']);
+  });
+
+  it('shows the fallback for an error that is not from the API', () => {
+    toastFailedRead(new TypeError('Failed to fetch'), 'Something went wrong');
+    assert.deepEqual(shown(), ['Something went wrong']);
   });
 });
