@@ -51,6 +51,9 @@ body, and the app shows them under **What's new**.
   six of seven merged upstream commits were missing. Compare the notes with
   `git log --format='%h %cI %s' <previous upstream tip>..<merged upstream tip>` and add each
   missing commit to its section, in the form of the entries beside it.
+- When a missing upstream commit is a `feat:`, release-please also picks a patch version. Land a
+  commit on `main` whose message ends with the footer `Release-As: X.Y.0` before you edit the
+  notes. release-please then writes the release PR again with that version.
 - Make the same edits in `CHANGELOG.md` on the branch `release-please--branches--main`, in one
   commit.
 - Wait for the checks (see "Rules on `main`"), then merge.
