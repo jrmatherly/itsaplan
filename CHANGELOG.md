@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.16.1](https://github.com/jrmatherly/itsaplan/compare/v1.16.0...v1.16.1) (2026-11-24)
+
+
+### Bug Fixes
+
+* **api:** copy a repository issue's title when GitHub leaves it out of an edit's changes ([#32](https://github.com/jrmatherly/itsaplan/issues/32)) ([aecb00b](https://github.com/jrmatherly/itsaplan/commit/aecb00b52badb0fddd3569d8776a57541d7346aa))
+
 ## [1.16.0](https://github.com/jrmatherly/itsaplan/compare/v1.15.0...v1.16.0) (2026-11-23)
 
 ### Updating
