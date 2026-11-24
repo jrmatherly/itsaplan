@@ -439,12 +439,46 @@ describe('Repository issue sync', () => {
     expect(issue).toMatchObject({ title: 'Crash on launch', description: 'New steps' });
   });
 
-  it('keeps a title set here when the repository edits only the body', async () => {
+  it('keeps a title set here through body edits until the repository renames the issue', async () => {
     const s = await setup(fake);
     await repository(s).patch({ issueSync: 'two_way' });
     await deliver(s, 'issues', issueEvent('opened', opened));
     const [created] = await boardIssues(s.asOwner);
+    const title = async () => (await s.asOwner.issues({ issueId: created!.id }).get()).data!.title;
+    const bodyEdit = (issue: FakeIssue, from: string) =>
+      deliver(s, 'issues', issueEvent('edited', issue, { changes: { body: { from } } }));
     await s.asOwner.issues({ issueId: created!.id }).patch({ title: 'Renamed here' });
+
+    await bodyEdit({ ...opened, body: 'New steps' }, opened.body);
+    await bodyEdit({ ...opened, body: 'Newer steps' }, 'New steps');
+    expect(await title()).toBe('Renamed here');
+
+    const renamed = { ...opened, title: 'Renamed there', body: 'Newer steps' };
+    await deliver(
+      s,
+      'issues',
+      issueEvent('edited', renamed, { changes: { title: { from: opened.title } } }),
+    );
+    await bodyEdit({ ...renamed, title: 'Renamed there again', body: 'Last steps' }, renamed.body);
+    expect(await title()).toBe('Renamed there again');
+  });
+
+  it('keeps a title set here by a user who was deleted since', async () => {
+    const s = await setup(fake);
+    const member = await signUpTestUser();
+    const invite = await s.asOwner
+      .projects({ projectKey: 'MKT' })
+      .invites.post({ email: member.email, role: 'member' });
+    const asMember = authedApi(member.cookie);
+    await asMember.invites({ token: invite.data!.token }).accept.post();
+    await repository(s).patch({ issueSync: 'two_way' });
+    await deliver(s, 'issues', issueEvent('opened', opened));
+    const [created] = await boardIssues(s.asOwner);
+    const renamed = await asMember
+      .issues({ issueId: created!.id })
+      .patch({ title: 'Renamed here' });
+    expect(renamed.status).toBe(200);
+    expect((await s.asOwner.god.users({ userId: member.userId }).delete()).status).toBe(204);
 
     await deliver(
       s,

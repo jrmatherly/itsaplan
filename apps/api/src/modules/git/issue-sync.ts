@@ -251,17 +251,23 @@ async function applyLabels(
 }
 
 // True while nobody here renamed the issue after the sync last set its title, so the
-// title held here is the repository's earlier one.
+// title held here is the repository's earlier one. A deleted user's row has no user
+// either, so the row's name must be the one the sync writes.
 async function syncWroteTitle(issueId: number): Promise<boolean> {
   const [last] = await db
-    .select({ actorUserId: issueActivity.actorUserId })
+    .select({ actorUserId: issueActivity.actorUserId, actorName: issueActivity.actorName })
     .from(issueActivity)
     .where(
       and(eq(issueActivity.issueId, issueId), inArray(issueActivity.action, ['created', 'title'])),
     )
     .orderBy(desc(issueActivity.id))
     .limit(1);
-  return last?.actorUserId == null;
+  if (!last) return true;
+  const name = last.actorName ?? '';
+  return (
+    last.actorUserId == null &&
+    Object.values(PROVIDER_LABEL).some((label) => name === label || name.endsWith(` (${label})`))
+  );
 }
 
 async function applyIssueChange(
