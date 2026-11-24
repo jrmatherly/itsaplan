@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.18.1](https://github.com/jrmatherly/itsaplan/compare/v1.18.0...v1.18.1) (2026-11-24)
+
+
+### Improvements
+
+* **web:** say so when a page's data fails to load ([#45](https://github.com/jrmatherly/itsaplan/issues/45)) ([86846b8](https://github.com/jrmatherly/itsaplan/commit/86846b8ef3e72de83e456498e6a41aa2b7e8759c))
+
+
+### Documentation
+
+* add the pull request 39 review findings and the plan for the fork's fixes ([#42](https://github.com/jrmatherly/itsaplan/issues/42)) ([870555d](https://github.com/jrmatherly/itsaplan/commit/870555de4089ce0a5ac8a51a962b109ba454a3d5))
+
+
+### Tests
+
+* **agent-tools:** run each test file in isolation ([#44](https://github.com/jrmatherly/itsaplan/issues/44)) ([4b0151f](https://github.com/jrmatherly/itsaplan/commit/4b0151f2bc6e2d013dcc3e27302c7b904c24d63c))
+
 ## [1.18.0](https://github.com/jrmatherly/itsaplan/compare/v1.17.1...v1.18.0) (2026-11-24)
 
 ### Updating
