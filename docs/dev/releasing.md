@@ -53,7 +53,7 @@ body, and the app shows them under **What's new**.
   missing commit to its section, in the form of the entries beside it.
 - Make the same edits in `CHANGELOG.md` on the branch `release-please--branches--main`, in one
   commit.
-- Approve the workflow runs (see "Rules on `main`"), then merge.
+- Wait for the checks (see "Rules on `main`"), then merge.
 
 ## Rules on `main`
 
@@ -67,10 +67,14 @@ The ruleset also requires code scanning results from CodeQL. A pull request cann
 its analysis reports a new security alert at high or above or a new quality alert at error, or
 while the analysis has not finished. Dismissed alerts on `main` do not block it.
 
-The release PR is opened by the workflow token, so its checks wait in an approval-required state
-and report nothing. Open the PR and choose **Approve workflows to run**. Each push release-please
-makes to that PR needs a new approval, so approve after its last push. The PR cannot merge until
-the checks pass.
+release-please opens the release PR with an installation token of the release App (see "Other
+repository settings"), so its checks start on every push it makes. The PR cannot merge until the
+checks pass.
+
+While the variable `RELEASE_APP_CLIENT_ID` is unset, release-please uses the workflow token. The
+checks of a PR opened with that token wait in an approval-required state and report nothing: open
+the PR and choose **Approve workflows to run** after release-please's last push. A run that is
+never approved is marked failed when the PR closes.
 
 A repository admin can bypass the rules on a pull request (`gh pr merge --admin`). A deny rule in
 `.claude/settings.json` refuses that command to Claude Code, so a person runs it. To turn the
@@ -91,6 +95,12 @@ These are GitHub settings too, not files.
   again, so a wrong release is corrected by the next version. A step that uploads a release asset
   after release-please publishes would be refused: the images and the chart go to GHCR, not to
   the release.
+- The release App is a GitHub App owned by the repository owner and installed on this repository
+  only, with Contents and Pull requests set to read and write and no webhook. `release.yml` reads
+  its client ID from the Actions variable `RELEASE_APP_CLIENT_ID` and its private key from the
+  secret `RELEASE_APP_PRIVATE_KEY`, and asks for a one-hour token limited to those two
+  permissions. To rotate the key, generate a new one in the App's settings, replace the secret,
+  then delete the old key. To stop using the App, delete the variable.
 - Actions must be pinned to a full commit SHA. A workflow that references an action by tag does
   not run. A reusable workflow in this repository (`./.github/workflows/...`) needs no pin.
 - A merged pull request's branch is deleted. release-please creates its branch again on the

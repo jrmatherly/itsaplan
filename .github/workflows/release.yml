@@ -19,9 +19,24 @@ jobs:
       contents: write
       pull-requests: write
     steps:
+      # A pull request opened with the workflow token gets its checks in an
+      # approval-required state. One opened with a GitHub App's installation
+      # token gets them started. The step is skipped while the variable is
+      # unset, and release-please then uses the workflow token.
+      - name: 🔑 Create the release App token
+        id: app-token
+        if: ${{ vars.RELEASE_APP_CLIENT_ID != '' }}
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          permission-contents: write
+          permission-pull-requests: write
+
       - name: 🚀 Run release-please
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
+          token: ${{ steps.app-token.outputs.token || github.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json
 
