@@ -418,6 +418,48 @@ describe('Repository issue sync', () => {
     expect(issue.columnId).toBe(s.columns[0]!.id);
   });
 
+  it('copies a new title that an edit of title and body leaves out of its changes', async () => {
+    const s = await setup(fake);
+    await repository(s).patch({ issueSync: 'two_way' });
+    await deliver(s, 'issues', issueEvent('opened', opened));
+    const [created] = await boardIssues(s.asOwner);
+
+    // GitHub delivery 2026-11-23, `gh issue edit --title --body`: changes names the body only.
+    await deliver(
+      s,
+      'issues',
+      issueEvent(
+        'edited',
+        { ...opened, title: 'Crash on launch', body: 'New steps' },
+        { changes: { body: { from: opened.body } } },
+      ),
+    );
+
+    const issue = (await s.asOwner.issues({ issueId: created!.id }).get()).data!;
+    expect(issue).toMatchObject({ title: 'Crash on launch', description: 'New steps' });
+  });
+
+  it('keeps a title set here when the repository edits only the body', async () => {
+    const s = await setup(fake);
+    await repository(s).patch({ issueSync: 'two_way' });
+    await deliver(s, 'issues', issueEvent('opened', opened));
+    const [created] = await boardIssues(s.asOwner);
+    await s.asOwner.issues({ issueId: created!.id }).patch({ title: 'Renamed here' });
+
+    await deliver(
+      s,
+      'issues',
+      issueEvent(
+        'edited',
+        { ...opened, body: 'New steps' },
+        { changes: { body: { from: opened.body } } },
+      ),
+    );
+
+    const issue = (await s.asOwner.issues({ issueId: created!.id }).get()).data!;
+    expect(issue).toMatchObject({ title: 'Renamed here', description: 'New steps' });
+  });
+
   it('closes and reopens the repository issue when the issue changes state here', async () => {
     const s = await setup(fake);
     const done = s.columns.find((c) => c.stateType === 'completed')!;
