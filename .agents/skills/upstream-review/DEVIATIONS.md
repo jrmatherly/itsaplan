@@ -140,7 +140,7 @@ These name upstream on purpose. An upstream change to them is ADOPT.
 
 | Upstream | Ours | Notes |
 | --- | --- | --- |
-| The descriptions of `copy_project` (`apps/api/src/modules/projects/index.ts`) and `create_project_template` (`apps/api/src/modules/project-templates/index.ts`) say `include` selects sections | they also say `include` replaces the default list, that `configuration` is not in the default, and that a project copied or made without it starts with auto-archive off | ADAPT: take upstream's wording, keep the `configuration` sentences. Drop the row if upstream adds `configuration` to `DEFAULT_INCLUDE` in `apps/api/src/modules/projects/copy.ts` or says the same. |
+| The descriptions of `copy_project` (`apps/api/src/modules/projects/index.ts`) and `create_project_template` (`apps/api/src/modules/project-templates/index.ts`) say `include` selects sections | they also say `include` replaces the default list, that `configuration` is not in the default, that a project copied or made from a template without it starts with auto-archive off, and what to send for the default list plus the configuration. The `create_project_template` description lists its own default | ADAPT: take upstream's wording, keep the `configuration` sentences. Drop the row if upstream adds `configuration` to `DEFAULT_INCLUDE` in `apps/api/src/modules/projects/copy.ts` or says the same. |
 
 ## Docs corrected against the code (PR 8, `920a9cfb`; PR 10; PR 11; PR 21)
 

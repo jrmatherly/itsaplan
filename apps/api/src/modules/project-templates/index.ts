@@ -125,10 +125,14 @@ export const projectTemplateRoutes = new Elysia({
         summary: 'Save a project as a template',
         description:
           "Save a project's configuration, without its issues, as a workspace project template. " +
-          'The template is a snapshot: later project changes do not change it. `include` selects ' +
-          'sections, as in copy_project: send `configuration: true` to save auto-archive and ' +
-          'subtask automation, or a project made from the template starts with auto-archive off. ' +
-          'Documents, webhooks, agents and schedules are never saved.',
+          'The template is a snapshot: later project changes do not change it. By default saves ' +
+          'states, issue types, labels, custom fields, issue templates, views, dashboards and ' +
+          'actions. `include` replaces that list: only the sections set to true are saved, plus ' +
+          'the sections those depend on. `configuration` (the auto-archive and subtask ' +
+          'automation settings) is not in the default list, and without it a project made from ' +
+          'the template starts with auto-archive off. To save the default list and the ' +
+          'configuration, set every default section and `configuration` to true. Documents, ' +
+          'webhooks, agents and schedules are never saved.',
         ...mcpTool('create_project_template'),
       },
     },
