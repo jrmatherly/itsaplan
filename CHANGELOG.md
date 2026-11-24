@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.17.1](https://github.com/jrmatherly/itsaplan/compare/v1.17.0...v1.17.1) (2026-11-24)
+
+
+### CI
+
+* open the release pull request with a GitHub App token ([#37](https://github.com/jrmatherly/itsaplan/issues/37)) ([7d42c5e](https://github.com/jrmatherly/itsaplan/commit/7d42c5e63bafd210032185928b7b951a7617c800))
+
 ## [1.17.0](https://github.com/jrmatherly/itsaplan/compare/v1.16.1...v1.17.0) (2026-11-24)
 
 ### Updating
