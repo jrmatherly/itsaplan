@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.18.0](https://github.com/jrmatherly/itsaplan/compare/v1.17.1...v1.18.0) (2026-11-24)
+
+
+### Documentation
+
+* say how to set the version when release-please misses an upstream feat ([#41](https://github.com/jrmatherly/itsaplan/issues/41)) ([6361630](https://github.com/jrmatherly/itsaplan/commit/63616306ba2e1fd49f1c91185337ff9d11093a20))
+
+
+### Tests
+
+* **api:** cover three notification preference cases upstream leaves out ([2ca2b7d](https://github.com/jrmatherly/itsaplan/commit/2ca2b7dc9c4001bfe350b4e45110df38113ac34d))
+
+
+### Chores
+
+* record the upstream 57f06d14 review ([c8bef74](https://github.com/jrmatherly/itsaplan/commit/c8bef74501edcc30380691d4cb30fe36fff797c8))
+* sync upstream 57f06d14 ([201f1da](https://github.com/jrmatherly/itsaplan/commit/201f1da972a6b175b91eedd2fd0ef73af659a36c))
+
 ## [1.17.1](https://github.com/jrmatherly/itsaplan/compare/v1.17.0...v1.17.1) (2026-11-24)
 
 
