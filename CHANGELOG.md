@@ -1,5 +1,25 @@
 # Changelog
 
+## [1.17.0](https://github.com/jrmatherly/itsaplan/compare/v1.16.1...v1.17.0) (2026-11-24)
+
+
+### Features
+
+* agents panel with chat and runs, team owners and managers reach every project ([#993](https://github.com/jrmatherly/itsaplan/issues/993)) ([acf4042](https://github.com/jrmatherly/itsaplan/commit/acf404232a22f9b6c3d1521f223173ae5a9257f4))
+* redesign Docs with a page rail, For you, and one access popover ([#991](https://github.com/jrmatherly/itsaplan/issues/991)) ([fa05211](https://github.com/jrmatherly/itsaplan/commit/fa05211f0e15844cbadc2c19ad0b11e7e7f10db0))
+
+
+### Improvements
+
+* **api:** say in the MCP tool descriptions that include leaves out the project configuration ([#36](https://github.com/jrmatherly/itsaplan/issues/36)) ([9461bfc](https://github.com/jrmatherly/itsaplan/commit/9461bfc0367db02053ed07dcd4af1ff9a6833697))
+* **web:** link to the template gallery and fit chat list actions ([#994](https://github.com/jrmatherly/itsaplan/issues/994)) ([36cb179](https://github.com/jrmatherly/itsaplan/commit/36cb17940438f29515516e21e2fdda2d7cc8fb0c))
+
+
+### Chores
+
+* record the upstream 36cb1794 review ([690a184](https://github.com/jrmatherly/itsaplan/commit/690a18411e17db0d705355c088cf701a7b50796a))
+* sync upstream 36cb1794 ([9a44a88](https://github.com/jrmatherly/itsaplan/commit/9a44a88ea0b37944788cf685c9ab22704c2eb7d4))
+
 ## [1.16.1](https://github.com/jrmatherly/itsaplan/compare/v1.16.0...v1.16.1) (2026-11-24)
 
 
