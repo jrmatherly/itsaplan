@@ -98,9 +98,13 @@ These are GitHub settings too, not files.
 - The release App is a GitHub App owned by the repository owner and installed on this repository
   only, with Contents and Pull requests set to read and write and no webhook. `release.yml` reads
   its client ID from the Actions variable `RELEASE_APP_CLIENT_ID` and its private key from the
-  secret `RELEASE_APP_PRIVATE_KEY`, and asks for a one-hour token limited to those two
-  permissions. To rotate the key, generate a new one in the App's settings, replace the secret,
-  then delete the old key. To stop using the App, delete the variable.
+  secret `RELEASE_APP_PRIVATE_KEY` of the environment `release`, and asks for a one-hour token
+  limited to those two permissions. To rotate the key, generate a new one in the App's settings,
+  replace the secret, then delete the old key. To stop using the App, delete the variable.
+- The environment `release` allows the branch `main` only, so a run from any other branch or from
+  a pull request cannot read the key: GitHub refuses the job before it starts. The release job
+  names the environment with `deployment: false`, which records no deployment. Keep the key out
+  of the repository's own secrets, which a run from any branch of the repository can read.
 - While the variable is set, a missing or wrong key, or an uninstalled App, fails the token step
   of the `Release` run, and release-please does not run. Fix the secret or delete the variable,
   then re-run the failed run before anything else is pushed to `main`. A release is published
