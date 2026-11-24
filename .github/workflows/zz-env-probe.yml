@@ -1,0 +1,17 @@
+name: Environment probe (temporary)
+
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  probe:
+    name: Probe the release environment from a branch
+    runs-on: ubuntu-latest
+    environment:
+      name: release
+      deployment: false
+    steps:
+      - name: 🔎 Report whether the job was allowed to start
+        run: echo "The job started, so the branch policy did not refuse this ref."

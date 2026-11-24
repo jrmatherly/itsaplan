@@ -15,6 +15,11 @@ jobs:
   release-please:
     name: Release PR and tag
     runs-on: ubuntu-latest
+    # The environment holds the release App's key and only `main` may use it.
+    # `deployment: false` reads its secrets without recording a deployment.
+    environment:
+      name: release
+      deployment: false
     permissions:
       contents: write
       pull-requests: write
