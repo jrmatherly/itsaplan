@@ -101,6 +101,11 @@ These are GitHub settings too, not files.
   secret `RELEASE_APP_PRIVATE_KEY`, and asks for a one-hour token limited to those two
   permissions. To rotate the key, generate a new one in the App's settings, replace the secret,
   then delete the old key. To stop using the App, delete the variable.
+- While the variable is set, a missing or wrong key, or an uninstalled App, fails the token step
+  of the `Release` run, and release-please does not run. Fix the secret or delete the variable,
+  then re-run the failed run before anything else is pushed to `main`. A release is published
+  only by the run on the release PR's merge commit: a later run tags that commit but finds no tag
+  on its own, so it publishes no images and no chart.
 - Actions must be pinned to a full commit SHA. A workflow that references an action by tag does
   not run. A reusable workflow in this repository (`./.github/workflows/...`) needs no pin.
 - A merged pull request's branch is deleted. release-please creates its branch again on the
