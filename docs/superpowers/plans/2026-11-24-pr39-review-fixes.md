@@ -187,7 +187,7 @@ For each hit, open the hook that owns the query and take the first element of it
 | the queries of `components/common/agent-runs/AgentRunTrace.tsx`, `AgentRunInternalTrace.tsx`, `AgentRunExternalTrace.tsx` | read from their hooks | a `role="alert"` line (`stepsLoadError`) |
 | the links query of `components/common/DocumentLinkList.tsx:47` | read from its caller | its own error branch |
 
-The link preview matters most: it runs on hover, and its `queryFn` throws a plain `Error` when the preview image fails to load, so without the entry a broken image toasts on every hover.
+The link preview matters most: it runs on hover, and the API answers 400 to a link it will not resolve (`apps/api/src/modules/link-previews/service.ts`), so without the entry such a link toasts on every hover. A broken preview image does not fail the read (`preloadImage` resolves on `onerror`).
 
 - [ ] **Step 4: Implement**
 

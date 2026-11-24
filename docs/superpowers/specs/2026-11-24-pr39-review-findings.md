@@ -72,7 +72,7 @@ Done already in pull request 39 (`2ca2b7dc`): three API tests in the fork-owned 
   Chosen. (b) An error state in `FullPageView` or a gate component: better on the page, but
   each page must pass its query in, so the edits spread over upstream's page files. Rejected on
   deviation cost. (c) Per-page fixes: 180 candidate files. Rejected.
-- **Read, 2026-11-24 plan review.** Some reads already show their own error: link previews (`useLinkPreviewQuery`, run on hover, a plain `Error` when the preview image fails), attachment previews (`useAttachmentText`), the agent run traces and the document links list. A central toast must leave these out, so the fork-owned file carries the list of their query keys. The library does not call `onError` for a cancelled fetch (`query.js:451-456`).
+- **Read, 2026-11-24 plan review.** Some reads already show their own error: link previews (`useLinkPreviewQuery`, run on hover; the API answers 400 to a link it will not resolve), attachment previews (`useAttachmentText`), the agent run traces and the document links list. A central toast must leave these out, so the fork-owned file carries the list of their query keys. The library does not call `onError` for a cancelled fetch (`query.js:451-456`).
 - **Measured, 2026-11-24 plan review.** The plan's test file passed 9 of 9 against a throwaway implementation driven by a real `QueryClient`: one notification per failed fetch with two observers, none with earlier data, none for 401, 403 or 404.
 - **Not done.** Option (a) was not seen in a browser.
 

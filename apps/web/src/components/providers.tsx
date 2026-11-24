@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Direction } from 'radix-ui';
 import { toast } from 'sonner';
 import { ApiError } from '@/lib/api/core/client';
+import { failedReadCache } from '@/lib/failedRead';
 import { localeDirection, type Locale } from '@/i18n/locales';
 import { HotkeysProvider } from '@/context/useHotkeys';
 import { OnboardingTourProvider } from '@/context/onboardingTour';
@@ -40,8 +41,11 @@ export function Providers({ children }: { children: ReactNode }) {
       new QueryClient({
         // Every failed mutation is surfaced as a toast, so no call site has to wire
         // its own error UI. A mutation that owns its error display can opt out with
-        // `meta: { suppressErrorToast: true }`. Reads are not toasted — a failed
-        // query renders its own empty/loading state in place.
+        // `meta: { suppressErrorToast: true }`. A failed read is toasted once when
+        // it leaves the page with nothing to show.
+        queryCache: failedReadCache((error) =>
+          toast.error(errorMessage(error, fallback.current), { id: 'failed-read' }),
+        ),
         mutationCache: new MutationCache({
           onError: (error, _vars, _ctx, mutation) => {
             if (mutation.meta?.suppressErrorToast) return;
