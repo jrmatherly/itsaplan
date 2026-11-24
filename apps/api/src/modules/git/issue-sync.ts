@@ -5,8 +5,9 @@ import {
   gitProviderConnection,
   gitRepositoryLabel,
   issue,
+  issueActivity,
 } from '@repo/db';
-import { and, asc, eq, inArray, isNull, lt, ne, sql } from 'drizzle-orm';
+import { and, asc, desc, eq, inArray, isNull, lt, ne, sql } from 'drizzle-orm';
 import { HttpError } from '#shared/lib';
 import {
   createIssue,
@@ -249,6 +250,20 @@ async function applyLabels(
   if (!unchanged) await setIssueLabels(repository.projectId, current.id, next, actor);
 }
 
+// True while nobody here renamed the issue after the sync last set its title, so the
+// title held here is the repository's earlier one.
+async function syncWroteTitle(issueId: number): Promise<boolean> {
+  const [last] = await db
+    .select({ actorUserId: issueActivity.actorUserId })
+    .from(issueActivity)
+    .where(
+      and(eq(issueActivity.issueId, issueId), inArray(issueActivity.action, ['created', 'title'])),
+    )
+    .orderBy(desc(issueActivity.id))
+    .limit(1);
+  return last?.actorUserId == null;
+}
+
 async function applyIssueChange(
   repository: SyncedRepository,
   event: IssueEvent,
@@ -266,8 +281,10 @@ async function applyIssueChange(
   if (!current || current.archivedAt) return false;
   const actor: ActivityActor = { system: providerLabel };
   const patch: IssuePatch = {};
-  if (changed.has('title') && event.title && event.title !== current.title)
-    patch.title = event.title;
+  // GitHub can leave the title out of the changes of an edit that also changes the body.
+  const titleEdited =
+    changed.has('title') || (changed.has('body') && (await syncWroteTitle(current.id)));
+  if (titleEdited && event.title && event.title !== current.title) patch.title = event.title;
   if (changed.has('body') && event.body !== current.description) patch.description = event.body;
   if (changed.has('state')) {
     const columnId = await stateTargetColumnId(repository, current.columnId, event);
